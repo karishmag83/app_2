@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import PhoneMockup from '../components/PhoneMockup'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -118,31 +119,20 @@ export default function Hero() {
         className="relative min-h-[200vh] sm:min-h-[120vh] flex items-center overflow-hidden pt-24 sm:pt-0 pb-32 sm:pb-20"
         style={{ perspective: '1200px' }}
       >
-      {/* Background decorative elements */}
+      {/* Background decorative elements — soft radial orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="hero-shape absolute top-20 right-[15%] w-32 h-32 animate-spin-slow">
-          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path 
-              d="M50 0C55 35 65 45 100 50C65 55 55 65 50 100C45 65 35 55 0 50C35 45 45 35 50 0Z" 
-              fill="black"
-              fillOpacity="0.08"
-            />
-          </svg>
-        </div>
-        <div className="absolute bottom-40 left-[10%] w-24 h-24 animate-float-slow">
-          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="50" fill="black" fillOpacity="0.05" />
-          </svg>
-        </div>
+        <div className="hero-shape absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full animate-float-slow" style={{ background: 'radial-gradient(circle, rgba(14,165,233,0.13) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-[5%] left-[-10%] w-[420px] h-[420px] rounded-full animate-float" style={{ background: 'radial-gradient(circle, rgba(129,140,248,0.11) 0%, transparent 70%)' }} />
+        <div className="absolute top-[45%] left-[25%] w-[280px] h-[280px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%)' }} />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Content */}
           <div ref={contentRef} className="order-2 lg:order-1">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/5 rounded-full mb-6">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-medium">Available to Work</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.22)' }}>
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#10b981' }} />
+              <span className="text-sm font-semibold" style={{ color: '#059669' }}>Available to Work</span>
             </div>
 
             <p className="text-lg text-gray-600 mb-2">Hey, I'm</p>
@@ -156,9 +146,18 @@ export default function Hero() {
               </span>
             </h1>
 
-            <p className="text-2xl font-display font-medium mb-4">
-              Product Designer
-            </p>
+            <div className="flex flex-wrap items-center gap-2 mb-5">
+              <span className="text-sm font-semibold px-3 py-1.5 rounded-full" style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.12), rgba(129,140,248,0.12))', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.22)' }}>Product Designer</span>
+              <span className="text-gray-300 text-sm">·</span>
+              <span className="text-sm font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(129,140,248,0.10)', color: '#818cf8', border: '1px solid rgba(129,140,248,0.22)' }}>Software Engineer</span>
+            </div>
+
+            {/* Tool chips */}
+            <div className="flex flex-wrap gap-2 mb-7">
+              {['Figma', 'React', 'TypeScript', 'Framer Motion', 'Node.js', 'UX Research'].map((tool) => (
+                <span key={tool} className="text-xs font-medium px-2.5 py-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', color: '#64748b' }}>{tool}</span>
+              ))}
+            </div>
 
             <p className="hero-subheading text-base sm:text-lg md:text-xl text-gray-600 max-w-lg mb-8 leading-relaxed">
               I create everything your brand needs to attract customers and turn them into sales. 
@@ -167,120 +166,118 @@ export default function Hero() {
 
             <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
               <a href="#projects"
-                className="hero-cta group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-medium transition-all duration-300 hover:shadow-soft-lg hover:-translate-y-1 w-full sm:w-auto"
-                style={{ 
-                  backgroundColor: 'var(--primary-color)', 
-                  color: 'white'
+                className="hero-cta group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-medium transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto"
+                style={{
+                  background: 'linear-gradient(135deg, #0ea5e9 0%, #818cf8 100%)',
+                  color: 'white',
+                  boxShadow: '0 4px 20px rgba(14,165,233,0.35)'
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 30px rgba(14,165,233,0.5)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(14,165,233,0.35)' }}
                 onClick={(e) => {
                   e.preventDefault()
                   document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' })
                 }} >
                 <span style={{ color: 'white' }}>View My Work</span>
-                <svg 
-                  className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-2" 
-                  fill="white" 
-                  stroke="none" 
+                <svg
+                  className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-2"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   viewBox="0 0 24 24"
                 >
-                  <path d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
               </a>
               
-              <a 
+              <a
                 href="mailto:karishmaworks08@gmail.com"
-                className="hero-cta group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-medium transition-all duration-300 w-full sm:w-auto"
-                style={{ 
-                  borderColor: 'var(--primary-color)',
-                  color: 'var(--primary-color)',
-                  borderWidth: '2px',
-                  backgroundColor: 'transparent'
+                className="hero-cta group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-medium transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto"
+                style={{
+                  backgroundColor: 'rgba(0,0,0,0.03)',
+                  border: '1.5px solid rgba(0,0,0,0.10)',
+                  color: '#0f172a'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--primary-color)'
-                  const span = e.currentTarget.querySelector('span')
-                  if (span) span.style.color = 'white'
-                  const svg = e.currentTarget.querySelector('svg')
-                  if (svg) svg.style.fill = 'white'
+                  e.currentTarget.style.backgroundColor = 'rgba(14,165,233,0.07)'
+                  e.currentTarget.style.borderColor = 'rgba(14,165,233,0.3)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                  const span = e.currentTarget.querySelector('span')
-                  if (span) span.style.color = 'var(--primary-color)'
-                  const svg = e.currentTarget.querySelector('svg')
-                  if (svg) svg.style.fill = 'var(--primary-color)'
+                  e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.03)'
+                  e.currentTarget.style.borderColor = 'rgba(0,0,0,0.10)'
                 }}
               >
-                <span style={{ color: 'var(--primary-color)' }}>Email Me</span>
-                <svg 
-                  className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" 
-                  fill="var(--primary-color)"
-                  stroke="none" 
+                <span>Email Me</span>
+                <svg
+                  className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
                   viewBox="0 0 24 24"
                 >
-                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </a>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-8 mt-12 pt-8 border-t border-black/10">
-              <div>
-                <div className="text-2xl sm:text-3xl font-display font-bold">50+</div>
-                <div className="text-xs sm:text-sm text-gray-500">Projects</div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-display font-bold">30+</div>
-                <div className="text-xs sm:text-sm text-gray-500">Happy Clients</div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-display font-bold">5+</div>
-                <div className="text-xs sm:text-sm text-gray-500">Years Exp.</div>
-              </div>
+            <div className="grid grid-cols-3 gap-3 mt-10">
+              {[
+                { value: '50+', label: 'Projects', color: '#0ea5e9' },
+                { value: '30+', label: 'Happy Clients', color: '#818cf8' },
+                { value: '5+', label: 'Years Exp.', color: '#10b981' },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 cursor-default"
+                  style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+                >
+                  <div className="text-2xl sm:text-3xl font-display font-bold" style={{ color: stat.color }}>{stat.value}</div>
+                  <div className="text-xs sm:text-sm text-gray-500 mt-0.5">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Hero Image */}
-          <div 
+          {/* Phone Mockup */}
+          <div
             ref={imageRef}
             className="order-1 lg:order-2 relative mt-10 lg:mt-16"
             style={{ transformStyle: 'preserve-3d' }}
           >
             <div className="relative aspect-[3/4] max-w-sm mx-auto lg:max-w-md">
-              {/* Decorative blob behind image */}
-              <div className="absolute inset-0 bg-black/5 rounded-[3rem] rotate-6 scale-95" />
-              
-              {/* Main image */}
-              <div className="relative rounded-[2.5rem] overflow-hidden shadow-soft-xl animate-float">
-                <img 
-                  src="/karishma-photo.jpg" 
-                  alt="Karishma Dilip Gawali - Product Designer"
-                  className="w-full h-full object-cover"
-                />
+              {/* Decorative glow behind phone */}
+              <div className="absolute inset-0 rounded-[3rem] rotate-6 scale-95" style={{ background: 'radial-gradient(ellipse at center, rgba(56,189,248,0.12) 0%, rgba(0,0,0,0.05) 70%)' }} />
+
+              {/* Phone */}
+              <div className="absolute inset-0 animate-float">
+                <PhoneMockup />
               </div>
 
-              {/* Floating badge */}
-              <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-soft-lg animate-float-slow">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Floating badge — bottom left */}
+              <div className="absolute -bottom-4 -left-6 bg-white rounded-2xl p-3 animate-float-slow z-10" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.10)', border: '1px solid rgba(0,0,0,0.06)' }}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">Available for</div>
-                    <div className="text-xs text-gray-500">Freelance Work</div>
+                    <div className="font-semibold text-xs text-gray-800">Available for</div>
+                    <div className="text-[10px] text-gray-400">Freelance Work</div>
                   </div>
                 </div>
               </div>
 
-              {/* Tech stack badge */}
-              <div className="absolute -top-4 -right-4 bg-black text-white rounded-2xl p-4 shadow-soft-lg animate-float">
+              {/* Floating badge — top right */}
+              <div className="absolute -top-4 -right-6 rounded-2xl p-3 animate-float z-10" style={{ background: 'linear-gradient(135deg, #0ea5e9, #818cf8)', boxShadow: '0 8px 32px rgba(14,165,233,0.3)' }}>
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">🎨</span>
+                  <span className="text-lg">⚡</span>
                   <div>
-                    <div className="font-semibold text-sm">Figma + Code</div>
-                    <div className="text-xs text-gray-400">Design to Dev</div>
+                    <div className="font-semibold text-xs text-white">Figma + Code</div>
+                    <div className="text-[10px] text-white/70">Design to Dev</div>
                   </div>
                 </div>
               </div>
@@ -291,8 +288,8 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className="absolute top-[calc(100%-100px)] sm:top-[calc(100%-40px)] left-1/2 -translate-x-1/2 animate-bounce-soft">
-        <div className="w-6 h-10 border-2 border-black/30 rounded-full flex justify-center pt-2">
-          <div className="w-1.5 h-3 bg-black/50 rounded-full animate-pulse-soft" />
+        <div className="w-6 h-10 rounded-full flex justify-center pt-2" style={{ border: '2px solid rgba(14,165,233,0.35)' }}>
+          <div className="w-1.5 h-3 rounded-full animate-pulse-soft" style={{ background: 'linear-gradient(180deg, #0ea5e9, #818cf8)' }} />
         </div>
       </div>
       </section>
