@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .repack-case-study {
+    /* Core brand colors - Deep forest green palette */
+    --repack-background: 160 25% 18% !important;
+    --repack-foreground: 60 20% 95% !important;
+    --repack-card: 160 22% 22% !important;
+    --repack-card-foreground: 60 20% 95% !important;
+    --repack-primary: 45 30% 88% !important;
+    --repack-primary-foreground: 160 25% 18% !important;
+    --repack-secondary: 160 20% 28% !important;
+    --repack-secondary-foreground: 60 20% 95% !important;
+    --repack-muted: 160 15% 25% !important;
+    --repack-muted-foreground: 160 10% 65% !important;
+    --repack-accent: 140 25% 35% !important;
+    --repack-accent-foreground: 60 20% 95% !important;
+    --repack-border: 160 15% 30% !important;
+    --repack-input: 160 15% 30% !important;
+    --repack-ring: 45 30% 88% !important;
+    --repack-hero-gradient: linear-gradient(180deg, hsl(160 25% 18%) 0%, hsl(160 20% 22%) 100%) !important;
+    --repack-section-gradient: linear-gradient(180deg, hsl(160 20% 22%) 0%, hsl(160 25% 18%) 100%) !important;
+    --repack-card-gradient: linear-gradient(145deg, hsl(160 22% 24%) 0%, hsl(160 22% 20%) 100%) !important;
+    --repack-stat-highlight: 45 40% 70% !important;
+    --repack-quote-accent: 140 30% 45% !important;
+    --repack-shadow-soft: 0 4px 24px -4px hsl(160 25% 10% / 0.4) !important;
+    --repack-shadow-card: 0 8px 32px -8px hsl(160 25% 10% / 0.5) !important;
+    --repack-shadow-elevated: 0 16px 48px -16px hsl(160 25% 10% / 0.6) !important;
+    --repack-font-display: 'Playfair Display', serif !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+  }
+}
+
+@layer components {
+  .repack-case-study {
+    background: hsl(var(--repack-background));
+    color: hsl(var(--repack-foreground));
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .repack-case-study h1,
+  .repack-case-study h2,
+  .repack-case-study h3 {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .repack-case-study .repack-section {
+    scroll-behavior: smooth;
+  }
+
+  .repack-case-study .repack-section-tag {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: hsl(var(--repack-muted-foreground));
+    font-weight: 500;
+  }
+
+  .repack-case-study .repack-stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 600;
+    color: hsl(var(--repack-stat-highlight));
+  }
+
+  @media (min-width: 768px) {
+    .repack-case-study .repack-stat-value {
+      font-size: 3rem;
+      line-height: 3.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .repack-case-study .repack-stat-value {
+      font-size: 3.75rem;
+      line-height: 4rem;
+    }
+  }
+
+  .repack-case-study .repack-stat-label {
+    font-size: 0.875rem;
+    color: hsl(var(--repack-muted-foreground));
+    margin-top: 0.25rem;
+  }
+
+  .repack-case-study .repack-case-study-card {
+    background: var(--repack-card-gradient);
+    box-shadow: var(--repack-shadow-card);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .repack-case-study .repack-case-study-card {
+      padding: 2rem;
+    }
+  }
+
+  .repack-case-study .repack-quote-box {
+    position: relative;
+    padding-left: 1.5rem;
+    border-left-width: 2px;
+    border-color: hsl(var(--repack-quote-accent));
+  }
+
+  .repack-case-study .repack-phase-number {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--repack-muted-foreground));
+    margin-bottom: 0.5rem;
+  }
+
+  .repack-case-study .repack-phase-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--repack-card-gradient);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+  }
+
+  .repack-case-study .repack-journey-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .repack-case-study .repack-journey-step-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background: hsl(var(--repack-accent));
+    color: hsl(var(--repack-accent-foreground));
+  }
+
+  .repack-case-study .repack-metric-bar {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: hsl(var(--repack-secondary));
+    overflow: hidden;
+  }
+
+  .repack-case-study .repack-metric-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(90deg, hsl(var(--repack-accent)) 0%, hsl(var(--repack-stat-highlight)) 100%);
+  }
+}
+
+@keyframes bounce-scroll {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .repack-case-study .repack-scroll-indicator {
+    animation: bounce-scroll 2s ease-in-out infinite;
+  }
+
+  .repack-case-study .repack-animate-fade-up {
+    animation: fade-up 0.6s ease-out forwards;
+  }
+
+  .repack-case-study .repack-stagger-children > * {
+    opacity: 0;
+    animation: fade-up 0.5s ease-out forwards;
+  }
+
+  .repack-case-study .repack-stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+  .repack-case-study .repack-stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+  .repack-case-study .repack-stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+  .repack-case-study .repack-stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+  .repack-case-study .repack-stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+  .repack-case-study .repack-stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
+}

@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .restoration-medicine-case-study {
+    --primary-900: 222 60% 25% !important;
+    --primary-800: 222 58% 33% !important;
+    --primary-600: 217 72% 56% !important;
+    --primary-300: 214 75% 73% !important;
+    --primary-100: 220 60% 95% !important;
+    --background: 0 0% 100% !important;
+    --foreground: 222 47% 11% !important;
+    --surface: 220 43% 98% !important;
+    --surface-elevated: 220 43% 96% !important;
+    --card: 220 43% 98% !important;
+    --card-foreground: 222 47% 11% !important;
+    --popover: 0 0% 100% !important;
+    --popover-foreground: 222 47% 11% !important;
+    --primary: 222 60% 25% !important;
+    --primary-foreground: 0 0% 100% !important;
+    --secondary: 220 43% 98% !important;
+    --secondary-foreground: 222 47% 11% !important;
+    --muted: 220 43% 96% !important;
+    --muted-foreground: 215 16% 37% !important;
+    --accent: 217 72% 56% !important;
+    --accent-foreground: 0 0% 100% !important;
+    --destructive: 0 84% 60% !important;
+    --destructive-foreground: 0 0% 100% !important;
+    --border: 220 30% 91% !important;
+    --input: 220 30% 91% !important;
+    --ring: 217 72% 56% !important;
+    --radius: 0.75rem !important;
+    --shadow-sm: 0 1px 2px 0 hsl(222 47% 11% / 0.05) !important;
+    --shadow-md: 0 4px 6px -1px hsl(222 47% 11% / 0.08), 0 2px 4px -2px hsl(222 47% 11% / 0.05) !important;
+    --shadow-lg: 0 10px 15px -3px hsl(222 47% 11% / 0.08), 0 4px 6px -4px hsl(222 47% 11% / 0.05) !important;
+    --shadow-xl: 0 20px 25px -5px hsl(222 47% 11% / 0.1), 0 8px 10px -6px hsl(222 47% 11% / 0.08) !important;
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary-900)) 0%, hsl(var(--primary-800)) 100%) !important;
+    --gradient-accent: linear-gradient(135deg, hsl(var(--primary-600)) 0%, hsl(var(--primary-300)) 100%) !important;
+    --gradient-surface: linear-gradient(180deg, hsl(var(--surface)) 0%, hsl(var(--background)) 100%) !important;
+  }
+
+  .restoration-medicine-case-study.dark {
+    --background: 222 47% 6%;
+    --foreground: 220 30% 95%;
+    --surface: 222 47% 9%;
+    --card: 222 47% 9%;
+    --card-foreground: 220 30% 95%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 220 30% 95%;
+    --primary: 217 72% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 220 30% 95%;
+    --muted: 222 47% 15%;
+    --muted-foreground: 215 16% 65%;
+    --accent: 214 75% 73%;
+    --accent-foreground: 222 47% 11%;
+    --border: 222 47% 18%;
+    --input: 222 47% 18%;
+    --ring: 217 72% 56%;
+  }
+}
+
+@layer base {
+  .restoration-medicine-case-study * { @apply border-border; }
+  .restoration-medicine-case-study html { scroll-behavior: smooth; }
+  .restoration-medicine-case-study body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  .restoration-medicine-case-study h1, .restoration-medicine-case-study h2, .restoration-medicine-case-study h3, .restoration-medicine-case-study h4, .restoration-medicine-case-study h5, .restoration-medicine-case-study h6 { @apply font-semibold tracking-tight; }
+}
+
+@layer components {
+  .restoration-medicine-case-study .section-container { @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8; }
+  .restoration-medicine-case-study .card-elevated { @apply bg-card rounded-xl border border-border; box-shadow: var(--shadow-md); }
+  .restoration-medicine-case-study .card-interactive { @apply bg-card rounded-xl border border-border transition-all duration-300; box-shadow: var(--shadow-md); }
+  .restoration-medicine-case-study .card-interactive:hover { @apply border-accent/30; box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .restoration-medicine-case-study .chip { @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full; }
+  .restoration-medicine-case-study .chip-primary { @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full bg-primary/10 text-primary; }
+  .restoration-medicine-case-study .chip-accent { @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full bg-accent/10 text-accent; }
+  .restoration-medicine-case-study .chip-muted { @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full bg-muted text-muted-foreground; }
+  .restoration-medicine-case-study .gradient-text { @apply bg-clip-text text-transparent; background-image: var(--gradient-accent); }
+  .restoration-medicine-case-study .btn-primary { @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-medium text-primary-foreground rounded-xl transition-all duration-200; background: var(--gradient-hero); box-shadow: var(--shadow-md); }
+  .restoration-medicine-case-study .btn-primary:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+  .restoration-medicine-case-study .btn-secondary { @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-medium border-2 border-primary/20 text-primary rounded-xl transition-all duration-200 bg-background; }
+  .restoration-medicine-case-study .btn-secondary:hover { @apply bg-primary/5 border-primary/30; }
+  .restoration-medicine-case-study .btn-ghost { @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium text-muted-foreground rounded-lg transition-all duration-200; }
+  .restoration-medicine-case-study .btn-ghost:hover { @apply bg-muted text-foreground; }
+  .restoration-medicine-case-study .progress-bar { @apply fixed top-0 left-0 h-1 z-50 transition-all duration-150; background: var(--gradient-accent); }
+  .restoration-medicine-case-study .toc-link { @apply block py-2 px-4 text-sm text-muted-foreground border-l-2 border-transparent transition-all duration-200; }
+  .restoration-medicine-case-study .toc-link:hover { @apply text-foreground border-primary/30; }
+  .restoration-medicine-case-study .toc-link.active { @apply text-primary font-medium border-primary; }
+  .restoration-medicine-case-study .timeline-step { @apply relative pl-8 pb-8 border-l-2 border-border; }
+  .restoration-medicine-case-study .timeline-step:last-child { @apply border-transparent pb-0; }
+  .restoration-medicine-case-study .timeline-step::before { @apply absolute left-0 top-0 w-4 h-4 -ml-2 rounded-full bg-muted border-2 border-border transition-all duration-300; content: ''; }
+  .restoration-medicine-case-study .timeline-step.active::before { @apply bg-primary border-primary; }
+  .restoration-medicine-case-study .timeline-step.completed::before { @apply bg-accent border-accent; }
+  .restoration-medicine-case-study .artifact-card { @apply bg-card rounded-xl border border-border overflow-hidden cursor-pointer transition-all duration-300; box-shadow: var(--shadow-md); }
+  .restoration-medicine-case-study .artifact-card:hover { @apply border-accent/30; box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .restoration-medicine-case-study .artifact-card:hover img { transform: scale(1.02); }
+  .restoration-medicine-case-study .decision-card { @apply bg-card rounded-xl border border-border p-6 space-y-4; border-left: 4px solid hsl(var(--accent)); box-shadow: var(--shadow-md); }
+  .restoration-medicine-case-study .kpi-card { @apply bg-card rounded-xl border border-border p-6 text-center; background: var(--gradient-surface); box-shadow: var(--shadow-md); }
+  .restoration-medicine-case-study .checklist-item { @apply flex items-start gap-3 p-4 rounded-lg transition-colors duration-200; }
+  .restoration-medicine-case-study .checklist-item:hover { @apply bg-muted/50; }
+  .restoration-medicine-case-study .testimonial-card { @apply relative p-8 rounded-2xl; background: var(--gradient-hero); }
+  .restoration-medicine-case-study .testimonial-card::before { @apply absolute top-6 left-8 text-6xl font-serif; content: '"'; color: rgba(255,255,255,0.2); }
+  .restoration-medicine-case-study .tab-trigger { @apply px-4 py-2 text-sm font-medium text-muted-foreground rounded-lg transition-all duration-200; }
+  .restoration-medicine-case-study .tab-trigger:hover { @apply text-foreground bg-muted/50; }
+  .restoration-medicine-case-study .tab-trigger[data-state="active"] { @apply text-primary-foreground; background: var(--gradient-hero); }
+  .restoration-medicine-case-study .image-zoom-overlay { @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/80 backdrop-blur-sm; }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+}
