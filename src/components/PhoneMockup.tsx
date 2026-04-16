@@ -204,8 +204,8 @@ function HomeScreen() {
           {[
             { src: '/gallery-1.jpeg', label: 'Me' },
             { src: '/gallery-2.jpeg', label: 'Food' },
-            { src: '/gallery-3.JPEG', label: 'Painting' },
-            { src: '/gallery-4.JPEG', label: 'Cooking' },
+            { src: '/gallery-3.jpeg', label: 'Painting' },
+            { src: '/gallery-4.jpeg', label: 'Cooking' },
           ].map((img, i) => (
             <motion.div
               key={i}
