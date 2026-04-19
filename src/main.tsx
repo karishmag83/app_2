@@ -7,7 +7,8 @@ import AICareNavigatorCaseStudy from './pages/AICareNavigatorCaseStudy'
 import RePackCaseStudy from './pages/RePackCaseStudy'
 import RestorationMedicineCaseStudy from './pages/RestorationMedicineCaseStudy'
 import FolioTrackerCaseStudy from './pages/FolioTrackerCaseStudy'
- 
+import BrandCaseStudy from './pages/BrandCaseStudy'
+
 function DesignSystemRedirect() {
   useEffect(() => {
     window.location.replace('/DesignSystem/')
@@ -26,6 +27,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/repack-portal" element={<RePackCaseStudy />} />
         <Route path="/restoration-medicine" element={<RestorationMedicineCaseStudy />} />
         <Route path="/folio-tracker-case-study" element={<FolioTrackerCaseStudy />} />
+        <Route path="/brand/:id" element={<BrandCaseStudy />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

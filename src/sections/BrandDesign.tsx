@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 // ─── Brand Data ───────────────────────────────────────────────────────────────
 const BRANDS = [
@@ -122,32 +123,10 @@ const BRANDS = [
   },
 ]
 
-// ─── Process Step Component ───────────────────────────────────────────────────
-function ProcessStep({ step, label, desc, accent, isLast }: {
-  step: string; label: string; desc: string; accent: string; isLast: boolean
-}) {
-  return (
-    <div className="flex gap-4">
-      <div className="flex flex-col items-center">
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-          style={{ background: accent + '18', color: accent, border: `1.5px solid ${accent}35` }}
-        >
-          {step}
-        </div>
-        {!isLast && <div className="w-px flex-1 mt-2" style={{ background: accent + '25' }} />}
-      </div>
-      <div className="pb-5">
-        <p className="text-sm font-semibold text-gray-800 mb-0.5">{label}</p>
-        <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
-      </div>
-    </div>
-  )
-}
-
 // ─── Brand Card ───────────────────────────────────────────────────────────────
 function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number }) {
   const [activeStep, setActiveStep] = useState<number | null>(null)
+  const navigate = useNavigate()
   const flip = index % 2 === 1
 
   return (
@@ -353,6 +332,26 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
               <polyline points="17 6 23 6 23 12" />
             </svg>
           </div>
+        </div>
+
+        {/* View Case Study button */}
+        <div className="mx-8 mb-8">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate(`/brand/${brand.id}`)}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all duration-300"
+            style={{
+              background: `linear-gradient(135deg, ${brand.accent}, ${brand.accentMid})`,
+              color: 'white',
+              boxShadow: `0 4px 16px ${brand.accent}35`,
+            }}
+          >
+            View Full Case Study
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </motion.button>
         </div>
       </div>
     </motion.div>
