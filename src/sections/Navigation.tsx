@@ -6,12 +6,16 @@ import { Palette } from 'lucide-react'
 gsap.registerPlugin(ScrollTrigger)
 
 const navLinks = [
-  { label: 'Projects', href: '#projects' },
   { label: 'Process', href: '#process' },
   { label: 'Skills', href: '#skills' },
   { label: 'About', href: '#about' },
   { label: 'Testimonials', href: '#testimonials' },
   { label: 'Contact', href: '#contact' },
+]
+
+const workDropdown = [
+  { label: 'Case Studies', href: '#projects', desc: 'UX & product work' },
+  { label: 'Brand Identity', href: '#brand', desc: 'Visual brand systems' },
 ]
 
 interface NavigationProps {
@@ -21,6 +25,8 @@ interface NavigationProps {
 export default function Navigation({ onThemeWheelClick }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [workOpen, setWorkOpen] = useState(false)
+  const workRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -75,6 +81,40 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
+            {/* Work dropdown */}
+            <div
+              ref={workRef}
+              className="relative"
+              onMouseEnter={() => setWorkOpen(true)}
+              onMouseLeave={() => setWorkOpen(false)}
+            >
+              <button className="relative flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-black transition-colors group">
+                Work
+                <svg
+                  className={`w-3 h-3 transition-transform duration-200 ${workOpen ? 'rotate-180' : ''}`}
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full" />
+              </button>
+
+              {/* Dropdown panel */}
+              <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 rounded-2xl bg-white shadow-lg border border-black/5 overflow-hidden transition-all duration-200 ${workOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-1 pointer-events-none'}`}>
+                {workDropdown.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={(e) => { handleLinkClick(e, item.href); setWorkOpen(false) }}
+                    className="flex flex-col px-4 py-3 hover:bg-gray-50 transition-colors group/item border-b border-black/5 last:border-0"
+                  >
+                    <span className="text-sm font-medium text-gray-900 group-hover/item:text-black">{item.label}</span>
+                    <span className="text-xs text-gray-400 mt-0.5">{item.desc}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -141,14 +181,31 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
         }`}
       >
         <div className="flex flex-col items-center justify-center h-full gap-8 pt-24">
+          {/* Work sub-links on mobile */}
+          {workDropdown.map((item, index) => (
+            <a
+              key={item.href}
+              href={item.href}
+              onClick={(e) => { handleLinkClick(e, item.href); setIsMobileMenuOpen(false) }}
+              className="text-2xl font-display font-medium hover:text-gray-600 transition-colors"
+              style={{
+                transitionDelay: isMobileMenuOpen ? `${index * 50}ms` : '0ms',
+                opacity: isMobileMenuOpen ? 1 : 0,
+                transform: isMobileMenuOpen ? 'translateY(0)' : 'translateY(20px)',
+                transition: 'all 0.3s ease-out'
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
           {navLinks.map((link, index) => (
             <a
               key={link.href}
               href={link.href}
               onClick={(e) => handleLinkClick(e, link.href)}
               className="text-2xl font-display font-medium hover:text-gray-600 transition-colors"
-              style={{ 
-                transitionDelay: isMobileMenuOpen ? `${index * 50}ms` : '0ms',
+              style={{
+                transitionDelay: isMobileMenuOpen ? `${(index + workDropdown.length) * 50}ms` : '0ms',
                 opacity: isMobileMenuOpen ? 1 : 0,
                 transform: isMobileMenuOpen ? 'translateY(0)' : 'translateY(20px)',
                 transition: 'all 0.3s ease-out'
