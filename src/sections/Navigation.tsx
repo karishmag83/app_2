@@ -27,7 +27,17 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [workOpen, setWorkOpen] = useState(false)
   const workRef = useRef<HTMLDivElement>(null)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const navRef = useRef<HTMLElement>(null)
+
+  const openWork = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    setWorkOpen(true)
+  }
+
+  const closeWork = () => {
+    closeTimer.current = setTimeout(() => setWorkOpen(false), 150)
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -85,8 +95,8 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
             <div
               ref={workRef}
               className="relative"
-              onMouseEnter={() => setWorkOpen(true)}
-              onMouseLeave={() => setWorkOpen(false)}
+              onMouseEnter={openWork}
+              onMouseLeave={closeWork}
             >
               <button className="relative flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-black transition-colors group">
                 Work
@@ -100,7 +110,7 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
               </button>
 
               {/* Dropdown panel */}
-              <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 rounded-2xl bg-white shadow-lg border border-black/5 overflow-hidden transition-all duration-200 ${workOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-1 pointer-events-none'}`}>
+              <div onMouseEnter={openWork} onMouseLeave={closeWork} className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 rounded-2xl bg-white shadow-lg border border-black/5 overflow-hidden transition-all duration-200 ${workOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-1 pointer-events-none'}`}>
                 {workDropdown.map((item) => (
                   <a
                     key={item.href}
