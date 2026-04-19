@@ -27,30 +27,28 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [workOpen, setWorkOpen] = useState(false)
   const workRef = useRef<HTMLDivElement>(null)
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const navRef = useRef<HTMLElement>(null)
 
-  const openWork = () => {
-    if (closeTimer.current) clearTimeout(closeTimer.current)
-    setWorkOpen(true)
-  }
-
-  const closeWork = () => {
-    closeTimer.current = setTimeout(() => setWorkOpen(false), 150)
-  }
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (workRef.current && !workRef.current.contains(e.target as Node)) {
+        setWorkOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100)
-    }
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 100)
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {
     if (navRef.current) {
-      gsap.fromTo(navRef.current, 
+      gsap.fromTo(navRef.current,
         { y: -100, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', delay: 0.5 }
       )
@@ -63,23 +61,24 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
     if (target) {
       target.scrollIntoView({ behavior: 'smooth' })
       setIsMobileMenuOpen(false)
+      setWorkOpen(false)
     }
   }
 
   return (
     <>
-      <nav 
+      <nav
         ref={navRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled 
-            ? 'bg-white/80 backdrop-blur-lg shadow-soft py-4' 
+          isScrolled
+            ? 'bg-white/80 backdrop-blur-lg shadow-soft py-4'
             : 'bg-white/95 backdrop-blur-sm shadow-sm py-6'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
-          <a 
-            href="#" 
+          <a
+            href="#"
             className="font-display font-bold text-xl hover:scale-105 transition-transform"
             onClick={(e) => {
               e.preventDefault()
@@ -91,14 +90,13 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {/* Work dropdown */}
-            <div
-              ref={workRef}
-              className="relative"
-              onMouseEnter={openWork}
-              onMouseLeave={closeWork}
-            >
-              <button className="relative flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-black transition-colors group">
+
+            {/* Work dropdown — click to open */}
+            <div ref={workRef} className="relative">
+              <button
+                onClick={() => setWorkOpen(prev => !prev)}
+                className="relative flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-black transition-colors group"
+              >
                 Work
                 <svg
                   className={`w-3 h-3 transition-transform duration-200 ${workOpen ? 'rotate-180' : ''}`}
@@ -110,19 +108,21 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
               </button>
 
               {/* Dropdown panel */}
-              <div onMouseEnter={openWork} onMouseLeave={closeWork} className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 w-48 rounded-2xl bg-white shadow-lg border border-black/5 overflow-hidden transition-all duration-200 ${workOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-1 pointer-events-none'}`}>
-                {workDropdown.map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    onClick={(e) => { handleLinkClick(e, item.href); setWorkOpen(false) }}
-                    className="flex flex-col px-4 py-3 hover:bg-gray-50 transition-colors group/item border-b border-black/5 last:border-0"
-                  >
-                    <span className="text-sm font-medium text-gray-900 group-hover/item:text-black">{item.label}</span>
-                    <span className="text-xs text-gray-400 mt-0.5">{item.desc}</span>
-                  </a>
-                ))}
-              </div>
+              {workOpen && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-2xl bg-white shadow-lg border border-black/5 overflow-hidden">
+                  {workDropdown.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      onClick={(e) => handleLinkClick(e, item.href)}
+                      className="flex flex-col px-4 py-3 hover:bg-gray-50 transition-colors border-b border-black/5 last:border-0"
+                    >
+                      <span className="text-sm font-medium text-gray-900">{item.label}</span>
+                      <span className="text-xs text-gray-400 mt-0.5">{item.desc}</span>
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
 
             {navLinks.map((link) => (
@@ -137,7 +137,7 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
               </a>
             ))}
 
-            {/* Theme Wheel Button - Desktop */}
+            {/* Theme Wheel Button */}
             <button
               onClick={onThemeWheelClick}
               className="p-2.5 hover:bg-black/5 rounded-full transition-all duration-300 hover:scale-110"
@@ -153,7 +153,6 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
             onClick={onThemeWheelClick}
             className="md:hidden p-2 hover:bg-black/5 rounded-full transition-all duration-300"
             aria-label="Open theme selector"
-            title="Change theme"
           >
             <Palette className="w-5 h-5 text-gray-700" />
           </button>
@@ -185,13 +184,12 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
       </nav>
 
       {/* Mobile Menu */}
-      <div 
+      <div
         className={`fixed inset-0 z-40 bg-white transition-all duration-500 md:hidden ${
           isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
         }`}
       >
         <div className="flex flex-col items-center justify-center h-full gap-8 pt-24">
-          {/* Work sub-links on mobile */}
           {workDropdown.map((item, index) => (
             <a
               key={item.href}
@@ -227,7 +225,7 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
           <a
             href="mailto:karishmaworks08@gmail.com"
             className="mt-4 px-8 py-3 bg-black text-white rounded-full font-medium"
-            style={{ 
+            style={{
               transitionDelay: isMobileMenuOpen ? '250ms' : '0ms',
               opacity: isMobileMenuOpen ? 1 : 0,
               transform: isMobileMenuOpen ? 'translateY(0)' : 'translateY(20px)',
