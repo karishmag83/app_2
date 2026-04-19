@@ -12,6 +12,7 @@ import Skills from './sections/Skills'
 import Testimonials from './sections/Testimonials'
 import Contact from './sections/Contact'
 import Footer from './sections/Footer'
+import BrandDesign from './sections/BrandDesign'
 import Navigation from './sections/Navigation'
 import ThemeSelector from './sections/ThemeSelector'
 import AIChat from './sections/AIChat'
@@ -104,6 +105,7 @@ function App() {
       <main className={`transition-opacity duration-500 ${showThemeSelector ? 'opacity-0' : 'opacity-100'}`}>
         <Hero />
         <Projects />
+        <BrandDesign />
         <Process />
         <Skills />
         <About />
