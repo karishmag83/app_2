@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#0D1B2A"/>
+  <!-- Grid lines subtle -->
+  <line x1="0" y1="125" x2="800" y2="125" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+  <line x1="0" y1="250" x2="800" y2="250" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+  <line x1="0" y1="375" x2="800" y2="375" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+  <line x1="200" y1="0" x2="200" y2="500" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+  <line x1="400" y1="0" x2="400" y2="500" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="500" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+
+  <!-- Glow orb -->
+  <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.15"/>
+    <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+  </radialGradient>
+  <ellipse cx="400" cy="250" rx="300" ry="200" fill="url(#glow1)"/>
+
+  <!-- Phone frame left -->
+  <rect x="80" y="60" width="180" height="370" rx="28" fill="#111E2E" stroke="#F59E0B" stroke-width="1.5" stroke-opacity="0.4"/>
+  <!-- Dynamic island -->
+  <rect x="148" y="75" width="44" height="12" rx="6" fill="#0D1B2A"/>
+  <!-- Status bar dots -->
+  <circle cx="104" cy="81" r="3" fill="#F59E0B" fill-opacity="0.6"/>
+  <!-- App content: header -->
+  <rect x="96" y="100" width="60" height="8" rx="4" fill="#ffffff" fill-opacity="0.6"/>
+  <rect x="96" y="114" width="90" height="6" rx="3" fill="#ffffff" fill-opacity="0.25"/>
+  <!-- Appliance cards 2x2 -->
+  <rect x="96" y="132" width="72" height="56" rx="10" fill="#1A2B3C"/>
+  <rect x="176" y="132" width="72" height="56" rx="10" fill="#1A2B3C"/>
+  <rect x="96" y="196" width="72" height="56" rx="10" fill="#1A2B3C"/>
+  <rect x="176" y="196" width="72" height="56" rx="10" fill="#1A2B3C"/>
+  <!-- Card icons -->
+  <rect x="108" y="145" width="16" height="16" rx="4" fill="#F59E0B" fill-opacity="0.8"/>
+  <rect x="188" y="145" width="16" height="16" rx="4" fill="#3B82F6" fill-opacity="0.8"/>
+  <rect x="108" y="209" width="16" height="16" rx="4" fill="#10B981" fill-opacity="0.8"/>
+  <rect x="188" y="209" width="16" height="16" rx="4" fill="#8B5CF6" fill-opacity="0.8"/>
+  <!-- Card labels -->
+  <rect x="108" y="165" width="40" height="5" rx="2" fill="#ffffff" fill-opacity="0.5"/>
+  <rect x="188" y="165" width="40" height="5" rx="2" fill="#ffffff" fill-opacity="0.5"/>
+  <rect x="108" y="229" width="40" height="5" rx="2" fill="#ffffff" fill-opacity="0.5"/>
+  <rect x="188" y="229" width="40" height="5" rx="2" fill="#ffffff" fill-opacity="0.5"/>
+  <!-- Energy bar chart -->
+  <rect x="96" y="268" width="152" height="10" rx="3" fill="#ffffff" fill-opacity="0.1"/>
+  <rect x="96" y="268" width="80" height="10" rx="3" fill="#F59E0B" fill-opacity="0.7"/>
+  <!-- Mini bars -->
+  <rect x="96" y="290" width="16" height="30" rx="3" fill="#F59E0B" fill-opacity="0.3"/>
+  <rect x="118" y="300" width="16" height="20" rx="3" fill="#F59E0B" fill-opacity="0.4"/>
+  <rect x="140" y="285" width="16" height="35" rx="3" fill="#F59E0B" fill-opacity="0.6"/>
+  <rect x="162" y="295" width="16" height="25" rx="3" fill="#F59E0B" fill-opacity="0.4"/>
+  <rect x="184" y="280" width="16" height="40" rx="3" fill="#F59E0B" fill-opacity="0.8"/>
+  <!-- Bottom nav -->
+  <rect x="80" y="390" width="180" height="40" rx="0" fill="#0D1B2A"/>
+  <rect x="80" y="388" width="180" height="1" fill="#ffffff" fill-opacity="0.08"/>
+  <circle cx="132" cy="410" r="4" fill="#F59E0B"/>
+  <circle cx="170" cy="410" r="4" fill="#ffffff" fill-opacity="0.3"/>
+  <circle cx="208" cy="410" r="4" fill="#ffffff" fill-opacity="0.3"/>
+  <circle cx="246" cy="410" r="4" fill="#ffffff" fill-opacity="0.3"/>
+
+  <!-- Main content right side -->
+  <!-- Title block -->
+  <rect x="320" y="80" width="180" height="18" rx="5" fill="#F59E0B" fill-opacity="0.9"/>
+  <rect x="320" y="108" width="300" height="14" rx="4" fill="#ffffff" fill-opacity="0.8"/>
+  <rect x="320" y="130" width="260" height="10" rx="3" fill="#ffffff" fill-opacity="0.35"/>
+  <rect x="320" y="148" width="220" height="10" rx="3" fill="#ffffff" fill-opacity="0.25"/>
+
+  <!-- Metric cards row -->
+  <rect x="320" y="178" width="130" height="70" rx="12" fill="#1A2B3C"/>
+  <rect x="462" y="178" width="130" height="70" rx="12" fill="#1A2B3C"/>
+  <rect x="604" y="178" width="130" height="70" rx="12" fill="#1A2B3C"/>
+  <!-- Metric values -->
+  <rect x="336" y="194" width="60" height="18" rx="4" fill="#F59E0B" fill-opacity="0.9"/>
+  <rect x="478" y="194" width="60" height="18" rx="4" fill="#10B981" fill-opacity="0.9"/>
+  <rect x="620" y="194" width="60" height="18" rx="4" fill="#3B82F6" fill-opacity="0.9"/>
+  <rect x="336" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.4"/>
+  <rect x="478" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.4"/>
+  <rect x="620" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.4"/>
+
+  <!-- Large feature card -->
+  <rect x="320" y="268" width="414" height="170" rx="16" fill="#1A2B3C"/>
+  <!-- Chart lines inside -->
+  <polyline points="340,400 370,370 400,385 440,345 480,360 520,330 560,350 600,320 640,340 700,310" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-opacity="0.8"/>
+  <polyline points="340,400 370,395 400,385 440,390 480,380 520,375 560,380 600,365 640,370 700,360" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.5"/>
+  <!-- Chart labels -->
+  <rect x="336" y="278" width="80" height="10" rx="3" fill="#ffffff" fill-opacity="0.6"/>
+  <rect x="336" y="295" width="120" height="8" rx="3" fill="#ffffff" fill-opacity="0.25"/>
+
+  <!-- HomeSense wordmark -->
+  <rect x="320" y="455" width="100" height="12" rx="3" fill="#F59E0B" fill-opacity="0.7"/>
+  <rect x="430" y="455" width="60" height="12" rx="3" fill="#ffffff" fill-opacity="0.2"/>
+</svg>

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#060D1A"/>
+
+  <!-- Glow orbs -->
+  <radialGradient id="glowB" cx="35%" cy="50%" r="45%">
+    <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.12"/>
+    <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="glowG" cx="70%" cy="50%" r="40%">
+    <stop offset="0%" stop-color="#10B981" stop-opacity="0.10"/>
+    <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+  </radialGradient>
+  <ellipse cx="280" cy="250" rx="280" ry="220" fill="url(#glowB)"/>
+  <ellipse cx="560" cy="250" rx="240" ry="200" fill="url(#glowG)"/>
+
+  <!-- Phone frame -->
+  <rect x="80" y="55" width="185" height="385" rx="30" fill="#0D1525" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.35"/>
+  <!-- Dynamic island -->
+  <rect x="150" y="70" width="46" height="13" rx="6.5" fill="#060D1A"/>
+  <!-- Status bar -->
+  <rect x="98" y="72" width="28" height="5" rx="2" fill="#ffffff" fill-opacity="0.3"/>
+
+  <!-- Today screen content -->
+  <!-- Header -->
+  <rect x="98" y="98" width="55" height="8" rx="3" fill="#ffffff" fill-opacity="0.7"/>
+  <rect x="98" y="112" width="100" height="6" rx="2" fill="#ffffff" fill-opacity="0.25"/>
+
+  <!-- Activity ring (donut) -->
+  <circle cx="170" cy="175" r="38" fill="none" stroke="#1A2535" stroke-width="10"/>
+  <circle cx="170" cy="175" r="38" fill="none" stroke="#3B82F6" stroke-width="10" stroke-dasharray="200 238" stroke-linecap="round" transform="rotate(-90 170 175)"/>
+  <circle cx="170" cy="175" r="28" fill="none" stroke="#1A2535" stroke-width="8"/>
+  <circle cx="170" cy="175" r="28" fill="none" stroke="#10B981" stroke-width="8" stroke-dasharray="140 176" stroke-linecap="round" transform="rotate(-90 170 175)"/>
+  <!-- Ring label -->
+  <rect x="156" y="170" width="28" height="10" rx="3" fill="#ffffff" fill-opacity="0.7"/>
+  <rect x="162" y="183" width="16" height="6" rx="2" fill="#ffffff" fill-opacity="0.3"/>
+
+  <!-- 4 metric cards -->
+  <rect x="98" y="225" width="75" height="48" rx="8" fill="#1A2535"/>
+  <rect x="181" y="225" width="75" height="48" rx="8" fill="#1A2535"/>
+  <rect x="98" y="281" width="75" height="48" rx="8" fill="#1A2535"/>
+  <rect x="181" y="281" width="75" height="48" rx="8" fill="#1A2535"/>
+  <!-- Card icons + values -->
+  <circle cx="112" cy="239" r="5" fill="#EF4444" fill-opacity="0.8"/>
+  <circle cx="195" cy="239" r="5" fill="#8B5CF6" fill-opacity="0.8"/>
+  <circle cx="112" cy="295" r="5" fill="#F59E0B" fill-opacity="0.8"/>
+  <circle cx="195" cy="295" r="5" fill="#10B981" fill-opacity="0.8"/>
+  <rect x="108" y="249" width="45" height="8" rx="2" fill="#ffffff" fill-opacity="0.7"/>
+  <rect x="191" y="249" width="45" height="8" rx="2" fill="#ffffff" fill-opacity="0.7"/>
+  <rect x="108" y="305" width="45" height="8" rx="2" fill="#ffffff" fill-opacity="0.7"/>
+  <rect x="191" y="305" width="45" height="8" rx="2" fill="#ffffff" fill-opacity="0.7"/>
+  <rect x="108" y="261" width="35" height="5" rx="2" fill="#ffffff" fill-opacity="0.3"/>
+  <rect x="191" y="261" width="35" height="5" rx="2" fill="#ffffff" fill-opacity="0.3"/>
+  <rect x="108" y="317" width="35" height="5" rx="2" fill="#ffffff" fill-opacity="0.3"/>
+  <rect x="191" y="317" width="35" height="5" rx="2" fill="#ffffff" fill-opacity="0.3"/>
+
+  <!-- Insight card -->
+  <rect x="98" y="338" width="158" height="52" rx="10" fill="#1A3A5C"/>
+  <rect x="108" y="348" width="90" height="7" rx="2" fill="#3B82F6" fill-opacity="0.9"/>
+  <rect x="108" y="361" width="130" height="6" rx="2" fill="#ffffff" fill-opacity="0.5"/>
+  <rect x="108" y="373" width="110" height="6" rx="2" fill="#ffffff" fill-opacity="0.35"/>
+
+  <!-- Bottom nav -->
+  <rect x="80" y="402" width="185" height="38" rx="0" fill="#0D1525"/>
+  <rect x="80" y="401" width="185" height="1" fill="#ffffff" fill-opacity="0.08"/>
+  <circle cx="120" cy="421" r="4" fill="#3B82F6"/>
+  <circle cx="157" cy="421" r="4" fill="#ffffff" fill-opacity="0.25"/>
+  <circle cx="194" cy="421" r="4" fill="#ffffff" fill-opacity="0.25"/>
+  <circle cx="231" cy="421" r="4" fill="#ffffff" fill-opacity="0.25"/>
+
+  <!-- Right side content -->
+  <!-- Title -->
+  <rect x="320" y="80" width="80" height="18" rx="5" fill="#3B82F6" fill-opacity="0.9"/>
+  <rect x="320" y="108" width="280" height="14" rx="4" fill="#ffffff" fill-opacity="0.8"/>
+  <rect x="320" y="130" width="240" height="10" rx="3" fill="#ffffff" fill-opacity="0.35"/>
+  <rect x="320" y="148" width="200" height="10" rx="3" fill="#ffffff" fill-opacity="0.25"/>
+
+  <!-- Metric cards -->
+  <rect x="320" y="178" width="130" height="70" rx="12" fill="#0D1525"/>
+  <rect x="462" y="178" width="130" height="70" rx="12" fill="#0D1525"/>
+  <rect x="604" y="178" width="130" height="70" rx="12" fill="#0D1525"/>
+  <rect x="336" y="194" width="60" height="18" rx="4" fill="#3B82F6" fill-opacity="0.9"/>
+  <rect x="478" y="194" width="60" height="18" rx="4" fill="#10B981" fill-opacity="0.9"/>
+  <rect x="620" y="194" width="60" height="18" rx="4" fill="#8B5CF6" fill-opacity="0.9"/>
+  <rect x="336" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.35"/>
+  <rect x="478" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.35"/>
+  <rect x="620" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.35"/>
+
+  <!-- Heart rate chart card -->
+  <rect x="320" y="265" width="200" height="130" rx="14" fill="#0D1525"/>
+  <rect x="336" y="278" width="70" height="9" rx="3" fill="#ffffff" fill-opacity="0.6"/>
+  <rect x="336" y="292" width="40" height="20" rx="4" fill="#EF4444" fill-opacity="0.8"/>
+  <!-- Sparkline -->
+  <polyline points="336,350 356,338 376,344 396,328 416,335 436,322 456,330 480,318 500,325" fill="none" stroke="#EF4444" stroke-width="2" stroke-opacity="0.8"/>
+  <!-- Zone bar -->
+  <rect x="336" y="360" width="40" height="8" rx="2" fill="#3B82F6" fill-opacity="0.5"/>
+  <rect x="380" y="360" width="50" height="8" rx="2" fill="#10B981" fill-opacity="0.6"/>
+  <rect x="434" y="360" width="40" height="8" rx="2" fill="#F59E0B" fill-opacity="0.7"/>
+  <rect x="478" y="360" width="28" height="8" rx="2" fill="#EF4444" fill-opacity="0.8"/>
+
+  <!-- Sleep chart card -->
+  <rect x="534" y="265" width="200" height="130" rx="14" fill="#0D1525"/>
+  <rect x="550" y="278" width="60" height="9" rx="3" fill="#ffffff" fill-opacity="0.6"/>
+  <!-- Sleep stages stacked -->
+  <rect x="550" y="298" width="30" height="12" rx="2" fill="#8B5CF6" fill-opacity="0.4"/>
+  <rect x="550" y="312" width="30" height="20" rx="2" fill="#3B82F6" fill-opacity="0.6"/>
+  <rect x="550" y="334" width="30" height="16" rx="2" fill="#1D4ED8" fill-opacity="0.8"/>
+  <rect x="550" y="352" width="30" height="8" rx="2" fill="#7C3AED" fill-opacity="0.7"/>
+  <rect x="588" y="303" width="30" height="8" rx="2" fill="#8B5CF6" fill-opacity="0.4"/>
+  <rect x="588" y="313" width="30" height="24" rx="2" fill="#3B82F6" fill-opacity="0.6"/>
+  <rect x="588" y="339" width="30" height="14" rx="2" fill="#1D4ED8" fill-opacity="0.8"/>
+  <rect x="588" y="355" width="30" height="5" rx="2" fill="#7C3AED" fill-opacity="0.7"/>
+  <!-- Sleep score -->
+  <rect x="640" y="295" width="70" height="22" rx="5" fill="#1D4ED8" fill-opacity="0.5"/>
+  <rect x="640" y="323" width="70" height="10" rx="3" fill="#ffffff" fill-opacity="0.4"/>
+  <rect x="640" y="339" width="70" height="8" rx="3" fill="#ffffff" fill-opacity="0.2"/>
+
+  <!-- Pulse wordmark -->
+  <rect x="320" y="452" width="60" height="12" rx="3" fill="#3B82F6" fill-opacity="0.7"/>
+  <rect x="390" y="452" width="100" height="12" rx="3" fill="#ffffff" fill-opacity="0.15"/>
+</svg>

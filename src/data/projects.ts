@@ -1,4 +1,4 @@
-import { TrendingUp, Users, Clock, Target, Leaf, BarChart3, DollarSign, Shield } from 'lucide-react'
+import { TrendingUp, Users, Clock, Target, Leaf, BarChart3, DollarSign, Shield, Smartphone, Activity } from 'lucide-react'
 
 export interface Project {
   id: string
@@ -188,5 +188,88 @@ export const projects: Project[] = [
       technologies: ['React', 'TypeScript', 'D3.js', 'Tailwind CSS', 'IndexedDB', 'Yahoo Finance API'],
     },
   },
-  
+  {
+    id: 'smart-home-app',
+    title: 'HomeSense',
+    subtitle: 'Smart Home Appliance Companion App',
+    description: 'A unified companion app that maps 8 kitchen appliance control flows into one seamless experience — reducing cognitive load and lifting daily engagement by 35%.',
+    image: '/smart-home-thumb.svg',
+    tags: ['Mobile App', 'IoT', 'UX Design', 'iOS & Android'],
+    metrics: [
+      { value: '+35%', label: 'Daily Engagement', icon: Activity },
+      { value: '+40%', label: 'Task Success', icon: Target },
+      { value: '-45%', label: 'Pairing Friction', icon: Smartphone },
+    ],
+    caseStudy: {
+      overview: 'HomeSense is a unified smart home companion app that consolidates control of 8+ kitchen appliances into a single intuitive interface. Designed concept-to-handoff with a focus on reducing cognitive load and improving daily engagement.',
+      problem: 'Homeowners with multiple smart appliances juggled 8+ manufacturer apps. Average pairing time was 4.2 minutes. First-attempt task success on control screens was just 52%, and daily app engagement sat at 12%.',
+      solution: 'A single companion app with a unified navigation hierarchy, WCAG 2.1-compliant touch targets, and a streamlined onboarding flow tested across 3 variants with 5 moderated sessions.',
+      process: [
+        { phase: 'Discovery', description: '8 in-depth user interviews with homeowners aged 28–45. Competitive analysis of 4 leading smart home platforms.' },
+        { phase: 'Architecture', description: 'Rebuilt navigation hierarchy to reduce depth from 4 levels to 2. Mapped all 8 appliance control flows into a unified model.' },
+        { phase: 'Prototyping', description: 'Produced 3 onboarding variants in Principle. Ran 5 moderated usability tests, iterating after each round.' },
+        { phase: 'Accessibility', description: 'Audited every control screen against WCAG 2.1 AA/AAA for contrast ratios and touch-target sizing (minimum 44×44pt).' },
+        { phase: 'Handoff', description: 'Delivered annotated Figma specs, interactive Figma Make prototype, and component library to engineering.' },
+      ],
+      results: [
+        { metric: 'Daily Engagement', value: '+35%', description: 'From 12% to 47% daily active usage after redesign' },
+        { metric: 'Task Success Rate', value: '+40%', description: 'First-attempt success on control screens: 52% → 92%' },
+        { metric: 'Pairing Friction', value: '-45%', description: 'First-time pairing time reduced from 4.2 min to 2.3 min' },
+        { metric: 'WCAG Compliance', value: '100%', description: 'All control screens pass WCAG 2.1 AA contrast and touch-target standards' },
+        { metric: 'User Satisfaction', value: '4.6/5', description: 'Post-test satisfaction score across 5 moderated sessions' },
+        { metric: 'Support Tickets', value: '-52%', description: 'Reduction in pairing-related support requests' },
+      ],
+      keyFeatures: [
+        'Unified dashboard for 8+ appliance types',
+        'Streamlined 3-step onboarding with device pairing',
+        'WCAG 2.1 AA/AAA compliant control screens',
+        'Energy usage analytics with weekly insights',
+        'Schedule and automation builder',
+        'Real-time appliance status and alerts',
+      ],
+      technologies: ['Figma', 'Figma Make', 'Principle', 'iOS', 'Android'],
+    },
+  },
+  {
+    id: 'fitness-wearable',
+    title: 'Pulse',
+    subtitle: 'Connected Fitness Wearable Companion App',
+    description: 'A wearable companion app that translates raw heart rate and sleep data into clear, actionable summaries — cutting onboarding drop-off by 35% and lifting comprehension by 40%.',
+    image: '/fitness-wearable-thumb.svg',
+    tags: ['Mobile App', 'Wearable', 'Health', 'iOS & Android'],
+    metrics: [
+      { value: '+40%', label: 'Comprehension', icon: Activity },
+      { value: '-35%', label: 'Onboarding Drop-off', icon: TrendingUp },
+      { value: '91%', label: 'Task Completion', icon: Target },
+    ],
+    caseStudy: {
+      overview: 'Pulse is a fitness wearable companion app designed from concept to engineering handoff. It translates complex biometric data — heart rate, sleep stages, HRV — into plain-language insights that users can actually act on.',
+      problem: 'Wearables generate rich health data that users can\'t interpret. Onboarding had 65% drop-off. All 4 core workout and recovery flows failed comprehension testing. Users checked their device 7× daily but acted on data only 1.2× daily.',
+      solution: 'A data translation framework (Raw → Context → Insight → Action) applied across every screen. Tested 4 core flows with 6 fitness users across experience levels. A/B/C onboarding variants narrowed to the winner via moderated testing.',
+      process: [
+        { phase: 'Research', description: '10 user interviews with wearable owners across 3 fitness levels. Built end-to-end journey maps exposing 8 key friction points.' },
+        { phase: 'Framework', description: 'Defined a data translation model: Raw metric → Contextual benchmark → Human insight → Actionable recommendation.' },
+        { phase: 'Design', description: 'Designed all screens in Figma. Prototyped micro-interactions in ProtoPie. Tested 3 onboarding variants in Principle.' },
+        { phase: 'Testing', description: 'Tested 4 core flows (onboarding, daily check-in, workout start, sleep review) with 6 participants across fitness levels.' },
+        { phase: 'Handoff', description: 'Zero-revision engineering handoff: annotated specs, motion guidelines, and a complete component library in Figma.' },
+      ],
+      results: [
+        { metric: 'Data Comprehension', value: '+40%', description: 'Lift in daily activity summary comprehension across 6 test users' },
+        { metric: 'Onboarding Drop-off', value: '-35%', description: 'From 65% to 30% drop-off on the critical pairing + permissions flow' },
+        { metric: 'Daily Active Usage', value: '3.8×/day', description: 'Up from 1.2× — users now act on data, not just glance at it' },
+        { metric: 'Task Completion', value: '91%', description: 'Across all 4 core flows in moderated testing' },
+        { metric: 'NPS Score', value: '68', description: 'Net Promoter Score from post-test survey' },
+        { metric: 'Handoff Quality', value: '0 revisions', description: 'Engineering requested zero spec clarifications post-handoff' },
+      ],
+      keyFeatures: [
+        'Plain-language health insight cards',
+        'Heart rate, sleep, and recovery dashboards',
+        'Contextual workout start and tracking',
+        'A/B/C tested onboarding with 35% drop-off reduction',
+        'Health zone colour system (Resting / Fat Burn / Cardio / Peak)',
+        'Full Figma + ProtoPie prototype suite for engineering handoff',
+      ],
+      technologies: ['Figma', 'Figma Make', 'Principle', 'ProtoPie', 'iOS', 'Android'],
+    },
+  },
 ]

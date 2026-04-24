@@ -8,6 +8,8 @@ import RePackCaseStudy from './pages/RePackCaseStudy'
 import RestorationMedicineCaseStudy from './pages/RestorationMedicineCaseStudy'
 import FolioTrackerCaseStudy from './pages/FolioTrackerCaseStudy'
 import BrandCaseStudy from './pages/BrandCaseStudy'
+import SmartHomeCaseStudy from './pages/SmartHomeCaseStudy'
+import FitnessWearableCaseStudy from './pages/FitnessWearableCaseStudy'
 
 function DesignSystemRedirect() {
   useEffect(() => {
@@ -28,6 +30,8 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/restoration-medicine" element={<RestorationMedicineCaseStudy />} />
         <Route path="/folio-tracker-case-study" element={<FolioTrackerCaseStudy />} />
         <Route path="/brand/:id" element={<BrandCaseStudy />} />
+        <Route path="/smart-home" element={<SmartHomeCaseStudy />} />
+        <Route path="/fitness-wearable" element={<FitnessWearableCaseStudy />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

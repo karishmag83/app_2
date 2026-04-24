@@ -92,14 +92,18 @@ export default function Projects() {
                   </div>
 
                   {/* CTA */}
-                  <Link 
+                  <Link
                     to={
-                      project.id === 'ai-care-navigator' 
-                        ? '/ai-care-navigator-case-study' 
+                      project.id === 'ai-care-navigator'
+                        ? '/ai-care-navigator-case-study'
                         : project.id === 'restoration-medicine'
                         ? '/restoration-medicine'
                         : project.id === 'folio-tracker'
                         ? '/folio-tracker-case-study'
+                        : project.id === 'smart-home-app'
+                        ? '/smart-home'
+                        : project.id === 'fitness-wearable'
+                        ? '/fitness-wearable'
                         : `/${project.id}`
                     }
                     onClick={() => {
