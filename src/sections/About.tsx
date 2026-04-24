@@ -39,7 +39,7 @@ const education = [
   },
   {
     school: 'University of Mumbai, Mumbai, MH, India',
-    degree: 'PGDIT | Bachelor of Computer Applications',
+    degree: 'PG Diploma in IT · Bachelor of Computer Applications',
     year: '2018 - 2022',
   },
 ]
@@ -211,20 +211,13 @@ export default function About() {
 
             <div className="space-y-4 opacity-70 leading-relaxed mb-8">
               <p className="about-text">
-                I love turning ideas into something real through design. What started as a hobby 
-                turned into a career when I discovered how design can make things both look great 
-                and work better.
+                I'm a Product Designer and Software Engineer who works across the full stack of a product — from early research and strategy through to production code. My background spans healthcare AI, fintech, and consumer apps, and I've shipped work that's driven measurable outcomes, not just beautiful screens.
               </p>
               <p className="about-text">
-                I focus on creating user interfaces that serve a real purpose – making sure they're 
-                not just pretty, but actually solve problems. Whether I'm working on a mobile app 
-                or a website, my goal is to make something that feels natural and easy to use.
+                I bridge the gap between design and engineering by thinking in systems: scalable components, accessible interactions, and data-driven decisions. I've led UX for AI-powered tools, built design systems from the ground up, and taken products from zero to launch.
               </p>
               <p className="about-text">
-                I'm a bit of a perfectionist when it comes to the small stuff, but I think that's 
-                what makes good design great. This attention to detail helps me build strong 
-                relationships with clients, as they know I'll put the same care into their project 
-                that they would.
+                Outside of work I research human-computer interaction, teach AI for UX at Northeastern, and believe the best products are built when designers who can code sit next to engineers who care about people.
               </p>
             </div>
 

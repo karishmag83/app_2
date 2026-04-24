@@ -160,8 +160,7 @@ export default function Hero() {
             </div>
 
             <p className="hero-subheading text-base sm:text-lg md:text-xl text-gray-600 max-w-lg mb-8 leading-relaxed">
-              I create everything your brand needs to attract customers and turn them into sales. 
-              I provide strategic design that drives growth, and not just that looks good.
+              I design products people love and build the code that ships them. From zero-to-one UX strategy to production-ready interfaces — I own the full product experience.
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">

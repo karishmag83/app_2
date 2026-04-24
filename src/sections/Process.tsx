@@ -54,7 +54,7 @@ export default function Process() {
                 </p>
               </div>
               <div className="flex flex-col items-start">
-                <div className="-mt-216 flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3">
                   {processHighlights.map((item) => {
                     const Icon = item.icon
                     return (

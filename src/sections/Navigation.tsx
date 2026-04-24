@@ -26,6 +26,7 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [workOpen, setWorkOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState('')
   const workRef = useRef<HTMLDivElement>(null)
   const navRef = useRef<HTMLElement>(null)
 
@@ -44,6 +45,25 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
     const handleScroll = () => setIsScrolled(window.scrollY > 100)
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Active section tracker
+  useEffect(() => {
+    const sectionIds = ['projects', 'brand', 'process', 'skills', 'about', 'testimonials', 'contact']
+    const observers: IntersectionObserver[] = []
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id)
+      if (!el) return
+      const observer = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(id) },
+        { threshold: 0.3 }
+      )
+      observer.observe(el)
+      observers.push(observer)
+    })
+
+    return () => observers.forEach((o) => o.disconnect())
   }, [])
 
   useEffect(() => {
@@ -95,16 +115,17 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
             <div ref={workRef} className="relative">
               <button
                 onClick={() => setWorkOpen(prev => !prev)}
-                className="relative flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-black transition-colors group"
+                className="relative flex items-center gap-1 text-sm font-medium transition-colors group"
+                style={{ color: (activeSection === 'projects' || activeSection === 'brand') ? 'var(--primary-color)' : '' }}
               >
-                Work
+                <span className={activeSection === 'projects' || activeSection === 'brand' ? 'text-current' : 'text-gray-700 hover:text-black'}>Work</span>
                 <svg
                   className={`w-3 h-3 transition-transform duration-200 ${workOpen ? 'rotate-180' : ''}`}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                 </svg>
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full" />
+                <span className={`absolute -bottom-1 left-0 h-0.5 bg-current transition-all duration-300 ${(activeSection === 'projects' || activeSection === 'brand') ? 'w-full' : 'w-0 group-hover:w-full'}`} />
               </button>
 
               {/* Dropdown panel */}
@@ -125,17 +146,23 @@ export default function Navigation({ onThemeWheelClick }: NavigationProps) {
               )}
             </div>
 
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleLinkClick(e, link.href)}
-                className="relative text-sm font-medium text-gray-700 hover:text-black transition-colors group"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full" />
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.href.replace('#', '')
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => handleLinkClick(e, link.href)}
+                  className="relative text-sm font-medium transition-colors group"
+                  style={{ color: isActive ? 'var(--primary-color)' : '' }}
+                >
+                  <span className={isActive ? 'text-current' : 'text-gray-700 hover:text-black'}>
+                    {link.label}
+                  </span>
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-current transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                </a>
+              )
+            })}
 
             {/* Theme Wheel Button */}
             <button
