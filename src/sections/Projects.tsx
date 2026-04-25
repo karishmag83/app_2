@@ -109,9 +109,7 @@ export default function Projects() {
                     onClick={() => {
                       // Save current scroll position before navigating
                       sessionStorage.setItem('homepage-scroll', String(window.scrollY))
-                      if (project.id === 'folio-tracker' || project.id === 'restoration-medicine') {
-                        window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-                      }
+                      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
                     }}
                     className="inline-flex items-center gap-2 font-medium group/link w-fit"
                     style={{ color: 'var(--primary-color)' }}

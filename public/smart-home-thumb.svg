@@ -1,90 +1,302 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
-  <rect width="800" height="500" fill="#0D1B2A"/>
-  <!-- Grid lines subtle -->
-  <line x1="0" y1="125" x2="800" y2="125" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
-  <line x1="0" y1="250" x2="800" y2="250" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
-  <line x1="0" y1="375" x2="800" y2="375" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
-  <line x1="200" y1="0" x2="200" y2="500" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
-  <line x1="400" y1="0" x2="400" y2="500" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
-  <line x1="600" y1="0" x2="600" y2="500" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" width="800" height="560">
+  <defs>
+    <!-- Studio background radial -->
+    <radialGradient id="bg" cx="50%" cy="42%" r="58%">
+      <stop offset="0%" stop-color="#1d1c1a"/>
+      <stop offset="65%" stop-color="#0e0d0c"/>
+      <stop offset="100%" stop-color="#070706"/>
+    </radialGradient>
 
-  <!-- Glow orb -->
-  <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
-    <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.15"/>
-    <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
-  </radialGradient>
-  <ellipse cx="400" cy="250" rx="300" ry="200" fill="url(#glow1)"/>
+    <!-- Indigo glow behind phones -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#575ECF" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#575ECF" stop-opacity="0"/>
+    </radialGradient>
 
-  <!-- Phone frame left -->
-  <rect x="80" y="60" width="180" height="370" rx="28" fill="#111E2E" stroke="#F59E0B" stroke-width="1.5" stroke-opacity="0.4"/>
-  <!-- Dynamic island -->
-  <rect x="148" y="75" width="44" height="12" rx="6" fill="#0D1B2A"/>
-  <!-- Status bar dots -->
-  <circle cx="104" cy="81" r="3" fill="#F59E0B" fill-opacity="0.6"/>
-  <!-- App content: header -->
-  <rect x="96" y="100" width="60" height="8" rx="4" fill="#ffffff" fill-opacity="0.6"/>
-  <rect x="96" y="114" width="90" height="6" rx="3" fill="#ffffff" fill-opacity="0.25"/>
-  <!-- Appliance cards 2x2 -->
-  <rect x="96" y="132" width="72" height="56" rx="10" fill="#1A2B3C"/>
-  <rect x="176" y="132" width="72" height="56" rx="10" fill="#1A2B3C"/>
-  <rect x="96" y="196" width="72" height="56" rx="10" fill="#1A2B3C"/>
-  <rect x="176" y="196" width="72" height="56" rx="10" fill="#1A2B3C"/>
-  <!-- Card icons -->
-  <rect x="108" y="145" width="16" height="16" rx="4" fill="#F59E0B" fill-opacity="0.8"/>
-  <rect x="188" y="145" width="16" height="16" rx="4" fill="#3B82F6" fill-opacity="0.8"/>
-  <rect x="108" y="209" width="16" height="16" rx="4" fill="#10B981" fill-opacity="0.8"/>
-  <rect x="188" y="209" width="16" height="16" rx="4" fill="#8B5CF6" fill-opacity="0.8"/>
-  <!-- Card labels -->
-  <rect x="108" y="165" width="40" height="5" rx="2" fill="#ffffff" fill-opacity="0.5"/>
-  <rect x="188" y="165" width="40" height="5" rx="2" fill="#ffffff" fill-opacity="0.5"/>
-  <rect x="108" y="229" width="40" height="5" rx="2" fill="#ffffff" fill-opacity="0.5"/>
-  <rect x="188" y="229" width="40" height="5" rx="2" fill="#ffffff" fill-opacity="0.5"/>
-  <!-- Energy bar chart -->
-  <rect x="96" y="268" width="152" height="10" rx="3" fill="#ffffff" fill-opacity="0.1"/>
-  <rect x="96" y="268" width="80" height="10" rx="3" fill="#F59E0B" fill-opacity="0.7"/>
-  <!-- Mini bars -->
-  <rect x="96" y="290" width="16" height="30" rx="3" fill="#F59E0B" fill-opacity="0.3"/>
-  <rect x="118" y="300" width="16" height="20" rx="3" fill="#F59E0B" fill-opacity="0.4"/>
-  <rect x="140" y="285" width="16" height="35" rx="3" fill="#F59E0B" fill-opacity="0.6"/>
-  <rect x="162" y="295" width="16" height="25" rx="3" fill="#F59E0B" fill-opacity="0.4"/>
-  <rect x="184" y="280" width="16" height="40" rx="3" fill="#F59E0B" fill-opacity="0.8"/>
-  <!-- Bottom nav -->
-  <rect x="80" y="390" width="180" height="40" rx="0" fill="#0D1B2A"/>
-  <rect x="80" y="388" width="180" height="1" fill="#ffffff" fill-opacity="0.08"/>
-  <circle cx="132" cy="410" r="4" fill="#F59E0B"/>
-  <circle cx="170" cy="410" r="4" fill="#ffffff" fill-opacity="0.3"/>
-  <circle cx="208" cy="410" r="4" fill="#ffffff" fill-opacity="0.3"/>
-  <circle cx="246" cy="410" r="4" fill="#ffffff" fill-opacity="0.3"/>
+    <!-- Pedestal top face -->
+    <linearGradient id="ped-top" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b0b0ad"/>
+      <stop offset="100%" stop-color="#8c8c89"/>
+    </linearGradient>
 
-  <!-- Main content right side -->
-  <!-- Title block -->
-  <rect x="320" y="80" width="180" height="18" rx="5" fill="#F59E0B" fill-opacity="0.9"/>
-  <rect x="320" y="108" width="300" height="14" rx="4" fill="#ffffff" fill-opacity="0.8"/>
-  <rect x="320" y="130" width="260" height="10" rx="3" fill="#ffffff" fill-opacity="0.35"/>
-  <rect x="320" y="148" width="220" height="10" rx="3" fill="#ffffff" fill-opacity="0.25"/>
+    <!-- Pedestal front face -->
+    <linearGradient id="ped-front" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#363632"/>
+      <stop offset="100%" stop-color="#1c1c19"/>
+    </linearGradient>
 
-  <!-- Metric cards row -->
-  <rect x="320" y="178" width="130" height="70" rx="12" fill="#1A2B3C"/>
-  <rect x="462" y="178" width="130" height="70" rx="12" fill="#1A2B3C"/>
-  <rect x="604" y="178" width="130" height="70" rx="12" fill="#1A2B3C"/>
-  <!-- Metric values -->
-  <rect x="336" y="194" width="60" height="18" rx="4" fill="#F59E0B" fill-opacity="0.9"/>
-  <rect x="478" y="194" width="60" height="18" rx="4" fill="#10B981" fill-opacity="0.9"/>
-  <rect x="620" y="194" width="60" height="18" rx="4" fill="#3B82F6" fill-opacity="0.9"/>
-  <rect x="336" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.4"/>
-  <rect x="478" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.4"/>
-  <rect x="620" y="218" width="80" height="8" rx="3" fill="#ffffff" fill-opacity="0.4"/>
+    <!-- Phone drop shadow filter -->
+    <filter id="ph-sh" x="-35%" y="-15%" width="170%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="20" flood-color="#000" flood-opacity="0.65"/>
+    </filter>
 
-  <!-- Large feature card -->
-  <rect x="320" y="268" width="414" height="170" rx="16" fill="#1A2B3C"/>
-  <!-- Chart lines inside -->
-  <polyline points="340,400 370,370 400,385 440,345 480,360 520,330 560,350 600,320 640,340 700,310" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-opacity="0.8"/>
-  <polyline points="340,400 370,395 400,385 440,390 480,380 520,375 560,380 600,365 640,370 700,360" fill="none" stroke="#3B82F6" stroke-width="1.5" stroke-opacity="0.5"/>
-  <!-- Chart labels -->
-  <rect x="336" y="278" width="80" height="10" rx="3" fill="#ffffff" fill-opacity="0.6"/>
-  <rect x="336" y="295" width="120" height="8" rx="3" fill="#ffffff" fill-opacity="0.25"/>
+    <!-- Floor shadow blur -->
+    <filter id="floor-sh" x="-5%" y="-50%" width="110%" height="200%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
 
-  <!-- HomeSense wordmark -->
-  <rect x="320" y="455" width="100" height="12" rx="3" fill="#F59E0B" fill-opacity="0.7"/>
-  <rect x="430" y="455" width="60" height="12" rx="3" fill="#ffffff" fill-opacity="0.2"/>
+    <!-- Screen clip: center phone -->
+    <clipPath id="cc">
+      <rect x="0" y="0" width="162" height="360" rx="24"/>
+    </clipPath>
+
+    <!-- Screen clip: side phones -->
+    <clipPath id="cs-l">
+      <rect x="0" y="0" width="138" height="306" rx="20"/>
+    </clipPath>
+    <clipPath id="cs-r">
+      <rect x="0" y="0" width="138" height="306" rx="20"/>
+    </clipPath>
+  </defs>
+
+  <!-- ── Background ─────────────────────────────────── -->
+  <rect width="800" height="560" fill="url(#bg)"/>
+
+  <!-- Indigo atmosphere glow -->
+  <ellipse cx="400" cy="290" rx="310" ry="190" fill="url(#glow)"/>
+
+  <!-- ── Floor shadow beneath pedestal ────────────── -->
+  <ellipse cx="400" cy="548" rx="300" ry="12" fill="#000" opacity="0.55" filter="url(#floor-sh)"/>
+
+  <!-- ── Pedestal ────────────────────────────────────── -->
+  <!-- Top face (lighter stone) -->
+  <rect x="88" y="426" width="624" height="17" rx="2" fill="url(#ped-top)"/>
+  <!-- Front face -->
+  <rect x="88" y="443" width="624" height="100" fill="url(#ped-front)"/>
+  <!-- Subtle horizontal texture lines -->
+  <line x1="88"  y1="466" x2="712" y2="466" stroke="#fff" stroke-opacity="0.025" stroke-width="1"/>
+  <line x1="88"  y1="488" x2="712" y2="488" stroke="#fff" stroke-opacity="0.025" stroke-width="1"/>
+  <line x1="88"  y1="510" x2="712" y2="510" stroke="#fff" stroke-opacity="0.025" stroke-width="1"/>
+  <!-- Vertical grain marks -->
+  <rect x="140" y="450" width="1" height="86" fill="#fff" opacity="0.02"/>
+  <rect x="260" y="450" width="1" height="86" fill="#fff" opacity="0.02"/>
+  <rect x="380" y="450" width="1" height="86" fill="#fff" opacity="0.02"/>
+  <rect x="500" y="450" width="1" height="86" fill="#fff" opacity="0.02"/>
+  <rect x="620" y="450" width="1" height="86" fill="#fff" opacity="0.02"/>
+  <!-- Bottom edge highlight -->
+  <rect x="88" y="541" width="624" height="2" rx="1" fill="#fff" opacity="0.04"/>
+
+  <!-- ── LEFT PHONE — Routines (rotated -8° around bottom-centre x=207, y=443) ── -->
+  <g transform="rotate(-8,207,443)" filter="url(#ph-sh)">
+    <!-- Body -->
+    <rect x="132" y="119" width="150" height="324" rx="30" fill="#111110"/>
+    <!-- Side button -->
+    <rect x="130" y="178" width="3" height="34" rx="1.5" fill="#1d1d1a"/>
+    <!-- Volume buttons -->
+    <rect x="279" y="166" width="3" height="24" rx="1.5" fill="#1d1d1a"/>
+    <rect x="279" y="196" width="3" height="24" rx="1.5" fill="#1d1d1a"/>
+    <!-- Screen -->
+    <svg x="139" y="127" width="138" height="306" overflow="visible">
+      <g clip-path="url(#cs-l)">
+        <rect width="138" height="306" fill="#fafaf9"/>
+        <text x="10" y="14" font-family="system-ui,sans-serif" font-size="7" font-weight="600" fill="#111110">9:41</text>
+        <text x="128" y="14" font-family="system-ui,sans-serif" font-size="6" fill="#111110" opacity="0.45" text-anchor="end">●●● 5G</text>
+        <rect x="49" y="3" width="40" height="10" rx="5" fill="#111110"/>
+        <text x="13" y="36" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#111110">Routines</text>
+        <text x="13" y="48" font-family="system-ui,sans-serif" font-size="6" fill="#737373">4 routines configured</text>
+        <!-- Card 1: Morning ON -->
+        <rect x="11" y="57" width="116" height="48" rx="11" fill="#f5f4f1"/>
+        <rect x="19" y="65" width="22" height="22" rx="6" fill="#575ECF" opacity="0.14"/>
+        <rect x="24" y="70" width="12" height="12" rx="3" fill="#575ECF"/>
+        <text x="48" y="75" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Morning Routine</text>
+        <text x="48" y="86" font-family="system-ui,sans-serif" font-size="6" fill="#737373">6:30 AM · 5 devices</text>
+        <rect x="100" y="70" width="22" height="12" rx="6" fill="#575ECF"/>
+        <circle cx="116" cy="76" r="4" fill="#fff"/>
+        <!-- Card 2: Away OFF -->
+        <rect x="11" y="112" width="116" height="48" rx="11" fill="#f5f4f1"/>
+        <rect x="19" y="120" width="22" height="22" rx="6" fill="#737373" opacity="0.1"/>
+        <rect x="24" y="125" width="12" height="12" rx="3" fill="#9a9a96"/>
+        <text x="48" y="130" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Away Mode</text>
+        <text x="48" y="141" font-family="system-ui,sans-serif" font-size="6" fill="#737373">Location · 3 devices</text>
+        <rect x="100" y="125" width="22" height="12" rx="6" fill="#e5e3de"/>
+        <circle cx="106" cy="131" r="4" fill="#fff"/>
+        <!-- Card 3: Night OFF -->
+        <rect x="11" y="167" width="116" height="48" rx="11" fill="#f5f4f1"/>
+        <rect x="19" y="175" width="22" height="22" rx="6" fill="#7c3aed" opacity="0.1"/>
+        <rect x="24" y="180" width="12" height="12" rx="3" fill="#9a7fd4"/>
+        <text x="48" y="185" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Night Mode</text>
+        <text x="48" y="196" font-family="system-ui,sans-serif" font-size="6" fill="#737373">10:30 PM · 4 devices</text>
+        <rect x="100" y="180" width="22" height="12" rx="6" fill="#e5e3de"/>
+        <circle cx="106" cy="186" r="4" fill="#fff"/>
+        <!-- Card 4: Weekend OFF -->
+        <rect x="11" y="222" width="116" height="48" rx="11" fill="#f5f4f1"/>
+        <rect x="19" y="230" width="22" height="22" rx="6" fill="#d97706" opacity="0.1"/>
+        <rect x="24" y="235" width="12" height="12" rx="3" fill="#d97706" opacity="0.55"/>
+        <text x="48" y="240" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Weekend Slow</text>
+        <text x="48" y="251" font-family="system-ui,sans-serif" font-size="6" fill="#737373">Sat–Sun · Manual</text>
+        <rect x="100" y="235" width="22" height="12" rx="6" fill="#e5e3de"/>
+        <circle cx="106" cy="241" r="4" fill="#fff"/>
+        <!-- Tab bar -->
+        <rect x="0" y="272" width="138" height="34" fill="#fafaf9"/>
+        <line x1="0" y1="272" x2="138" y2="272" stroke="#e5e3de" stroke-width="0.5"/>
+        <rect x="8"  y="276" width="16" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="16" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#737373" text-anchor="middle">home</text>
+        <rect x="36" y="276" width="16" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="44" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#737373" text-anchor="middle">devs</text>
+        <rect x="56" y="276" width="28" height="3" rx="1.5" fill="#575ECF"/>
+        <text x="70" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#575ECF" font-weight="700" text-anchor="middle">rout</text>
+        <rect x="92" y="276" width="16" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="100" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#737373" text-anchor="middle">alrt</text>
+        <rect x="114" y="276" width="16" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="122" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#737373" text-anchor="middle">sett</text>
+      </g>
+    </svg>
+  </g>
+
+  <!-- ── RIGHT PHONE — Devices (rotated +8° around x=593, y=443) ── -->
+  <g transform="rotate(8,593,443)" filter="url(#ph-sh)">
+    <!-- Body -->
+    <rect x="518" y="119" width="150" height="324" rx="30" fill="#111110"/>
+    <!-- Side button -->
+    <rect x="516" y="178" width="3" height="34" rx="1.5" fill="#1d1d1a"/>
+    <!-- Volume buttons -->
+    <rect x="665" y="166" width="3" height="24" rx="1.5" fill="#1d1d1a"/>
+    <rect x="665" y="196" width="3" height="24" rx="1.5" fill="#1d1d1a"/>
+    <!-- Screen -->
+    <svg x="525" y="127" width="138" height="306" overflow="visible">
+      <g clip-path="url(#cs-r)">
+        <rect width="138" height="306" fill="#fafaf9"/>
+        <text x="10" y="14" font-family="system-ui,sans-serif" font-size="7" font-weight="600" fill="#111110">9:41</text>
+        <text x="128" y="14" font-family="system-ui,sans-serif" font-size="6" fill="#111110" opacity="0.45" text-anchor="end">●●● 5G</text>
+        <rect x="49" y="3" width="40" height="10" rx="5" fill="#111110"/>
+        <text x="13" y="36" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#111110">Devices</text>
+        <text x="13" y="48" font-family="system-ui,sans-serif" font-size="6" fill="#737373">6 connected · 4 active</text>
+        <!-- Row: Oven ON -->
+        <rect x="11" y="56" width="116" height="36" rx="9" fill="#f5f4f1"/>
+        <rect x="19" y="63" width="20" height="20" rx="5" fill="#575ECF" opacity="0.13"/>
+        <rect x="24" y="68" width="10" height="10" rx="2.5" fill="#575ECF"/>
+        <text x="47" y="73" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Smart Oven</text>
+        <text x="47" y="83" font-family="system-ui,sans-serif" font-size="6" fill="#22c55e">On · 180°C</text>
+        <rect x="102" y="65" width="20" height="11" rx="5.5" fill="#575ECF"/>
+        <circle cx="116" cy="70.5" r="3.5" fill="#fff"/>
+        <!-- Row: Kettle OFF -->
+        <rect x="11" y="97" width="116" height="36" rx="9" fill="#f5f4f1"/>
+        <rect x="19" y="104" width="20" height="20" rx="5" fill="#737373" opacity="0.09"/>
+        <rect x="24" y="109" width="10" height="10" rx="2.5" fill="#9a9a96"/>
+        <text x="47" y="114" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Smart Kettle</text>
+        <text x="47" y="124" font-family="system-ui,sans-serif" font-size="6" fill="#737373">Idle</text>
+        <rect x="102" y="106" width="20" height="11" rx="5.5" fill="#e5e3de"/>
+        <circle cx="108" cy="111.5" r="3.5" fill="#fff"/>
+        <!-- Row: Refrigerator ON -->
+        <rect x="11" y="138" width="116" height="36" rx="9" fill="#f5f4f1"/>
+        <rect x="19" y="145" width="20" height="20" rx="5" fill="#575ECF" opacity="0.13"/>
+        <rect x="24" y="150" width="10" height="10" rx="2.5" fill="#575ECF"/>
+        <text x="47" y="155" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Refrigerator</text>
+        <text x="47" y="165" font-family="system-ui,sans-serif" font-size="6" fill="#22c55e">On · 3°C</text>
+        <rect x="102" y="147" width="20" height="11" rx="5.5" fill="#575ECF"/>
+        <circle cx="116" cy="152.5" r="3.5" fill="#fff"/>
+        <!-- Row: Dishwasher ON -->
+        <rect x="11" y="179" width="116" height="36" rx="9" fill="#f5f4f1"/>
+        <rect x="19" y="186" width="20" height="20" rx="5" fill="#575ECF" opacity="0.13"/>
+        <rect x="24" y="191" width="10" height="10" rx="2.5" fill="#575ECF"/>
+        <text x="47" y="196" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Dishwasher</text>
+        <text x="47" y="206" font-family="system-ui,sans-serif" font-size="6" fill="#22c55e">Running</text>
+        <rect x="102" y="188" width="20" height="11" rx="5.5" fill="#575ECF"/>
+        <circle cx="116" cy="193.5" r="3.5" fill="#fff"/>
+        <!-- Row: Washer OFF -->
+        <rect x="11" y="220" width="116" height="36" rx="9" fill="#f5f4f1"/>
+        <rect x="19" y="227" width="20" height="20" rx="5" fill="#737373" opacity="0.09"/>
+        <rect x="24" y="232" width="10" height="10" rx="2.5" fill="#9a9a96"/>
+        <text x="47" y="237" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">Washing Machine</text>
+        <text x="47" y="247" font-family="system-ui,sans-serif" font-size="6" fill="#737373">Idle</text>
+        <rect x="102" y="229" width="20" height="11" rx="5.5" fill="#e5e3de"/>
+        <circle cx="108" cy="234.5" r="3.5" fill="#fff"/>
+        <!-- Tab bar -->
+        <rect x="0" y="272" width="138" height="34" fill="#fafaf9"/>
+        <line x1="0" y1="272" x2="138" y2="272" stroke="#e5e3de" stroke-width="0.5"/>
+        <rect x="8"  y="276" width="16" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="16" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#737373" text-anchor="middle">home</text>
+        <rect x="32" y="276" width="28" height="3" rx="1.5" fill="#575ECF"/>
+        <text x="46" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#575ECF" font-weight="700" text-anchor="middle">devs</text>
+        <rect x="68" y="276" width="16" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="76" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#737373" text-anchor="middle">rout</text>
+        <rect x="94" y="276" width="16" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="102" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#737373" text-anchor="middle">alrt</text>
+        <rect x="114" y="276" width="16" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="122" y="290" font-family="system-ui,sans-serif" font-size="5" fill="#737373" text-anchor="middle">sett</text>
+      </g>
+    </svg>
+  </g>
+
+  <!-- ── CENTER PHONE — Home (no rotation, drawn on top) ── -->
+  <g filter="url(#ph-sh)">
+    <!-- Body -->
+    <rect x="311" y="54" width="178" height="372" rx="34" fill="#111110"/>
+    <!-- Side button -->
+    <rect x="309" y="186" width="3" height="38" rx="1.5" fill="#1d1d1a"/>
+    <!-- Volume buttons -->
+    <rect x="488" y="172" width="3" height="28" rx="1.5" fill="#1d1d1a"/>
+    <rect x="488" y="206" width="3" height="28" rx="1.5" fill="#1d1d1a"/>
+    <!-- Screen (160×356) -->
+    <svg x="320" y="64" width="160" height="356" overflow="visible">
+      <g clip-path="url(#cc)">
+        <rect width="160" height="356" fill="#fafaf9"/>
+        <!-- status bar -->
+        <text x="12" y="15" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#111110">9:41</text>
+        <text x="148" y="15" font-family="system-ui,sans-serif" font-size="7" fill="#111110" opacity="0.4" text-anchor="end">●●● 5G</text>
+        <!-- dynamic island -->
+        <rect x="57" y="3" width="46" height="12" rx="6" fill="#111110"/>
+        <!-- greeting -->
+        <text x="14" y="36" font-family="system-ui,sans-serif" font-size="8" fill="#737373">Good morning</text>
+        <text x="14" y="50" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#111110">Karishma</text>
+        <!-- scene pills -->
+        <rect x="14" y="58" width="42" height="16" rx="8" fill="#575ECF"/>
+        <text x="35" y="69" font-family="system-ui,sans-serif" font-size="6.5" fill="#fff" font-weight="600" text-anchor="middle">Morning</text>
+        <rect x="60" y="58" width="32" height="16" rx="8" fill="#f5f4f1"/>
+        <text x="76" y="69" font-family="system-ui,sans-serif" font-size="6.5" fill="#737373" text-anchor="middle">Away</text>
+        <rect x="96" y="58" width="32" height="16" rx="8" fill="#f5f4f1"/>
+        <text x="112" y="69" font-family="system-ui,sans-serif" font-size="6.5" fill="#737373" text-anchor="middle">Night</text>
+        <!-- Device grid 2x2 -->
+        <!-- TL: Oven -->
+        <rect x="14" y="82" width="62" height="66" rx="12" fill="#f5f4f1"/>
+        <rect x="22" y="90" width="24" height="24" rx="7" fill="#575ECF" opacity="0.13"/>
+        <rect x="27" y="95" width="14" height="14" rx="4" fill="#575ECF"/>
+        <text x="22" y="128" font-family="system-ui,sans-serif" font-size="7.5" font-weight="600" fill="#111110">Oven</text>
+        <text x="22" y="140" font-family="system-ui,sans-serif" font-size="6" fill="#22c55e">180°C · On</text>
+        <!-- TR: Kettle -->
+        <rect x="82" y="82" width="62" height="66" rx="12" fill="#f5f4f1"/>
+        <rect x="90" y="90" width="24" height="24" rx="7" fill="#575ECF" opacity="0.13"/>
+        <rect x="95" y="95" width="14" height="14" rx="4" fill="#575ECF" opacity="0.35"/>
+        <text x="90" y="128" font-family="system-ui,sans-serif" font-size="7.5" font-weight="600" fill="#111110">Kettle</text>
+        <text x="90" y="140" font-family="system-ui,sans-serif" font-size="6" fill="#737373">Idle</text>
+        <!-- BL: Fridge -->
+        <rect x="14" y="154" width="62" height="66" rx="12" fill="#f5f4f1"/>
+        <rect x="22" y="162" width="24" height="24" rx="7" fill="#575ECF" opacity="0.13"/>
+        <rect x="27" y="167" width="14" height="14" rx="4" fill="#575ECF"/>
+        <text x="22" y="200" font-family="system-ui,sans-serif" font-size="7.5" font-weight="600" fill="#111110">Fridge</text>
+        <text x="22" y="212" font-family="system-ui,sans-serif" font-size="6" fill="#22c55e">3°C · On</text>
+        <!-- BR: Dishwasher -->
+        <rect x="82" y="154" width="62" height="66" rx="12" fill="#f5f4f1"/>
+        <rect x="90" y="162" width="24" height="24" rx="7" fill="#575ECF" opacity="0.13"/>
+        <rect x="95" y="167" width="14" height="14" rx="4" fill="#575ECF"/>
+        <text x="90" y="200" font-family="system-ui,sans-serif" font-size="7.5" font-weight="600" fill="#111110">Washer</text>
+        <text x="90" y="212" font-family="system-ui,sans-serif" font-size="6" fill="#22c55e">Running</text>
+        <!-- Energy widget -->
+        <rect x="14" y="228" width="130" height="44" rx="12" fill="#111110"/>
+        <text x="22" y="244" font-family="system-ui,sans-serif" font-size="7" fill="rgba(255,255,255,0.45)">Energy today</text>
+        <text x="22" y="260" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#fff">2.3 kWh</text>
+        <rect x="110" y="236" width="28" height="12" rx="6" fill="#22c55e" opacity="0.2"/>
+        <text x="124" y="245" font-family="system-ui,sans-serif" font-size="6.5" fill="#22c55e" text-anchor="middle">-12%</text>
+        <!-- Alert pill -->
+        <rect x="14" y="280" width="130" height="28" rx="9" fill="#f5f4f1"/>
+        <circle cx="27" cy="294" r="5" fill="#d97706"/>
+        <text x="38" y="297" font-family="system-ui,sans-serif" font-size="7" fill="#111110">Cycle done · 3 min ago</text>
+        <!-- Tab bar -->
+        <rect x="0" y="320" width="160" height="36" fill="#fafaf9"/>
+        <line x1="0" y1="320" x2="160" y2="320" stroke="#e5e3de" stroke-width="0.5"/>
+        <rect x="8"  y="324" width="28" height="3" rx="1.5" fill="#575ECF"/>
+        <text x="22"  y="339" font-family="system-ui,sans-serif" font-size="5.5" fill="#575ECF" font-weight="700" text-anchor="middle">home</text>
+        <rect x="46" y="324" width="20" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="56"  y="339" font-family="system-ui,sans-serif" font-size="5.5" fill="#737373" text-anchor="middle">devs</text>
+        <rect x="75" y="324" width="20" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="85"  y="339" font-family="system-ui,sans-serif" font-size="5.5" fill="#737373" text-anchor="middle">rout</text>
+        <rect x="104" y="324" width="20" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="114" y="339" font-family="system-ui,sans-serif" font-size="5.5" fill="#737373" text-anchor="middle">alrt</text>
+        <rect x="130" y="324" width="20" height="3" rx="1.5" fill="#e5e3de"/>
+        <text x="140" y="339" font-family="system-ui,sans-serif" font-size="5.5" fill="#737373" text-anchor="middle">sett</text>
+      </g>
+    </svg>
+  </g>
+
+
 </svg>

@@ -31,9 +31,7 @@ const themeConfig: Record<string, { bg: string; primary: string; text: string }>
 
 function App() {
   const [showThemeSelector, setShowThemeSelector] = useState(() => {
-    // Check if we've already shown the selector in this session
     const shown = sessionStorage.getItem('theme-selector-shown')
-    // If not shown yet, mark it as shown and return true to display it
     if (!shown) {
       sessionStorage.setItem('theme-selector-shown', 'true')
       return true
@@ -41,16 +39,57 @@ function App() {
     return false
   })
   const [, setCurrentTheme] = useState('blush')
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const [showAIChat, setShowAIChat] = useState(false)
   const mainRef = useRef<HTMLDivElement>(null)
 
+  const applyTheme = (theme: string) => {
+    const config = themeConfig[theme]
+    if (!config) return
+    const root = document.documentElement
+    root.style.setProperty('--bg-color', config.bg)
+    root.style.setProperty('--primary-color', config.primary)
+    root.style.setProperty('--text-color', config.text)
+    document.body.style.backgroundColor = config.bg
+    document.body.style.color = config.text
+  }
+
+  const applyDarkMode = (dark: boolean) => {
+    const root = document.documentElement
+    if (dark) {
+      root.setAttribute('data-dark', 'true')
+      root.style.setProperty('--bg-color', '#0e0d13')
+      root.style.setProperty('--text-color', '#ede8f5')
+      document.body.style.backgroundColor = '#0e0d13'
+      document.body.style.color = '#ede8f5'
+    } else {
+      root.removeAttribute('data-dark')
+      const savedTheme = localStorage.getItem('portfolio-theme') ?? 'blush'
+      const theme = themeConfig[savedTheme] ? savedTheme : 'blush'
+      applyTheme(theme)
+    }
+  }
+
+  const toggleDarkMode = () => {
+    const next = !isDarkMode
+    setIsDarkMode(next)
+    localStorage.setItem('portfolio-dark-mode', String(next))
+    applyDarkMode(next)
+  }
+
   useEffect(() => {
+    const savedDark = localStorage.getItem('portfolio-dark-mode') === 'true'
     const savedTheme = localStorage.getItem('portfolio-theme')
     const initialTheme = savedTheme && themeConfig[savedTheme] ? savedTheme : 'blush'
     setCurrentTheme(initialTheme)
-    applyTheme(initialTheme)
 
-    // Restore scroll position if coming back from project page
+    if (savedDark) {
+      setIsDarkMode(true)
+      applyDarkMode(true)
+    } else {
+      applyTheme(initialTheme)
+    }
+
     const savedScroll = sessionStorage.getItem('homepage-scroll')
     if (savedScroll) {
       setTimeout(() => {
@@ -60,28 +99,14 @@ function App() {
     }
   }, [])
 
-  const applyTheme = (theme: string) => {
-    const config = themeConfig[theme]
-    if (!config) return
-
-    const root = document.documentElement
-    
-    // Apply CSS variables
-    root.style.setProperty('--bg-color', config.bg)
-    root.style.setProperty('--primary-color', config.primary)
-    root.style.setProperty('--text-color', config.text)
-    
-    // Apply background to body
-    document.body.style.backgroundColor = config.bg
-    document.body.style.color = config.text
-  }
-
   const handleThemeSelect = (theme: string) => {
     setCurrentTheme(theme)
+    setIsDarkMode(false)
     localStorage.setItem('portfolio-theme', theme)
+    localStorage.setItem('portfolio-dark-mode', 'false')
+    document.documentElement.removeAttribute('data-dark')
     applyTheme(theme)
-    
-    // Animate out theme selector
+
     gsap.to('.theme-selector', {
       opacity: 0,
       y: -50,
@@ -99,7 +124,13 @@ function App() {
       )}
 
       {/* Navigation */}
-      {!showThemeSelector && <Navigation onThemeWheelClick={() => setShowThemeSelector(true)} />}
+      {!showThemeSelector && (
+        <Navigation
+          onThemeWheelClick={() => setShowThemeSelector(true)}
+          isDarkMode={isDarkMode}
+          onToggleDark={toggleDarkMode}
+        />
+      )}
 
       {/* Main Content */}
       <main className={`transition-opacity duration-500 ${showThemeSelector ? 'opacity-0' : 'opacity-100'}`}>

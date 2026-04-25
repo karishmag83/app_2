@@ -1,508 +1,740 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type TabId = 'home' | 'devices' | 'energy' | 'schedules'
-type DeviceId =
-  | 'refrigerator'
-  | 'oven'
-  | 'dishwasher'
-  | 'washer'
-  | 'dryer'
-  | 'coffee'
-  | 'microwave'
-  | 'purifier'
-type DeviceStates = Record<DeviceId, boolean>
+/* ─── Design tokens ──────────────────────────────────────────────────────── */
+const BG     = '#fafaf8'
+const FG     = '#0a0a09'
+const ACCENT = '#4f46e5'
+const MUTED  = '#737373'
+const BONE   = '#f0efec'
+const CARD   = '#ffffff'
+const BORDER = 'rgba(0,0,0,0.09)'
+const HL     = `1px solid ${BORDER}`
+const SERIF  = '"Playfair Display", Georgia, serif'
+const MONO   = 'ui-monospace, "SF Mono", "Courier New", monospace'
+const SANS   = '"Inter", system-ui, -apple-system, sans-serif'
+const AMBER  = '#F59E0B'
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-const SECTIONS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'challenge', label: 'Challenge' },
-  { id: 'research', label: 'Research' },
-  { id: 'process', label: 'Process' },
-  { id: 'solution', label: 'Solution' },
-  { id: 'testing', label: 'Testing' },
-  { id: 'results', label: 'Results' },
+/* ─── Count-up hook ──────────────────────────────────────────────────────── */
+function useCountUp(target: number, duration: number, started: boolean) {
+  const [val, setVal] = useState(0)
+  useEffect(() => {
+    if (!started) return
+    let t0: number | null = null
+    const tick = (ts: number) => {
+      if (!t0) t0 = ts
+      const p = Math.min((ts - t0) / duration, 1)
+      setVal(Math.round(p * target))
+      if (p < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }, [started, target, duration])
+  return val
+}
+
+/* ─── Shared ─────────────────────────────────────────────────────────────── */
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: MUTED, margin: '0 0 18px' }}>{children}</p>
+}
+function Box({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px', ...style }}>{children}</div>
+}
+function Sec({ id, bone, children }: { id?: string; bone?: boolean; children: React.ReactNode }) {
+  return (
+    <section id={id} style={{ borderTop: HL, backgroundColor: bone ? BONE : 'transparent', padding: '80px 0', scrollMarginTop: 60 }}>
+      <Box>{children}</Box>
+    </section>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION PROGRESS NAV (fixed right)
+═══════════════════════════════════════════════════════════════════════════ */
+const NAV_SECTIONS = [
+  { id: 'hero',         label: 'Intro'            },
+  { id: 'overview',     label: '01 Overview'      },
+  { id: 'problem',      label: '02 Problem'       },
+  { id: 'objectives',   label: '03 Objectives'    },
+  { id: 'process',      label: '04 Process'       },
+  { id: 'research',     label: '05 Research'      },
+  { id: 'ia',           label: '06 Architecture'  },
+  { id: 'userflow',     label: '07 User Flow'     },
+  { id: 'wireframes',   label: '08 Wireframes'    },
+  { id: 'onboarding',   label: '09 Onboarding'    },
+  { id: 'accessibility',label: '10 Accessibility' },
+  { id: 'final-design', label: '11 Final Design'  },
+  { id: 'prototype',    label: '12 Prototype'     },
+  { id: 'results',      label: '13 Results'       },
+  { id: 'reflection',   label: '14 Reflection'    },
 ]
 
-const AMBER = '#F59E0B'
-const NAVY = '#0D1B2A'
-
-// ─── Motion variants ──────────────────────────────────────────────────────────
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-}
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-}
-
-// ─── Inline SVG icons ─────────────────────────────────────────────────────────
-const HomeIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-  </svg>
-)
-const DevicesIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M4 6h18V4H4c-1.1 0-2 .9-2 2v11H0v3h14v-3H4V6zm19 2h-6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 9h-4v-7h4v7z" />
-  </svg>
-)
-const EnergyIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M7 2v11h3v9l7-12h-4l4-8z" />
-  </svg>
-)
-const ScheduleIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
-  </svg>
-)
-const BackArrow = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-  </svg>
-)
-
-// ─── Device metadata ──────────────────────────────────────────────────────────
-const DEVICE_META: Record<DeviceId, { label: string; icon: string; status: string; detail: string }> = {
-  refrigerator: { label: 'Refrigerator', icon: '🧊', status: '72°F', detail: 'Interior temp: 37°F · Freezer: 0°F · Door: Closed' },
-  oven: { label: 'Oven', icon: '🔥', status: 'Off', detail: 'Preheat target: 375°F · Timer: None set' },
-  dishwasher: { label: 'Dishwasher', icon: '🍽️', status: 'Running', detail: 'Cycle: Heavy · 38 min remaining · Door locked' },
-  washer: { label: 'Washer', icon: '👕', status: 'Off', detail: 'Last cycle: Cotton · 45 min · Door unlocked' },
-  dryer: { label: 'Dryer', icon: '🌀', status: 'Off', detail: 'Heat: Medium · Moisture sensor: Ready' },
-  coffee: { label: 'Coffee Maker', icon: '☕', status: 'Scheduled 7am', detail: 'Brew size: 10 cups · Grind: Medium · Auto-off: 30 min' },
-  microwave: { label: 'Microwave', icon: '📡', status: 'Off', detail: 'Power level: 100% · Clock synced' },
-  purifier: { label: 'Air Purifier', icon: '💨', status: 'Running', detail: 'Mode: Auto · AQI: 22 (Good) · Filter: 78% life' },
-}
-
-// ─── App mockup sub-components ────────────────────────────────────────────────
-const StatusBar = () => (
-  <div className="flex items-center justify-between px-4 pt-1 pb-0" style={{ height: 20 }}>
-    <span className="text-white text-xs font-semibold" style={{ fontSize: 11 }}>9:41</span>
-    <div className="flex items-center gap-1">
-      <svg width="12" height="10" viewBox="0 0 12 10" fill="white">
-        <rect x="0" y="6" width="2" height="4" rx="0.5" />
-        <rect x="3" y="4" width="2" height="6" rx="0.5" />
-        <rect x="6" y="2" width="2" height="8" rx="0.5" />
-        <rect x="9" y="0" width="2" height="10" rx="0.5" />
-      </svg>
-      <svg width="14" height="10" viewBox="0 0 14 10" fill="white">
-        <rect x="0" y="3" width="11" height="6" rx="1" stroke="white" strokeWidth="1" fill="none" />
-        <rect x="11.5" y="4" width="1.5" height="4" rx="0.5" fill="white" />
-        <rect x="1" y="4" width="7" height="4" rx="0.5" fill="white" />
-      </svg>
-    </div>
-  </div>
-)
-
-const DynamicIsland = () => (
-  <div className="flex justify-center mt-1 mb-2">
-    <div
-      className="rounded-full"
-      style={{ width: 120, height: 32, backgroundColor: '#000', borderRadius: 20 }}
-    />
-  </div>
-)
-
-const Toggle = ({
-  on,
-  onToggle,
-}: {
-  on: boolean
-  onToggle: () => void
-}) => (
-  <button
-    onClick={(e) => { e.stopPropagation(); onToggle() }}
-    className="relative flex-shrink-0"
-    style={{
-      width: 36,
-      height: 20,
-      borderRadius: 10,
-      backgroundColor: on ? AMBER : '#374151',
-      transition: 'background-color 0.2s',
-      border: 'none',
-      cursor: 'pointer',
-    }}
-  >
-    <span
-      style={{
-        position: 'absolute',
-        top: 2,
-        left: on ? 18 : 2,
-        width: 16,
-        height: 16,
-        borderRadius: '50%',
-        backgroundColor: '#fff',
-        transition: 'left 0.2s',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-      }}
-    />
-  </button>
-)
-
-// ── Home screen ───────────────────────────────────────────────────────────────
-const HomeScreen = ({
-  deviceStates,
-  setDeviceStates,
-}: {
-  deviceStates: DeviceStates
-  setDeviceStates: React.Dispatch<React.SetStateAction<DeviceStates>>
-}) => {
-  const energyData = [18, 24, 19, 30, 27, 22, 25]
-  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-  const maxVal = Math.max(...energyData)
-
+function SectionNav({ active }: { active: string }) {
+  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   return (
-    <div className="flex flex-col gap-3 px-3 py-2 overflow-y-auto" style={{ maxHeight: 580 }}>
-      {/* Header */}
-      <div>
-        <p className="text-gray-400" style={{ fontSize: 11 }}>Saturday, Apr 19</p>
-        <h2 className="text-white font-bold" style={{ fontSize: 18 }}>Good morning, Sarah ☀️</h2>
-      </div>
-
-      {/* Active appliances */}
-      <div>
-        <p className="text-gray-400 mb-2" style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>Active Now</p>
-        <div className="grid grid-cols-2 gap-2">
-          {([
-            { id: 'refrigerator' as DeviceId, label: 'Refrigerator', val: '72°F', icon: '🧊' },
-            { id: 'dishwasher' as DeviceId, label: 'Dishwasher', val: 'Running', icon: '🍽️' },
-            { id: 'coffee' as DeviceId, label: 'Coffee Maker', val: 'Sched. 7am', icon: '☕' },
-            { id: 'oven' as DeviceId, label: 'Oven', val: 'Off', icon: '🔥' },
-          ] as { id: DeviceId; label: string; val: string; icon: string }[]).map((item) => (
-            <div
-              key={item.id}
-              className="rounded-2xl p-3 flex flex-col gap-1"
-              style={{
-                backgroundColor: deviceStates[item.id] ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${deviceStates[item.id] ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'}`,
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <span style={{ fontSize: 18 }}>{item.icon}</span>
-                <Toggle
-                  on={deviceStates[item.id]}
-                  onToggle={() => setDeviceStates((s) => ({ ...s, [item.id]: !s[item.id] }))}
-                />
-              </div>
-              <p className="text-white" style={{ fontSize: 10, fontWeight: 600 }}>{item.label}</p>
-              <p style={{ fontSize: 9, color: deviceStates[item.id] ? AMBER : '#6B7280' }}>{item.val}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Energy bar chart */}
-      <div className="rounded-2xl p-3" style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-white" style={{ fontSize: 11, fontWeight: 600 }}>Energy This Week</p>
-          <p style={{ fontSize: 10, color: AMBER }}>$47.20</p>
-        </div>
-        <div className="flex items-end gap-1" style={{ height: 44 }}>
-          {energyData.map((val, i) => (
-            <div key={i} className="flex flex-col items-center flex-1 gap-1">
-              <div
-                className="w-full rounded-sm"
-                style={{
-                  height: (val / maxVal) * 36,
-                  backgroundColor: i === 6 ? AMBER : 'rgba(245,158,11,0.35)',
-                  borderRadius: 3,
-                }}
-              />
-              <span style={{ fontSize: 7, color: '#6B7280' }}>{days[i]}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Quick actions */}
-      <div>
-        <p className="text-gray-400 mb-2" style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>Quick Actions</p>
-        <div className="flex gap-2">
-          {[
-            { label: 'Goodnight', icon: '🌙' },
-            { label: 'Away Mode', icon: '🏠' },
-            { label: 'Eco Mode', icon: '🌿' },
-          ].map((a) => (
-            <button
-              key={a.label}
-              className="flex-1 rounded-xl py-2 flex flex-col items-center gap-1"
-              style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
-            >
-              <span style={{ fontSize: 14 }}>{a.icon}</span>
-              <span className="text-white" style={{ fontSize: 8 }}>{a.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
+    <nav style={{ position: 'fixed', right: 20, top: '50%', transform: 'translateY(-50%)', zIndex: 40, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+      {NAV_SECTIONS.map(s => {
+        const isActive = active === s.id
+        return (
+          <button
+            key={s.id}
+            onClick={() => scrollTo(s.id)}
+            title={s.label}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
+          >
+            <span style={{
+              fontFamily: MONO, fontSize: 9, color: isActive ? ACCENT : MUTED,
+              opacity: isActive ? 1 : 0, transition: 'opacity 0.2s', whiteSpace: 'nowrap',
+              letterSpacing: '0.06em',
+            }}>
+              {s.label}
+            </span>
+            <div style={{
+              width: isActive ? 20 : 6, height: 2, borderRadius: 2,
+              backgroundColor: isActive ? ACCENT : BORDER,
+              transition: 'all 0.25s ease', flexShrink: 0,
+            }} />
+          </button>
+        )
+      })}
+    </nav>
   )
 }
 
-// ── Devices screen ────────────────────────────────────────────────────────────
-const DevicesScreen = ({
-  deviceStates,
-  setDeviceStates,
-  selectedDevice,
-  setSelectedDevice,
-}: {
-  deviceStates: DeviceStates
-  setDeviceStates: React.Dispatch<React.SetStateAction<DeviceStates>>
-  selectedDevice: string | null
-  setSelectedDevice: React.Dispatch<React.SetStateAction<string | null>>
-}) => {
-  const deviceKeys = Object.keys(DEVICE_META) as DeviceId[]
-
-  if (selectedDevice) {
-    const d = DEVICE_META[selectedDevice as DeviceId]
-    const isOn = deviceStates[selectedDevice as DeviceId]
-    return (
-      <div className="flex flex-col px-3 py-2" style={{ height: '100%' }}>
-        <button
-          onClick={() => setSelectedDevice(null)}
-          className="flex items-center gap-1 mb-3"
-          style={{ background: 'none', border: 'none', color: AMBER, cursor: 'pointer', fontSize: 12 }}
-        >
-          ← Back
-        </button>
-        <div className="rounded-2xl p-4 mb-3" style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <div className="flex items-center justify-between mb-3">
-            <span style={{ fontSize: 36 }}>{d.icon}</span>
-            <Toggle on={isOn} onToggle={() => setDeviceStates((s) => ({ ...s, [selectedDevice as DeviceId]: !s[selectedDevice as DeviceId] }))} />
-          </div>
-          <p className="text-white font-bold mb-1" style={{ fontSize: 16 }}>{d.label}</p>
-          <p style={{ fontSize: 11, color: isOn ? AMBER : '#6B7280' }}>● {isOn ? 'Active' : 'Off'}</p>
-        </div>
-        <div className="rounded-2xl p-3 mb-2" style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <p className="text-gray-400 mb-1" style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Status</p>
-          <p className="text-white" style={{ fontSize: 11 }}>{d.detail}</p>
-        </div>
-        {selectedDevice === 'refrigerator' && (
-          <div className="rounded-2xl p-3" style={{ backgroundColor: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
-            <p className="mb-2" style={{ fontSize: 10, color: AMBER, fontWeight: 600 }}>Temperature Control</p>
-            <div className="flex items-center justify-between">
-              <button className="w-8 h-8 rounded-full text-white flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: 'none', fontSize: 16, cursor: 'pointer' }}>−</button>
-              <span className="text-white font-bold" style={{ fontSize: 20 }}>37°F</span>
-              <button className="w-8 h-8 rounded-full text-white flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: 'none', fontSize: 16, cursor: 'pointer' }}>+</button>
-            </div>
-          </div>
-        )}
-        {selectedDevice === 'oven' && (
-          <div className="rounded-2xl p-3" style={{ backgroundColor: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
-            <p className="mb-2" style={{ fontSize: 10, color: AMBER, fontWeight: 600 }}>Preheat to</p>
-            <div className="flex gap-2">
-              {[325, 375, 425, 475].map((t) => (
-                <button key={t} className="flex-1 rounded-lg py-2 text-white" style={{ fontSize: 10, backgroundColor: t === 375 ? AMBER : 'rgba(255,255,255,0.08)', border: 'none', color: t === 375 ? '#000' : '#fff', cursor: 'pointer' }}>{t}°</button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+function useSectionObserver() {
+  const [active, setActive] = useState('hero')
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      entries => {
+        entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id) })
+      },
+      { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
     )
-  }
+    NAV_SECTIONS.forEach(s => {
+      const el = document.getElementById(s.id)
+      if (el) obs.observe(el)
+    })
+    return () => obs.disconnect()
+  }, [])
+  return active
+}
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   HEARTH PROTOTYPE - Lovable-matched interactive app
+═══════════════════════════════════════════════════════════════════════════ */
+const H_FG     = '#111110'
+const H_BG     = '#fafaf9'
+const H_ACCENT = '#575ECF'
+const H_BONE   = '#f5f4f1'
+const H_RULE   = '#e5e3de'
+const H_MUTED2 = '#737373'
+const H_SAGE   = '#22c55e'
+
+type HScreen = 'splash'|'welcome'|'signin'|'onboard-type'|'onboard-apps'|'pair-scan'|'tab'
+type HTab = 'home'|'devices'|'routines'|'alerts'|'settings'
+
+const H_DEVS = [
+  { id:'fridge',     name:'Refrigerator', room:'Kitchen',     status:'37°F',    note:'Door closed · freezer 0°F',    on:true,  dot:'#3b82f6' },
+  { id:'oven',       name:'Oven',         room:'Kitchen',     status:'Off',     note:'Auto-off ready',                on:false, dot:'#ef4444' },
+  { id:'dishwasher', name:'Dishwasher',   room:'Kitchen',     status:'Running', note:'38 min · heavy cycle',         on:true,  dot:'#06b6d4' },
+  { id:'coffee',     name:'Coffee Maker', room:'Kitchen',     status:'7:00 AM', note:'10 cups · grind medium',       on:true,  dot:'#d97706' },
+  { id:'washer',     name:'Washer',       room:'Laundry',     status:'Off',     note:'Door unlocked · ready',         on:false, dot:'#8b5cf6' },
+  { id:'dryer',      name:'Dryer',        room:'Laundry',     status:'Off',     note:'Sensor dry ready',              on:false, dot:'#ec4899' },
+  { id:'purifier',   name:'Air Purifier', room:'Living Room', status:'Auto',    note:'AQI 22 · filter 78%',          on:true,  dot:'#10b981' },
+  { id:'microwave',  name:'Microwave',    room:'Kitchen',     status:'Off',     note:'Power 100%',                    on:false, dot:'#6366f1' },
+]
+
+const H_ROUTINES = [
+  { id:'morning', name:'Morning Brew', trigger:'7:00 AM daily',   summary:'Coffee + exhaust fan',  on:true  },
+  { id:'away',    name:'Leave Home',   trigger:'On departure',     summary:'All off · lock report', on:true  },
+  { id:'dinner',  name:'Dinner Prep',  trigger:'6:30 PM weekdays', summary:'Oven preheat + hood',   on:false },
+  { id:'night',   name:'Wind Down',    trigger:'10:00 PM daily',   summary:'Purifier on · all off', on:true  },
+]
+
+const H_ALERTS_DEF = [
+  { id:'a1', kind:'done', title:'Dishwasher complete',  desc:'Heavy cycle finished · 3 min ago',  time:'2m' },
+  { id:'a2', kind:'warn', title:'Filter change due',    desc:'Air purifier · 78 days old',        time:'1h' },
+  { id:'a3', kind:'info', title:'Brew scheduled',       desc:'Coffee starts tomorrow at 7:00 AM', time:'5h' },
+  { id:'a4', kind:'done', title:'Washer complete',      desc:'Cotton 45 min, ready to transfer', time:'3h' },
+]
+
+/* ── Hearth toggle ─────────────────────────────────────────────────────── */
+function HToggle({ on, onChange }: { on: boolean; onChange: () => void }) {
   return (
-    <div className="flex flex-col gap-2 px-3 py-2 overflow-y-auto" style={{ maxHeight: 580 }}>
-      <p className="text-white font-bold mb-1" style={{ fontSize: 15 }}>All Appliances</p>
-      <div className="grid grid-cols-2 gap-2">
-        {deviceKeys.map((key) => {
-          const d = DEVICE_META[key]
-          const isOn = deviceStates[key]
-          return (
-            <button
-              key={key}
-              onClick={() => setSelectedDevice(key)}
-              className="rounded-2xl p-3 text-left"
-              style={{
-                backgroundColor: isOn ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.05)',
-                border: `1px solid ${isOn ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.08)'}`,
-                cursor: 'pointer',
-              }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span style={{ fontSize: 20 }}>{d.icon}</span>
-                <Toggle on={isOn} onToggle={() => setDeviceStates((s) => ({ ...s, [key]: !s[key] }))} />
-              </div>
-              <p className="text-white" style={{ fontSize: 10, fontWeight: 600 }}>{d.label}</p>
-              <p style={{ fontSize: 9, color: isOn ? AMBER : '#6B7280', marginTop: 2 }}>{d.status}</p>
-            </button>
-          )
-        })}
-      </div>
+    <button onClick={e => { e.stopPropagation(); onChange() }}
+      style={{ width:42, height:24, borderRadius:12, border:'none', cursor:'pointer', backgroundColor: on ? H_ACCENT : H_RULE, position:'relative', transition:'background 0.2s', flexShrink:0 }}>
+      <div style={{ width:18, height:18, borderRadius:'50%', backgroundColor:'#fff', position:'absolute', top:3, left: on ? 21 : 3, transition:'left 0.2s', boxShadow:'0 1px 3px rgba(0,0,0,0.25)' }}/>
+    </button>
+  )
+}
+
+/* ── Status bar ────────────────────────────────────────────────────────── */
+function HStatus({ inv = false }: { inv?: boolean }) {
+  const c = inv ? '#fff' : H_FG
+  return (
+    <div style={{ padding:'12px 28px 4px', display:'flex', justifyContent:'space-between', fontSize:11, fontFamily:SANS, fontWeight:500, color:c, flexShrink:0 }}>
+      <span>9:41</span>
+      <span style={{ opacity:0.7 }}>●●●● 5G ▮</span>
     </div>
   )
 }
 
-// ── Energy screen ─────────────────────────────────────────────────────────────
-const EnergyScreen = () => {
-  const weekData = [18, 24, 19, 30, 27, 22, 25]
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  const maxVal = Math.max(...weekData)
-  const topAppliances = [
-    { name: 'Refrigerator', usage: 24, pct: 100 },
-    { name: 'Dishwasher', usage: 18, pct: 75 },
-    { name: 'Washing Machine', usage: 12, pct: 50 },
-    { name: 'Dryer', usage: 10, pct: 42 },
-    { name: 'Oven', usage: 8, pct: 33 },
-  ]
-
+/* ── Phone frame ───────────────────────────────────────────────────────── */
+function HPhoneFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-3 px-3 py-2 overflow-y-auto" style={{ maxHeight: 580 }}>
-      <p className="text-white font-bold" style={{ fontSize: 15 }}>Energy Usage</p>
-
-      {/* Cost summary */}
-      <div className="rounded-2xl p-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
-        <div>
-          <p className="text-gray-400" style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 1 }}>This Week</p>
-          <p className="text-white font-bold" style={{ fontSize: 22 }}>$47.20</p>
-          <p style={{ fontSize: 9, color: '#10B981' }}>↓ 8% vs last week</p>
-        </div>
-        {/* Efficiency ring */}
-        <div className="relative flex items-center justify-center" style={{ width: 60, height: 60 }}>
-          <svg width="60" height="60" viewBox="0 0 60 60">
-            <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
-            <circle
-              cx="30" cy="30" r="24"
-              fill="none"
-              stroke={AMBER}
-              strokeWidth="5"
-              strokeDasharray={`${2 * Math.PI * 24 * 0.82} ${2 * Math.PI * 24}`}
-              strokeLinecap="round"
-              transform="rotate(-90 30 30)"
-            />
-          </svg>
-          <div className="absolute text-center">
-            <p className="text-white font-bold" style={{ fontSize: 12, lineHeight: 1 }}>82</p>
-            <p style={{ fontSize: 7, color: '#9CA3AF' }}>score</p>
+    <div style={{ position:'relative', margin:'0 auto', width:'100%', maxWidth:360 }}>
+      <div style={{ borderRadius:48, backgroundColor:H_FG, padding:10, boxShadow:'0 48px 96px -24px rgba(0,0,0,0.55)' }}>
+        <div style={{ borderRadius:38, overflow:'hidden', backgroundColor:H_BG, height:740, position:'relative' }}>
+          <div style={{ position:'absolute', top:8, left:'50%', transform:'translateX(-50%)', zIndex:30, width:108, height:22, borderRadius:11, backgroundColor:H_FG }}/>
+          <div style={{ height:'100%', width:'100%', overflow:'hidden', display:'flex', flexDirection:'column' }}>
+            {children}
           </div>
-        </div>
-      </div>
-
-      {/* Bar chart */}
-      <div className="rounded-2xl p-3" style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <p className="text-white mb-2" style={{ fontSize: 10, fontWeight: 600 }}>Daily Breakdown (kWh)</p>
-        <div className="flex items-end gap-1" style={{ height: 56 }}>
-          {weekData.map((val, i) => (
-            <div key={i} className="flex flex-col items-center flex-1 gap-1">
-              <div
-                className="w-full"
-                style={{
-                  height: (val / maxVal) * 44,
-                  backgroundColor: i === 6 ? AMBER : 'rgba(245,158,11,0.4)',
-                  borderRadius: '3px 3px 0 0',
-                }}
-              />
-              <span style={{ fontSize: 7, color: '#6B7280' }}>{days[i].slice(0, 1)}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Top appliances */}
-      <div className="rounded-2xl p-3" style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <p className="text-white mb-2" style={{ fontSize: 10, fontWeight: 600 }}>Top Consumers</p>
-        <div className="flex flex-col gap-2">
-          {topAppliances.map((a) => (
-            <div key={a.name}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-white" style={{ fontSize: 9 }}>{a.name}</span>
-                <span style={{ fontSize: 9, color: AMBER }}>{a.usage} kWh</span>
-              </div>
-              <div className="rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'rgba(255,255,255,0.1)' }}>
-                <div className="rounded-full" style={{ width: `${a.pct}%`, height: '100%', backgroundColor: AMBER }} />
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
   )
 }
 
-// ── Schedules screen ──────────────────────────────────────────────────────────
-const SchedulesScreen = () => {
-  const [morningOn, setMorningOn] = useState(true)
-  const [eveningOn, setEveningOn] = useState(true)
-
-  const routines = [
-    {
-      id: 'morning',
-      label: 'Morning Routine',
-      time: '6:30 AM – 7:30 AM',
-      icon: '🌅',
-      steps: ['Coffee Maker starts at 6:30 AM', 'Kitchen lights brighten to 80%', 'Thermostat to 70°F at 7:00 AM'],
-      on: morningOn,
-      toggle: () => setMorningOn((v) => !v),
-    },
-    {
-      id: 'evening',
-      label: 'Evening Routine',
-      time: '9:00 PM – 10:00 PM',
-      icon: '🌙',
-      steps: ['Dishwasher starts at 9:00 PM', 'Lights dim to 30%', 'Door locked & secured at 10:00 PM'],
-      on: eveningOn,
-      toggle: () => setEveningOn((v) => !v),
-    },
-  ]
-
+/* ── Back button ───────────────────────────────────────────────────────── */
+function HBack({ onBack }: { onBack: () => void }) {
   return (
-    <div className="flex flex-col gap-3 px-3 py-2 overflow-y-auto" style={{ maxHeight: 580 }}>
-      <p className="text-white font-bold" style={{ fontSize: 15 }}>Schedules & Routines</p>
-      {routines.map((r) => (
-        <div
-          key={r.id}
-          className="rounded-2xl p-3"
-          style={{
-            backgroundColor: r.on ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${r.on ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.08)'}`,
-          }}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span style={{ fontSize: 20 }}>{r.icon}</span>
-              <div>
-                <p className="text-white font-semibold" style={{ fontSize: 11 }}>{r.label}</p>
-                <p style={{ fontSize: 9, color: '#9CA3AF' }}>{r.time}</p>
+    <button onClick={onBack} style={{ display:'flex', alignItems:'center', gap:4, background:'none', border:'none', cursor:'pointer', color:H_FG, fontFamily:SANS, fontSize:13, fontWeight:500, padding:0 }}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+  )
+}
+
+/* ── Splash ────────────────────────────────────────────────────────────── */
+function HSplash({ onDone }: { onDone: () => void }) {
+  useEffect(() => { const t = setTimeout(onDone, 2200); return () => clearTimeout(t) }, [onDone])
+  return (
+    <div onClick={onDone} style={{ flex:1, backgroundColor:H_FG, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:14, cursor:'pointer' }}>
+      <div style={{ width:60, height:60, borderRadius:20, border:'1.5px solid rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3L4 9v12h16V9L12 3z" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinejoin="round"/>
+          <path d="M9 21V12h6v9" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinejoin="round"/>
+        </svg>
+      </div>
+      <p style={{ fontFamily:SERIF, fontSize:28, color:'#fff', margin:0, fontWeight:700, letterSpacing:-0.5 }}>Hearth</p>
+      <p style={{ fontFamily:MONO, fontSize:9, color:'rgba(255,255,255,0.35)', margin:0, letterSpacing:'0.22em', textTransform:'uppercase' }}>Smart Appliance Hub</p>
+      <div style={{ marginTop:20, display:'flex', gap:5 }}>
+        {[0,1,2].map(i => <div key={i} style={{ width:i===0?20:5, height:3, borderRadius:2, backgroundColor:i===0?H_ACCENT:'rgba(255,255,255,0.15)' }}/>)}
+      </div>
+    </div>
+  )
+}
+
+/* ── Welcome ───────────────────────────────────────────────────────────── */
+function HWelcome({ onStart, onSignIn }: { onStart: () => void; onSignIn: () => void }) {
+  return (
+    <div style={{ flex:1, display:'flex', flexDirection:'column', backgroundColor:H_BG }}>
+      <div style={{ flex:1, backgroundColor:H_BONE, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'0 0 32px 32px' }}>
+        <div style={{ textAlign:'center', padding:'32px 24px' }}>
+          <div style={{ display:'flex', justifyContent:'center', gap:8, marginBottom:16 }}>
+            {[{label:'Fridge',dot:'#3b82f6',on:true},{label:'Coffee',dot:'#d97706',on:true},{label:'Oven',dot:'#ef4444',on:false}].map(d=>(
+              <div key={d.label} style={{ width:60, backgroundColor:'#fff', borderRadius:14, padding:'10px 8px', border:`1px solid ${H_RULE}`, textAlign:'center' }}>
+                <div style={{ width:8, height:8, borderRadius:'50%', backgroundColor:d.on?d.dot:H_RULE, margin:'0 auto 6px' }}/>
+                <div style={{ fontFamily:SANS, fontSize:8, color:H_MUTED2 }}>{d.label}</div>
               </div>
-            </div>
-            <Toggle on={r.on} onToggle={r.toggle} />
-          </div>
-          <div className="flex flex-col gap-1 pl-1" style={{ borderLeft: `2px solid ${r.on ? AMBER : 'rgba(255,255,255,0.15)'}` }}>
-            {r.steps.map((step) => (
-              <p key={step} style={{ fontSize: 9, color: '#9CA3AF', paddingLeft: 8 }}>• {step}</p>
             ))}
           </div>
+          <div style={{ width:120, height:2, backgroundColor:H_RULE, margin:'0 auto 12px', borderRadius:1 }}/>
+          <div style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase' }}>8 appliances · 1 app</div>
         </div>
-      ))}
-      <button
-        className="rounded-2xl py-3 text-center w-full"
-        style={{
-          backgroundColor: 'transparent',
-          border: `2px dashed ${AMBER}`,
-          color: AMBER,
-          fontSize: 11,
-          fontWeight: 600,
-          cursor: 'pointer',
-        }}
-      >
-        + Add Routine
-      </button>
-      <div className="rounded-2xl p-3" style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-        <p className="text-gray-400 mb-2" style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Upcoming</p>
-        {[
-          { label: 'Coffee Maker', time: 'Today, 7:00 AM', icon: '☕' },
-          { label: 'Dishwasher', time: 'Today, 9:00 PM', icon: '🍽️' },
-          { label: 'Washer', time: 'Sat, 10:00 AM', icon: '👕' },
-        ].map((item) => (
-          <div key={item.label} className="flex items-center justify-between py-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="flex items-center gap-2">
-              <span style={{ fontSize: 12 }}>{item.icon}</span>
-              <span className="text-white" style={{ fontSize: 10 }}>{item.label}</span>
+      </div>
+      <div style={{ padding:'28px 24px 32px' }}>
+        <h1 style={{ fontFamily:SERIF, fontSize:26, color:H_FG, margin:'0 0 10px', fontWeight:700, lineHeight:1.2 }}>Your home,<br/>simplified.</h1>
+        <p style={{ fontFamily:SANS, fontSize:13, color:H_MUTED2, margin:'0 0 22px', lineHeight:1.6 }}>One app for every appliance. Smarter routines, fewer headaches.</p>
+        <button onClick={onStart} style={{ width:'100%', padding:'13px', borderRadius:14, backgroundColor:H_FG, border:'none', fontFamily:SANS, fontSize:14, fontWeight:600, color:'#fff', cursor:'pointer', marginBottom:10 }}>
+          Get started
+        </button>
+        <button onClick={onSignIn} style={{ width:'100%', padding:'13px', borderRadius:14, backgroundColor:'transparent', border:`1px solid ${H_RULE}`, fontFamily:SANS, fontSize:14, fontWeight:500, color:H_MUTED2, cursor:'pointer' }}>
+          I have an account
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ── Sign In ───────────────────────────────────────────────────────────── */
+function HSignIn({ onBack, onContinue }: { onBack: () => void; onContinue: () => void }) {
+  const [email, setEmail] = useState('demo@hearth.app')
+  const [pass, setPass] = useState('••••••••')
+  const inp = { width:'100%', padding:'12px 14px', borderRadius:12, border:`1px solid ${H_RULE}`, fontFamily:SANS, fontSize:14, color:H_FG, backgroundColor:H_BG, outline:'none', boxSizing:'border-box' as const }
+  return (
+    <div style={{ flex:1, backgroundColor:H_BG, display:'flex', flexDirection:'column' }}>
+      <div style={{ padding:'8px 20px 0' }}><HBack onBack={onBack} /></div>
+      <div style={{ flex:1, padding:'22px 24px 32px', display:'flex', flexDirection:'column' }}>
+        <h2 style={{ fontFamily:SERIF, fontSize:24, color:H_FG, margin:'0 0 6px', fontWeight:700 }}>Welcome back</h2>
+        <p style={{ fontFamily:SANS, fontSize:13, color:H_MUTED2, margin:'0 0 24px' }}>Sign in to your Hearth account</p>
+        <div style={{ marginBottom:12 }}>
+          <label style={{ fontFamily:MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color:H_MUTED2, display:'block', marginBottom:6 }}>Email</label>
+          <input value={email} onChange={e=>setEmail(e.target.value)} style={inp}/>
+        </div>
+        <div style={{ marginBottom:22 }}>
+          <label style={{ fontFamily:MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color:H_MUTED2, display:'block', marginBottom:6 }}>Password</label>
+          <input type="password" value={pass} onChange={e=>setPass(e.target.value)} style={inp}/>
+        </div>
+        <button onClick={onContinue} style={{ width:'100%', padding:'13px', borderRadius:14, backgroundColor:H_ACCENT, border:'none', fontFamily:SANS, fontSize:14, fontWeight:600, color:'#fff', cursor:'pointer', marginBottom:'auto' }}>
+          Continue →
+        </button>
+        <div style={{ marginTop:24, textAlign:'center' }}>
+          <p style={{ fontFamily:SANS, fontSize:12, color:H_MUTED2, margin:0 }}>
+            Forgot password? <span style={{ color:H_ACCENT, cursor:'pointer' }}>Reset</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Onboard: home type ────────────────────────────────────────────────── */
+function HOnboardType({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+  const [sel, setSel] = useState<string|null>(null)
+  return (
+    <div style={{ flex:1, backgroundColor:H_BG, display:'flex', flexDirection:'column' }}>
+      <div style={{ padding:'10px 20px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <HBack onBack={onBack} />
+        <div style={{ display:'flex', gap:4 }}>{[0,1,2].map(i=><div key={i} style={{ width:i===0?20:8, height:3, borderRadius:2, backgroundColor:i===0?H_ACCENT:H_RULE }}/>)}</div>
+      </div>
+      <div style={{ flex:1, padding:'22px 24px 28px', display:'flex', flexDirection:'column' }}>
+        <p style={{ fontFamily:MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color:H_MUTED2, margin:'0 0 10px' }}>Step 1 of 3</p>
+        <h2 style={{ fontFamily:SERIF, fontSize:22, color:H_FG, margin:'0 0 6px', fontWeight:700 }}>What type of home?</h2>
+        <p style={{ fontFamily:SANS, fontSize:13, color:H_MUTED2, margin:'0 0 22px', lineHeight:1.5 }}>We'll tailor your experience to your space.</p>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, flex:1 }}>
+          {['Apartment','House','Condo','Studio'].map(t=>(
+            <button key={t} onClick={()=>setSel(t)} style={{ padding:'18px 14px', borderRadius:14, border:`1.5px solid ${sel===t?H_ACCENT:H_RULE}`, backgroundColor:sel===t?`${H_ACCENT}0D`:H_BG, fontFamily:SANS, fontSize:14, fontWeight:500, color:H_FG, cursor:'pointer', textAlign:'left' }}>
+              {t}
+            </button>
+          ))}
+        </div>
+        <button onClick={onNext} disabled={!sel} style={{ marginTop:20, width:'100%', padding:'13px', borderRadius:14, backgroundColor:sel?H_FG:H_RULE, border:'none', fontFamily:SANS, fontSize:14, fontWeight:600, color:sel?'#fff':H_MUTED2, cursor:sel?'pointer':'default' }}>
+          Continue
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ── Onboard: select appliances ────────────────────────────────────────── */
+function HOnboardApps({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+  const all = ['Refrigerator','Oven','Dishwasher','Coffee Maker','Washer','Dryer','Air Purifier','Microwave']
+  const [sel, setSel] = useState(new Set(['Refrigerator','Dishwasher','Coffee Maker','Air Purifier']))
+  const toggle = (a: string) => setSel(s => { const n = new Set(s); n.has(a) ? n.delete(a) : n.add(a); return n })
+  return (
+    <div style={{ flex:1, backgroundColor:H_BG, display:'flex', flexDirection:'column' }}>
+      <div style={{ padding:'10px 20px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <HBack onBack={onBack} />
+        <div style={{ display:'flex', gap:4 }}>{[0,1,2].map(i=><div key={i} style={{ width:i===1?20:8, height:3, borderRadius:2, backgroundColor:i<=1?H_ACCENT:H_RULE }}/>)}</div>
+      </div>
+      <div style={{ flex:1, padding:'22px 20px', display:'flex', flexDirection:'column', overflowY:'auto' }}>
+        <p style={{ fontFamily:MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color:H_MUTED2, margin:'0 0 10px' }}>Step 2 of 3</p>
+        <h2 style={{ fontFamily:SERIF, fontSize:22, color:H_FG, margin:'0 0 6px', fontWeight:700 }}>Which appliances?</h2>
+        <p style={{ fontFamily:SANS, fontSize:13, color:H_MUTED2, margin:'0 0 18px' }}>Select all that apply. Add more later.</p>
+        <div style={{ display:'flex', flexDirection:'column', gap:7, marginBottom:20 }}>
+          {all.map(a=>{
+            const checked = sel.has(a)
+            return (
+              <button key={a} onClick={()=>toggle(a)} style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', borderRadius:13, border:`1.5px solid ${checked?H_ACCENT:H_RULE}`, backgroundColor:checked?`${H_ACCENT}0D`:H_BG, cursor:'pointer', textAlign:'left' }}>
+                <div style={{ width:20, height:20, borderRadius:6, border:`1.5px solid ${checked?H_ACCENT:H_RULE}`, backgroundColor:checked?H_ACCENT:'transparent', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  {checked && <svg width="11" height="11" viewBox="0 0 24 24" fill="#fff"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>}
+                </div>
+                <span style={{ fontFamily:SANS, fontSize:13, color:H_FG, fontWeight:500 }}>{a}</span>
+              </button>
+            )
+          })}
+        </div>
+        <button onClick={onNext} style={{ width:'100%', padding:'13px', borderRadius:14, backgroundColor:H_FG, border:'none', fontFamily:SANS, fontSize:14, fontWeight:600, color:'#fff', cursor:'pointer' }}>
+          Set up {sel.size} appliance{sel.size !== 1 ? 's' : ''}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ── Pair scan ─────────────────────────────────────────────────────────── */
+function HPairScan({ onBack, onSuccess }: { onBack: () => void; onSuccess: () => void }) {
+  const [progress, setProgress] = useState(0)
+  useEffect(() => {
+    const iv = setInterval(() => setProgress(p => Math.min(p + 7, 100)), 160)
+    return () => clearInterval(iv)
+  }, [])
+  const found = progress > 85 ? ['Refrigerator','Dishwasher','Coffee Maker','Air Purifier']
+              : progress > 65 ? ['Refrigerator','Dishwasher','Coffee Maker']
+              : progress > 40 ? ['Refrigerator','Dishwasher']
+              : progress > 20 ? ['Refrigerator'] : []
+  const done = progress >= 100
+  return (
+    <div style={{ flex:1, backgroundColor:H_BG, display:'flex', flexDirection:'column' }}>
+      <div style={{ padding:'10px 20px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <HBack onBack={onBack} />
+        <div style={{ display:'flex', gap:4 }}>{[0,1,2].map(i=><div key={i} style={{ width:i===2?20:8, height:3, borderRadius:2, backgroundColor:H_ACCENT }}/>)}</div>
+      </div>
+      <div style={{ flex:1, padding:'22px 24px 28px', display:'flex', flexDirection:'column' }}>
+        <p style={{ fontFamily:MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color:H_MUTED2, margin:'0 0 10px' }}>Step 3 of 3</p>
+        <h2 style={{ fontFamily:SERIF, fontSize:22, color:H_FG, margin:'0 0 6px', fontWeight:700 }}>{done ? 'Devices found!' : 'Scanning…'}</h2>
+        <p style={{ fontFamily:SANS, fontSize:13, color:H_MUTED2, margin:'0 0 20px' }}>{done ? `${found.length} appliances connected.` : 'Detecting appliances on your network.'}</p>
+        <div style={{ height:3, backgroundColor:H_RULE, borderRadius:2, marginBottom:20, overflow:'hidden' }}>
+          <div style={{ height:'100%', width:`${progress}%`, backgroundColor:H_ACCENT, transition:'width 0.16s ease' }}/>
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:8, flex:1 }}>
+          {found.map(f=>(
+            <div key={f} style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', borderRadius:12, backgroundColor:`${H_ACCENT}0D`, border:`1px solid ${H_ACCENT}30` }}>
+              <div style={{ width:7, height:7, borderRadius:'50%', backgroundColor:H_SAGE, flexShrink:0 }}/>
+              <span style={{ fontFamily:SANS, fontSize:13, color:H_FG, fontWeight:500 }}>{f}</span>
+              <span style={{ fontFamily:MONO, fontSize:9, color:H_MUTED2, marginLeft:'auto' }}>Connected</span>
             </div>
-            <span style={{ fontSize: 9, color: '#6B7280' }}>{item.time}</span>
+          ))}
+          {!done && (
+            <div style={{ padding:'12px 14px', borderRadius:12, backgroundColor:H_BONE, border:`1px solid ${H_RULE}`, display:'flex', gap:4, alignItems:'center' }}>
+              {[0,1,2].map(i=><div key={i} style={{ width:4, height:4, borderRadius:'50%', backgroundColor:H_MUTED2, opacity:0.35+i*0.2 }}/>)}
+            </div>
+          )}
+        </div>
+        {done && (
+          <button onClick={onSuccess} style={{ width:'100%', padding:'13px', borderRadius:14, backgroundColor:H_FG, border:'none', fontFamily:SANS, fontSize:14, fontWeight:600, color:'#fff', cursor:'pointer' }}>
+            Open Hearth →
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ── Tab bar ───────────────────────────────────────────────────────────── */
+const H_TABS: { id: HTab; label: string }[] = [
+  { id:'home', label:'Home' }, { id:'devices', label:'Devices' }, { id:'routines', label:'Routines' },
+  { id:'alerts', label:'Alerts' }, { id:'settings', label:'Settings' },
+]
+const H_ICONS: Record<HTab, React.ReactNode> = {
+  home:     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>,
+  devices:  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>,
+  routines: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>,
+  alerts:   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>,
+  settings: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>,
+}
+
+function HTabBar({ active, onChange, alertCount }: { active: HTab; onChange: (t: HTab) => void; alertCount: number }) {
+  return (
+    <div style={{ display:'flex', borderTop:`1px solid ${H_RULE}`, backgroundColor:H_BG, padding:'8px 0 16px', flexShrink:0 }}>
+      {H_TABS.map(t=>(
+        <button key={t.id} onClick={()=>onChange(t.id)}
+          style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:3, border:'none', background:'none', cursor:'pointer', padding:'4px 0', color:active===t.id?H_ACCENT:H_MUTED2, position:'relative' }}>
+          {t.id==='alerts' && alertCount>0 && (
+            <div style={{ position:'absolute', top:2, right:'50%', marginRight:-16, width:15, height:15, borderRadius:'50%', backgroundColor:'#ef4444', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <span style={{ fontFamily:SANS, fontSize:8, color:'#fff', fontWeight:700 }}>{alertCount}</span>
+            </div>
+          )}
+          {H_ICONS[t.id]}
+          <span style={{ fontSize:9, fontFamily:SANS, fontWeight:active===t.id?600:400, letterSpacing:0.2 }}>{t.label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/* ── Home tab ──────────────────────────────────────────────────────────── */
+function HHomeTab({ devState, onToggle }: { devState: Record<string, boolean>; onToggle: (id: string) => void }) {
+  const activeCount = Object.values(devState).filter(Boolean).length
+  const quick = H_DEVS.filter(d => ['fridge','coffee','dishwasher','purifier'].includes(d.id))
+  return (
+    <div style={{ flex:1, overflowY:'auto', backgroundColor:H_BG }}>
+      <div style={{ padding:'14px 20px 10px' }}>
+        <p style={{ fontFamily:MONO, fontSize:9, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 3px' }}>Good morning</p>
+        <h2 style={{ fontFamily:SERIF, fontSize:22, color:H_FG, margin:'0 0 3px', fontWeight:700 }}>Your Kitchen</h2>
+        <p style={{ fontFamily:SANS, fontSize:12, color:H_MUTED2, margin:0 }}>{activeCount} active · {H_DEVS.length - activeCount} idle</p>
+      </div>
+      {/* Scene pills */}
+      <div style={{ padding:'0 20px 12px', display:'flex', gap:7, overflowX:'auto' }}>
+        {['Morning','Away','Evening','Night'].map((s,i)=>(
+          <button key={s} style={{ padding:'5px 14px', borderRadius:20, border:`1px solid ${i===0?H_FG:H_RULE}`, backgroundColor:i===0?H_FG:'transparent', color:i===0?'#fff':H_MUTED2, fontFamily:SANS, fontSize:11, fontWeight:i===0?600:400, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0 }}>{s}</button>
+        ))}
+      </div>
+      {/* Quick controls */}
+      <div style={{ padding:'0 20px 12px' }}>
+        <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 9px' }}>Quick controls</p>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          {quick.map(d=>{
+            const on = devState[d.id]
+            return (
+              <button key={d.id} onClick={()=>onToggle(d.id)}
+                style={{ padding:12, borderRadius:14, border:`1px solid ${on?`${d.dot}30`:H_RULE}`, backgroundColor:on?`${d.dot}0A`:H_BONE, cursor:'pointer', textAlign:'left', transition:'all 0.15s' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
+                  <div style={{ width:7, height:7, borderRadius:'50%', backgroundColor:on?d.dot:H_RULE }}/>
+                  <span style={{ fontFamily:MONO, fontSize:8, color:on?d.dot:H_MUTED2, fontWeight:600 }}>{on?'ON':'OFF'}</span>
+                </div>
+                <div style={{ fontFamily:SANS, fontSize:12, fontWeight:600, color:H_FG }}>{d.name}</div>
+                <div style={{ fontFamily:SANS, fontSize:10, color:on?d.dot:H_MUTED2, marginTop:2 }}>{on?d.status:'Idle'}</div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      {/* Energy card */}
+      <div style={{ padding:'0 20px 12px' }}>
+        <div style={{ backgroundColor:H_FG, borderRadius:16, padding:'14px 16px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:10 }}>
+            <div>
+              <p style={{ fontFamily:MONO, fontSize:8, color:'rgba(255,255,255,0.4)', letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 3px' }}>Energy today</p>
+              <p style={{ fontFamily:SERIF, fontSize:20, color:'#fff', margin:0, fontWeight:700 }}>4.2 <span style={{ fontSize:11, fontWeight:400, opacity:0.6 }}>kWh</span></p>
+            </div>
+            <p style={{ fontFamily:SANS, fontSize:11, color:'rgba(255,255,255,0.35)', margin:0 }}>↓ 12% vs avg</p>
+          </div>
+          <div style={{ display:'flex', gap:3, alignItems:'flex-end', height:26 }}>
+            {[35,55,28,70,48,38,62,75,42].map((h,i)=>(
+              <div key={i} style={{ flex:1, height:`${h}%`, borderRadius:2, backgroundColor:i===8?H_ACCENT:'rgba(255,255,255,0.15)' }}/>
+            ))}
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between', marginTop:5 }}>
+            {['6am','Now','12am'].map(t=><span key={t} style={{ fontFamily:SANS, fontSize:8, color:'rgba(255,255,255,0.3)' }}>{t}</span>)}
+          </div>
+        </div>
+      </div>
+      {/* Next routine */}
+      <div style={{ padding:'0 20px 18px' }}>
+        <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 8px' }}>Next routine</p>
+        <div style={{ backgroundColor:H_BONE, borderRadius:14, padding:'11px 14px', border:`1px solid ${H_RULE}`, display:'flex', alignItems:'center', gap:12 }}>
+          <div style={{ width:34, height:34, borderRadius:10, backgroundColor:`${H_ACCENT}15`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill={H_ACCENT}><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+          </div>
+          <div style={{ flex:1 }}>
+            <p style={{ fontFamily:SANS, fontSize:13, fontWeight:600, color:H_FG, margin:0 }}>Wind Down</p>
+            <p style={{ fontFamily:SANS, fontSize:11, color:H_MUTED2, margin:'2px 0 0' }}>Tonight · 10:00 PM</p>
+          </div>
+          <div style={{ width:7, height:7, borderRadius:'50%', backgroundColor:H_SAGE }}/>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Devices tab ───────────────────────────────────────────────────────── */
+function HDevicesTab({ devState, onToggle, onDetail }: { devState: Record<string, boolean>; onToggle: (id: string) => void; onDetail: (id: string) => void }) {
+  return (
+    <div style={{ flex:1, overflowY:'auto', backgroundColor:H_BG }}>
+      <div style={{ padding:'14px 20px 10px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div>
+          <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 2px' }}>{H_DEVS.filter(d=>devState[d.id]).length} active</p>
+          <h2 style={{ fontFamily:SERIF, fontSize:22, color:H_FG, margin:0, fontWeight:700 }}>Devices</h2>
+        </div>
+        <button style={{ width:32, height:32, borderRadius:'50%', border:`1px solid ${H_RULE}`, background:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:H_FG }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+      </div>
+      {['Kitchen','Laundry','Living Room'].map(room=>{
+        const roomDevs = H_DEVS.filter(d=>d.room===room)
+        return (
+          <div key={room} style={{ padding:'8px 20px 4px' }}>
+            <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 7px' }}>{room}</p>
+            <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+              {roomDevs.map(d=>{
+                const on = devState[d.id]
+                return (
+                  <div key={d.id} onClick={()=>onDetail(d.id)}
+                    style={{ backgroundColor:H_BONE, borderRadius:14, padding:'11px 14px', border:`1px solid ${on?`${d.dot}25`:H_RULE}`, display:'flex', alignItems:'center', gap:12, cursor:'pointer' }}>
+                    <div style={{ width:34, height:34, borderRadius:10, backgroundColor:on?`${d.dot}15`:H_RULE, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                      <div style={{ width:8, height:8, borderRadius:'50%', backgroundColor:on?d.dot:H_MUTED2 }}/>
+                    </div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontFamily:SANS, fontSize:13, fontWeight:600, color:H_FG }}>{d.name}</div>
+                      <div style={{ fontFamily:SANS, fontSize:11, color:on?d.dot:H_MUTED2, marginTop:1 }}>{on?d.status:'Idle'}</div>
+                    </div>
+                    <HToggle on={on} onChange={()=>onToggle(d.id)} />
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+      <div style={{ height:14 }}/>
+    </div>
+  )
+}
+
+/* ── Appliance detail sheet ────────────────────────────────────────────── */
+function HApplianceSheet({ id, devState, onToggle, onClose }: { id: string; devState: Record<string, boolean>; onToggle: (id: string) => void; onClose: () => void }) {
+  const d = H_DEVS.find(x=>x.id===id)!
+  const on = devState[id]
+  const [temp, setTemp] = useState(id==='fridge'?37:375)
+  return (
+    <div style={{ position:'absolute', inset:0, zIndex:10 }} onClick={onClose}>
+      <div style={{ position:'absolute', inset:0, backgroundColor:'rgba(0,0,0,0.35)', backdropFilter:'blur(2px)' }}/>
+      <div onClick={e=>e.stopPropagation()} style={{ position:'absolute', bottom:0, left:0, right:0, backgroundColor:H_BG, borderRadius:'24px 24px 0 0', padding:'0 20px 28px' }}>
+        <div style={{ width:36, height:3, borderRadius:2, backgroundColor:H_RULE, margin:'12px auto 18px' }}/>
+        <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:16 }}>
+          <div style={{ width:46, height:46, borderRadius:14, backgroundColor:on?`${d.dot}15`:H_BONE, border:`1px solid ${on?`${d.dot}30`:H_RULE}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <div style={{ width:13, height:13, borderRadius:'50%', backgroundColor:on?d.dot:H_MUTED2 }}/>
+          </div>
+          <div style={{ flex:1 }}>
+            <p style={{ fontFamily:SERIF, fontSize:17, color:H_FG, margin:'0 0 2px', fontWeight:700 }}>{d.name}</p>
+            <p style={{ fontFamily:SANS, fontSize:11, color:H_MUTED2, margin:0 }}>{d.room} · {on?'Active':'Idle'}</p>
+          </div>
+          <HToggle on={on} onChange={()=>onToggle(id)} />
+        </div>
+        <div style={{ backgroundColor:H_BONE, borderRadius:14, padding:'11px 14px', marginBottom:10 }}>
+          <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 5px' }}>Status</p>
+          <p style={{ fontFamily:SANS, fontSize:13, color:H_FG, margin:0, lineHeight:1.5 }}>{d.note}</p>
+        </div>
+        {(id==='fridge'||id==='oven') && (
+          <div style={{ backgroundColor:H_BONE, borderRadius:14, padding:'11px 14px', marginBottom:10 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:7 }}>
+              <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:0 }}>Temperature</p>
+              <p style={{ fontFamily:MONO, fontSize:13, color:d.dot, margin:0, fontWeight:700 }}>{temp}°F</p>
+            </div>
+            <input type="range" min={id==='fridge'?33:200} max={id==='fridge'?42:500} value={temp} onChange={e=>setTemp(Number(e.target.value))} style={{ width:'100%', accentColor:d.dot }}/>
+          </div>
+        )}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          <button style={{ padding:'11px', borderRadius:12, border:`1px solid ${H_RULE}`, backgroundColor:H_BG, fontFamily:SANS, fontSize:12, fontWeight:600, color:H_FG, cursor:'pointer' }}>Schedule</button>
+          <button style={{ padding:'11px', borderRadius:12, border:`1px solid ${H_RULE}`, backgroundColor:H_BG, fontFamily:SANS, fontSize:12, fontWeight:600, color:H_FG, cursor:'pointer' }}>Diagnostics</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Routines tab ──────────────────────────────────────────────────────── */
+function HRoutinesTab({ rtState, onToggle, onDetail }: { rtState: Record<string, boolean>; onToggle: (id: string) => void; onDetail: (id: string) => void }) {
+  return (
+    <div style={{ flex:1, overflowY:'auto', backgroundColor:H_BG }}>
+      <div style={{ padding:'14px 20px 10px' }}>
+        <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 2px' }}>Automations</p>
+        <h2 style={{ fontFamily:SERIF, fontSize:22, color:H_FG, margin:0, fontWeight:700 }}>Routines</h2>
+      </div>
+      <div style={{ padding:'6px 20px 14px', display:'flex', flexDirection:'column', gap:8 }}>
+        {H_ROUTINES.map(r=>{
+          const on = rtState[r.id]
+          return (
+            <div key={r.id} onClick={()=>onDetail(r.id)}
+              style={{ backgroundColor:H_BONE, borderRadius:16, padding:'13px 15px', border:`1px solid ${on?`${H_ACCENT}25`:H_RULE}`, cursor:'pointer' }}>
+              <div style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
+                <div style={{ width:36, height:36, borderRadius:10, backgroundColor:on?`${H_ACCENT}15`:H_RULE, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill={on?H_ACCENT:H_MUTED2}><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontFamily:SANS, fontSize:13, fontWeight:600, color:H_FG }}>{r.name}</div>
+                  <div style={{ fontFamily:SANS, fontSize:11, color:H_MUTED2, marginTop:2 }}>{r.trigger}</div>
+                  <div style={{ fontFamily:SANS, fontSize:11, color:on?H_ACCENT:H_MUTED2, marginTop:1 }}>{r.summary}</div>
+                </div>
+                <HToggle on={on} onChange={()=>onToggle(r.id)} />
+              </div>
+            </div>
+          )
+        })}
+        <button style={{ borderRadius:14, padding:'12px', border:`1.5px dashed ${H_RULE}`, background:'none', cursor:'pointer', fontFamily:SANS, fontSize:13, color:H_MUTED2, textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          New routine
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/* ── Routine detail sheet ──────────────────────────────────────────────── */
+function HRoutineSheet({ id, rtState, onToggle, onClose }: { id: string; rtState: Record<string, boolean>; onToggle: (id: string) => void; onClose: () => void }) {
+  const r = H_ROUTINES.find(x=>x.id===id)!
+  const on = rtState[id]
+  return (
+    <div style={{ position:'absolute', inset:0, zIndex:10 }} onClick={onClose}>
+      <div style={{ position:'absolute', inset:0, backgroundColor:'rgba(0,0,0,0.35)', backdropFilter:'blur(2px)' }}/>
+      <div onClick={e=>e.stopPropagation()} style={{ position:'absolute', bottom:0, left:0, right:0, backgroundColor:H_BG, borderRadius:'24px 24px 0 0', padding:'0 20px 28px' }}>
+        <div style={{ width:36, height:3, borderRadius:2, backgroundColor:H_RULE, margin:'12px auto 18px' }}/>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+          <div>
+            <p style={{ fontFamily:SERIF, fontSize:17, color:H_FG, margin:'0 0 2px', fontWeight:700 }}>{r.name}</p>
+            <p style={{ fontFamily:SANS, fontSize:11, color:H_MUTED2, margin:0 }}>{r.trigger}</p>
+          </div>
+          <HToggle on={on} onChange={()=>onToggle(id)} />
+        </div>
+        {[{label:'Trigger',value:r.trigger},{label:'Actions',value:r.summary}].map(row=>(
+          <div key={row.label} style={{ backgroundColor:H_BONE, borderRadius:12, padding:'11px 14px', marginBottom:8 }}>
+            <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 4px' }}>{row.label}</p>
+            <p style={{ fontFamily:SANS, fontSize:13, color:H_FG, margin:0 }}>{row.value}</p>
+          </div>
+        ))}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:4 }}>
+          <button style={{ padding:'11px', borderRadius:12, border:`1px solid ${H_RULE}`, backgroundColor:H_BG, fontFamily:SANS, fontSize:12, fontWeight:600, color:H_FG, cursor:'pointer' }}>Edit</button>
+          <button style={{ padding:'11px', borderRadius:12, border:`1px solid #ef444420`, backgroundColor:'#ef44440A', fontFamily:SANS, fontSize:12, fontWeight:600, color:'#ef4444', cursor:'pointer' }}>Delete</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Alerts tab ────────────────────────────────────────────────────────── */
+function HAlertsTab({ alerts, onDismiss }: { alerts: typeof H_ALERTS_DEF; onDismiss: (id: string) => void }) {
+  const kindColor: Record<string, string> = { done:H_SAGE, warn:'#f59e0b', info:H_ACCENT }
+  return (
+    <div style={{ flex:1, overflowY:'auto', backgroundColor:H_BG }}>
+      <div style={{ padding:'14px 20px 10px' }}>
+        <p style={{ fontFamily:MONO, fontSize:8, color:H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 2px' }}>Notifications</p>
+        <h2 style={{ fontFamily:SERIF, fontSize:22, color:H_FG, margin:0, fontWeight:700 }}>Alerts</h2>
+      </div>
+      {alerts.length === 0 ? (
+        <div style={{ padding:'40px 20px', textAlign:'center' }}>
+          <div style={{ width:48, height:48, borderRadius:'50%', backgroundColor:H_BONE, margin:'0 auto 12px', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={H_MUTED2}><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          </div>
+          <p style={{ fontFamily:SANS, fontSize:13, color:H_MUTED2, margin:0 }}>All caught up!</p>
+        </div>
+      ) : (
+        <div style={{ padding:'6px 20px 14px', display:'flex', flexDirection:'column', gap:8 }}>
+          {alerts.map(a=>(
+            <div key={a.id} style={{ backgroundColor:H_BONE, borderRadius:14, padding:'12px 14px', border:`1px solid ${kindColor[a.kind]}20`, display:'flex', alignItems:'flex-start', gap:10 }}>
+              <div style={{ width:7, height:7, borderRadius:'50%', backgroundColor:kindColor[a.kind], flexShrink:0, marginTop:4 }}/>
+              <div style={{ flex:1 }}>
+                <div style={{ fontFamily:SANS, fontSize:13, fontWeight:600, color:H_FG }}>{a.title}</div>
+                <div style={{ fontFamily:SANS, fontSize:11, color:H_MUTED2, marginTop:2, lineHeight:1.4 }}>{a.desc}</div>
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:5, flexShrink:0 }}>
+                <span style={{ fontFamily:MONO, fontSize:9, color:H_MUTED2 }}>{a.time}</span>
+                <button onClick={()=>onDismiss(a.id)} style={{ fontFamily:SANS, fontSize:10, color:H_ACCENT, background:'none', border:'none', cursor:'pointer', padding:0 }}>Dismiss</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Settings tab ──────────────────────────────────────────────────────── */
+function HSettingsTab() {
+  const [notif, setNotif] = useState(true)
+  const [energy, setEnergy] = useState(true)
+  return (
+    <div style={{ flex:1, overflowY:'auto', backgroundColor:H_BG }}>
+      <div style={{ padding:'14px 20px 10px' }}>
+        <h2 style={{ fontFamily:SERIF, fontSize:22, color:H_FG, margin:0, fontWeight:700 }}>Settings</h2>
+      </div>
+      <div style={{ padding:'8px 20px 0' }}>
+        <div style={{ backgroundColor:H_FG, borderRadius:16, padding:'15px', display:'flex', alignItems:'center', gap:14 }}>
+          <div style={{ width:44, height:44, borderRadius:'50%', backgroundColor:`${H_ACCENT}25`, border:`1.5px solid ${H_ACCENT}40`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:SERIF, fontSize:18, color:H_ACCENT, fontWeight:700 }}>K</div>
+          <div>
+            <p style={{ fontFamily:SERIF, fontSize:14, color:'#fff', margin:'0 0 2px', fontWeight:600 }}>Karishma G.</p>
+            <p style={{ fontFamily:SANS, fontSize:11, color:'rgba(255,255,255,0.4)', margin:0 }}>1 household · 8 devices</p>
+          </div>
+        </div>
+      </div>
+      <div style={{ padding:'10px 20px 16px', display:'flex', flexDirection:'column', gap:6 }}>
+        {[
+          { label:'Notifications', toggle:true,  val:notif,  set:()=>setNotif(n=>!n) },
+          { label:'Energy reports', toggle:true,  val:energy, set:()=>setEnergy(e=>!e) },
+          { label:'Household',      toggle:false, right:'1 member'    },
+          { label:'Privacy',        toggle:false, right:'Local only'  },
+          { label:'Support',        toggle:false, right:'Help center' },
+          { label:'App version',    toggle:false, right:'v2.1.0'      },
+        ].map(r=>(
+          <div key={r.label} style={{ backgroundColor:H_BONE, borderRadius:14, padding:'13px 14px', border:`1px solid ${H_RULE}`, display:'flex', alignItems:'center', gap:12 }}>
+            <span style={{ flex:1, fontFamily:SANS, fontSize:13, fontWeight:500, color:H_FG }}>{r.label}</span>
+            {r.toggle ? (
+              <HToggle on={r.val!} onChange={r.set!} />
+            ) : (
+              <>
+                <span style={{ fontFamily:SANS, fontSize:12, color:H_MUTED2 }}>{r.right}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill={H_MUTED2}><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -510,1365 +742,1089 @@ const SchedulesScreen = () => {
   )
 }
 
-// ─── Full phone mockup ────────────────────────────────────────────────────────
-const PhoneMockup = () => {
-  const [activeTab, setActiveTab] = useState<TabId>('home')
-  const [selectedDevice, setSelectedDevice] = useState<string | null>(null)
-  const [deviceStates, setDeviceStates] = useState<DeviceStates>({
-    refrigerator: true,
-    oven: false,
-    dishwasher: true,
-    washer: false,
-    dryer: false,
-    coffee: true,
-    microwave: false,
-    purifier: true,
-  })
+/* ── PhonePrototype - Hearth app entry point ───────────────────────────── */
+function PhonePrototype() {
+  const [screen, setScreen] = useState<HScreen>('splash')
+  const [tab, setTab] = useState<HTab>('home')
+  const [devState, setDevState] = useState<Record<string, boolean>>(
+    Object.fromEntries(H_DEVS.map(d => [d.id, d.on]))
+  )
+  const [rtState, setRtState] = useState<Record<string, boolean>>(
+    Object.fromEntries(H_ROUTINES.map(r => [r.id, r.on]))
+  )
+  const [alerts, setAlerts] = useState(H_ALERTS_DEF)
+  const [selDev, setSelDev] = useState<string | null>(null)
+  const [selRt, setSelRt] = useState<string | null>(null)
 
-  const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: 'home', label: 'Home', icon: <HomeIcon /> },
-    { id: 'devices', label: 'Devices', icon: <DevicesIcon /> },
-    { id: 'energy', label: 'Energy', icon: <EnergyIcon /> },
-    { id: 'schedules', label: 'Schedules', icon: <ScheduleIcon /> },
-  ]
+  const toggleDev = useCallback((id: string) => setDevState(p => ({ ...p, [id]: !p[id] })), [])
+  const toggleRt  = useCallback((id: string) => setRtState(p => ({ ...p, [id]: !p[id] })), [])
+  const dismissAlert = useCallback((id: string) => setAlerts(a => a.filter(x => x.id !== id)), [])
 
-  const handleTabChange = (tab: TabId) => {
-    setActiveTab(tab)
-    if (tab !== 'devices') setSelectedDevice(null)
+  const reset = () => {
+    setScreen('splash')
+    setTab('home')
+    setDevState(Object.fromEntries(H_DEVS.map(d => [d.id, d.on])))
+    setRtState(Object.fromEntries(H_ROUTINES.map(r => [r.id, r.on])))
+    setAlerts(H_ALERTS_DEF)
+    setSelDev(null)
+    setSelRt(null)
   }
 
+  const go = (s: HScreen) => { setSelDev(null); setSelRt(null); setScreen(s) }
+  const goTab = (t: HTab) => { setTab(t); setSelDev(null); setSelRt(null); setScreen('tab') }
+
   return (
-    <div
-      className="relative mx-auto select-none"
-      style={{
-        width: 300,
-        height: 644,
-        borderRadius: 48,
-        backgroundColor: '#0F172A',
-        border: '8px solid #1E293B',
-        boxShadow: '0 0 0 1px #334155, 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(245,158,11,0.08)',
-        overflow: 'hidden',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-      }}
-    >
-      {/* Screen content */}
-      <div className="flex flex-col h-full">
-        <StatusBar />
-        <DynamicIsland />
+    <div>
+      <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:12 }}>
+        <button onClick={reset} style={{ fontFamily:MONO, fontSize:10, letterSpacing:'0.08em', border:HL, borderRadius:20, padding:'5px 14px', background:'none', cursor:'pointer', color:MUTED }}>
+          Reset ↺
+        </button>
+      </div>
+      <HPhoneFrame>
+        <HStatus inv={screen === 'splash'} />
+        {screen === 'splash'       && <HSplash onDone={() => go('welcome')} />}
+        {screen === 'welcome'      && <HWelcome onStart={() => go('onboard-type')} onSignIn={() => go('signin')} />}
+        {screen === 'signin'       && <HSignIn onBack={() => go('welcome')} onContinue={() => go('tab')} />}
+        {screen === 'onboard-type' && <HOnboardType onBack={() => go('welcome')} onNext={() => go('onboard-apps')} />}
+        {screen === 'onboard-apps' && <HOnboardApps onBack={() => go('onboard-type')} onNext={() => go('pair-scan')} />}
+        {screen === 'pair-scan'    && <HPairScan onBack={() => go('onboard-apps')} onSuccess={() => go('tab')} />}
+        {screen === 'tab' && (
+          <>
+            {tab === 'home'     && <HHomeTab devState={devState} onToggle={toggleDev} />}
+            {tab === 'devices'  && (
+              <div style={{ flex:1, display:'flex', flexDirection:'column', position:'relative', overflow:'hidden' }}>
+                <HDevicesTab devState={devState} onToggle={toggleDev} onDetail={id => setSelDev(id)} />
+                {selDev && <HApplianceSheet id={selDev} devState={devState} onToggle={toggleDev} onClose={() => setSelDev(null)} />}
+              </div>
+            )}
+            {tab === 'routines' && (
+              <div style={{ flex:1, display:'flex', flexDirection:'column', position:'relative', overflow:'hidden' }}>
+                <HRoutinesTab rtState={rtState} onToggle={toggleRt} onDetail={id => setSelRt(id)} />
+                {selRt && <HRoutineSheet id={selRt} rtState={rtState} onToggle={toggleRt} onClose={() => setSelRt(null)} />}
+              </div>
+            )}
+            {tab === 'alerts'   && <HAlertsTab alerts={alerts} onDismiss={dismissAlert} />}
+            {tab === 'settings' && <HSettingsTab />}
+            <HTabBar active={tab} onChange={goTab} alertCount={alerts.length} />
+          </>
+        )}
+      </HPhoneFrame>
+    </div>
+  )
+}
 
-        {/* Scrollable content area */}
-        <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              className="h-full"
-            >
-              {activeTab === 'home' && (
-                <HomeScreen deviceStates={deviceStates} setDeviceStates={setDeviceStates} />
-              )}
-              {activeTab === 'devices' && (
-                <DevicesScreen
-                  deviceStates={deviceStates}
-                  setDeviceStates={setDeviceStates}
-                  selectedDevice={selectedDevice}
-                  setSelectedDevice={setSelectedDevice}
-                />
-              )}
-              {activeTab === 'energy' && <EnergyScreen />}
-              {activeTab === 'schedules' && <SchedulesScreen />}
-            </motion.div>
-          </AnimatePresence>
+/* ═══════════════════════════════════════════════════════════════════════════
+   HERO MOCKUP - 3 phones showing app screens
+═══════════════════════════════════════════════════════════════════════════ */
+function MiniPhone({ screen, rotate = 0, scale = 1 }: { screen: React.ReactNode; rotate?: number; scale?: number }) {
+  return (
+    <div style={{ transform:`rotate(${rotate}deg) scale(${scale})`, transformOrigin:'center bottom', flexShrink:0 }}>
+      <div style={{ width:160, backgroundColor: H_FG, borderRadius:28, padding:6, boxShadow:`0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)` }}>
+        {/* Notch */}
+        <div style={{ position:'relative' }}>
+          <div style={{ position:'absolute', top:6, left:'50%', transform:'translateX(-50%)', width:44, height:9, borderRadius:5, backgroundColor:H_FG, zIndex:10 }}/>
         </div>
-
-        {/* Bottom tab bar */}
-        <div
-          className="flex items-center"
-          style={{
-            backgroundColor: 'rgba(15,23,42,0.95)',
-            backdropFilter: 'blur(12px)',
-            borderTop: '1px solid rgba(255,255,255,0.08)',
-            paddingBottom: 8,
-            paddingTop: 8,
-          }}
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
-              className="flex-1 flex flex-col items-center gap-1"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}
-            >
-              <span style={{ color: activeTab === tab.id ? AMBER : '#4B5563' }}>{tab.icon}</span>
-              <span style={{ fontSize: 8, color: activeTab === tab.id ? AMBER : '#4B5563', fontWeight: activeTab === tab.id ? 600 : 400 }}>
-                {tab.label}
-              </span>
-            </button>
-          ))}
+        <div style={{ backgroundColor: H_BG, borderRadius:22, overflow:'hidden', height:340, display:'flex', flexDirection:'column', position:'relative' }}>
+          {/* Status bar */}
+          <div style={{ padding:'14px 12px 3px', display:'flex', justifyContent:'space-between', flexShrink:0 }}>
+            <span style={{ color: H_FG, fontSize:7, fontWeight:600, fontFamily: SANS }}>9:41</span>
+            <span style={{ color: H_FG, fontSize:6, opacity:0.5, fontFamily: SANS }}>●●●● 5G</span>
+          </div>
+          {screen}
         </div>
       </div>
     </div>
   )
 }
 
-// ─── Annotation card ──────────────────────────────────────────────────────────
-const Annotation = ({
-  text,
-  side,
-  top,
-}: {
-  text: string
-  side: 'left' | 'right'
-  top: string
-}) => (
-  <div
-    className="absolute hidden lg:flex items-center gap-2"
-    style={{
-      top,
-      [side]: side === 'left' ? 'calc(50% - 220px)' : 'auto',
-      right: side === 'right' ? 'calc(50% - 220px)' : 'auto',
-      transform: side === 'left' ? 'translateX(-100%)' : 'translateX(100%)',
-    }}
-  >
-    {side === 'right' && (
-      <div style={{ width: 40, height: 1, backgroundColor: AMBER, opacity: 0.6 }} />
-    )}
-    <div
-      className="rounded-xl px-3 py-2 max-w-40"
-      style={{
-        backgroundColor: 'rgba(13,27,42,0.9)',
-        border: `1px solid ${AMBER}44`,
-        backdropFilter: 'blur(8px)',
-      }}
-    >
-      <p style={{ fontSize: 10, color: '#E5E7EB', lineHeight: 1.5 }}>{text}</p>
+/* Mini Home screen - Hearth styled */
+function MiniHomeScreen() {
+  const devs = [
+    { label:'Coffee',    on:true,  dot:'#d97706' },
+    { label:'Fridge',    on:true,  dot:'#3b82f6' },
+    { label:'Washer',    on:false, dot:'#8b5cf6' },
+    { label:'Purifier',  on:true,  dot:'#10b981' },
+  ]
+  return (
+    <div style={{ flex:1, backgroundColor: H_BG, padding:'8px 10px 0', overflow:'hidden' }}>
+      <p style={{ fontFamily: MONO, fontSize:5, color: H_MUTED2, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 1px' }}>Good morning</p>
+      <p style={{ fontFamily: SERIF, fontSize:11, color: H_FG, margin:'0 0 7px', fontWeight:700 }}>Your Kitchen</p>
+      {/* Scene pills */}
+      <div style={{ display:'flex', gap:3, marginBottom:7 }}>
+        {['Morning','Away','Evening'].map((s,i) => (
+          <div key={s} style={{ padding:'2px 6px', borderRadius:10, backgroundColor: i===0 ? H_ACCENT : H_BONE, border:`1px solid ${i===0 ? H_ACCENT : H_RULE}`, fontSize:5.5, fontFamily: SANS, fontWeight:600, color: i===0 ? '#fff' : H_FG }}>
+            {s}
+          </div>
+        ))}
+      </div>
+      {/* 2×2 quick controls */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:4, marginBottom:7 }}>
+        {devs.map(d => (
+          <div key={d.label} style={{ backgroundColor: d.on ? `${d.dot}10` : H_BONE, borderRadius:7, padding:'6px 7px', border:`1px solid ${d.on ? `${d.dot}35` : H_RULE}` }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', backgroundColor: d.on ? d.dot : H_RULE, marginBottom:4 }}/>
+            <div style={{ fontFamily: SANS, fontSize:6.5, fontWeight:600, color: d.on ? H_FG : H_MUTED2 }}>{d.label}</div>
+          </div>
+        ))}
+      </div>
+      {/* Energy dark card */}
+      <div style={{ backgroundColor: H_FG, borderRadius:7, padding:'6px 8px', display:'flex', gap:1.5, alignItems:'flex-end', height:30 }}>
+        {[40,60,35,75,55,42,68,80,45].map((h,i) => (
+          <div key={i} style={{ flex:1, height:`${h}%`, borderRadius:1, backgroundColor: i===8 ? H_ACCENT : 'rgba(255,255,255,0.15)' }}/>
+        ))}
+      </div>
     </div>
-    {side === 'left' && (
-      <div style={{ width: 40, height: 1, backgroundColor: AMBER, opacity: 0.6 }} />
-    )}
-  </div>
-)
+  )
+}
 
-// ─── Section wrapper ──────────────────────────────────────────────────────────
-const Section = ({
-  id,
-  children,
-  alt = false,
-}: {
-  id: string
-  children: React.ReactNode
-  alt?: boolean
-}) => (
-  <section
-    id={id}
-    className="py-24 px-6"
-    style={{ backgroundColor: alt ? '#FFFFFF' : '#F8F7F4' }}
-  >
-    <div className="max-w-5xl mx-auto">{children}</div>
-  </section>
-)
+/* Mini Devices screen - Hearth styled */
+function MiniDevicesScreen() {
+  const items = [
+    { label:'Refrigerator', status:'37°F',    on:true,  dot:'#3b82f6' },
+    { label:'Oven',         status:'Off',     on:false, dot:'#ef4444' },
+    { label:'Dishwasher',   status:'Running', on:true,  dot:'#06b6d4' },
+    { label:'Coffee Maker', status:'7:00 AM', on:true,  dot:'#d97706' },
+    { label:'Air Purifier', status:'Auto',    on:true,  dot:'#10b981' },
+  ]
+  return (
+    <div style={{ flex:1, backgroundColor: H_BG, padding:'8px 10px 0', overflow:'hidden' }}>
+      <p style={{ fontFamily: SERIF, fontSize:11, color: H_FG, margin:'0 0 7px', fontWeight:700 }}>Devices</p>
+      <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+        {items.map(d => (
+          <div key={d.label} style={{ backgroundColor: d.on ? `${d.dot}08` : H_BONE, borderRadius:6, padding:'5px 7px', border:`1px solid ${d.on ? `${d.dot}30` : H_RULE}`, display:'flex', alignItems:'center', gap:5 }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', backgroundColor: d.on ? d.dot : H_RULE, flexShrink:0 }}/>
+            <div style={{ flex:1 }}>
+              <div style={{ fontFamily: SANS, fontSize:6.5, fontWeight:600, color: H_FG }}>{d.label}</div>
+              <div style={{ fontFamily: SANS, fontSize:5.5, color: d.on ? d.dot : H_MUTED2 }}>{d.status}</div>
+            </div>
+            {/* Toggle */}
+            <div style={{ width:16, height:9, borderRadius:4.5, backgroundColor: d.on ? H_ACCENT : H_RULE, position:'relative', flexShrink:0 }}>
+              <div style={{ width:7, height:7, borderRadius:'50%', backgroundColor:'#fff', position:'absolute', top:1, left: d.on ? 8 : 1, boxShadow:'0 1px 2px rgba(0,0,0,0.2)' }}/>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
-const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <motion.p
-    variants={fadeUp}
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true }}
-    className="uppercase tracking-widest font-semibold mb-3"
-    style={{ color: AMBER, fontSize: 12 }}
-  >
-    {children}
-  </motion.p>
-)
+/* Mini Routines screen - Hearth styled */
+function MiniRoutinesScreen() {
+  const items = [
+    { label:'Morning Brew', on:true,  time:'7:00 AM daily'   },
+    { label:'Leave Home',   on:true,  time:'On departure'    },
+    { label:'Dinner Prep',  on:false, time:'6:30 PM weekdays' },
+    { label:'Wind Down',    on:true,  time:'10:00 PM daily'  },
+  ]
+  return (
+    <div style={{ flex:1, backgroundColor: H_BG, padding:'8px 10px 0', overflow:'hidden' }}>
+      <p style={{ fontFamily: SERIF, fontSize:11, color: H_FG, margin:'0 0 7px', fontWeight:700 }}>Routines</p>
+      <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+        {items.map(r => (
+          <div key={r.label} style={{ backgroundColor: r.on ? `${H_ACCENT}08` : H_BONE, borderRadius:7, padding:'6px 8px', border:`1px solid ${r.on ? `${H_ACCENT}25` : H_RULE}`, display:'flex', alignItems:'center', gap:6 }}>
+            <div style={{ flex:1 }}>
+              <div style={{ fontFamily: SANS, fontSize:6.5, fontWeight:600, color: H_FG }}>{r.label}</div>
+              <div style={{ fontFamily: SANS, fontSize:5.5, color: H_MUTED2 }}>{r.time}</div>
+            </div>
+            <div style={{ width:16, height:9, borderRadius:4.5, backgroundColor: r.on ? H_ACCENT : H_RULE, position:'relative', flexShrink:0 }}>
+              <div style={{ width:7, height:7, borderRadius:'50%', backgroundColor:'#fff', position:'absolute', top:1, left: r.on ? 8 : 1 }}/>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
-const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <motion.h2
-    variants={fadeUp}
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true }}
-    className="font-bold mb-12"
-    style={{ fontSize: 'clamp(28px, 4vw, 40px)', color: NAVY, lineHeight: 1.2 }}
-  >
-    {children}
-  </motion.h2>
-)
+/* Mini TabBar - Hearth styled */
+function MiniTabBar({ active }: { active: string }) {
+  const tabs = ['home','devices','routines','alerts','settings']
+  return (
+    <div style={{ display:'flex', borderTop:`1px solid ${H_RULE}`, backgroundColor: H_BG, padding:'5px 0 8px', flexShrink:0 }}>
+      {tabs.map(t => (
+        <div key={t} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:1.5 }}>
+          <div style={{ width: t===active ? 14 : 5, height:3, borderRadius:1.5, backgroundColor: t===active ? H_ACCENT : H_RULE, transition:'all 0.2s' }}/>
+          <div style={{ fontFamily: SANS, fontSize:4, color: t===active ? H_ACCENT : H_MUTED2, fontWeight: t===active ? 700 : 400 }}>{t.slice(0,4)}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
-// ─── Main component ───────────────────────────────────────────────────────────
-export default function SmartHomeCaseStudy() {
-  const navigate = useNavigate()
-  const [activeSection, setActiveSection] = useState('overview')
-  const [navVisible, setNavVisible] = useState(false)
+function HeroMockup() {
+  return (
+    <div style={{ width:'100%', borderRadius:20, backgroundColor: H_FG, padding:'48px 0 0', overflow:'hidden', position:'relative', marginTop:40 }}>
+      {/* Indigo glow */}
+      <div style={{ position:'absolute', top:'30%', left:'50%', transform:'translate(-50%,-50%)', width:420, height:220, background:`radial-gradient(ellipse, ${H_ACCENT}30 0%, transparent 70%)`, pointerEvents:'none' }}/>
+      {/* Phones row */}
+      <div style={{ display:'flex', justifyContent:'center', alignItems:'flex-end', gap:16, padding:'0 32px' }}>
+        <MiniPhone rotate={-6} scale={0.92} screen={<><MiniRoutinesScreen /><MiniTabBar active="routines"/></>} />
+        <MiniPhone rotate={0}  scale={1}    screen={<><MiniHomeScreen    /><MiniTabBar active="home"    /></>} />
+        <MiniPhone rotate={6}  scale={0.92} screen={<><MiniDevicesScreen /><MiniTabBar active="devices" /></>} />
+      </div>
+      {/* Label */}
+      <div style={{ textAlign:'center', padding:'20px 0 24px' }}>
+        <p style={{ fontFamily: MONO, fontSize:10, color:'rgba(255,255,255,0.35)', margin:0, letterSpacing:'0.12em', textTransform:'uppercase' }}>
+          Hearth · Smart Appliance Hub
+        </p>
+      </div>
+    </div>
+  )
+}
 
-  // Scroll to top on mount
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
+/* Wireframe placeholder */
+/* ── Wireframe phone screen SVGs - one per variant ──────────────────────── */
+function WireframeScreen({ variant }: { variant: string }) {
+  const blk2 = { fill:'#c8c4bf' }
+  const blkSm = { fill:'#e8e5e0' }
 
-  // Intersection observer for sticky nav
-  useEffect(() => {
-    const observers: IntersectionObserver[] = []
+  /* shared phone outline + notch */
+  const Phone = ({ children }: { children: React.ReactNode }) => (
+    <svg width="100%" height="100%" viewBox="0 0 280 210" style={{ position:'absolute', inset:0 }}>
+      {/* Phone frame */}
+      <rect x="88" y="5" width="104" height="200" rx="12" fill="#f5f4f1" stroke="#b8b4ae" strokeWidth="1.5"/>
+      {/* Notch */}
+      <rect x="117" y="8" width="46" height="8" rx="4" fill="#c8c4bf"/>
+      {/* Tab bar */}
+      <rect x="88" y="187" width="104" height="18" rx="0" fill="#e8e5e0" strokeWidth="0"/>
+      <rect x="88" y="186" width="104" height="1" fill="#c8c4bf"/>
+      {/* Tab dots */}
+      {[101,122,140,158,176].map((x,i)=><circle key={i} cx={x} cy={196} r={i===0?4:3} fill={i===0?'#575ECF':'#c0beba'}/>)}
+      {children}
+    </svg>
+  )
 
-    SECTIONS.forEach(({ id }) => {
-      const el = document.getElementById(id)
-      if (!el) return
+  if (variant === 'dashboard') return (
+    <Phone>
+      {/* Header */}
+      <rect x="96" y="22" width="40" height="4" rx="2" {...blkSm}/>
+      <rect x="96" y="30" width="65" height="7" rx="2" {...blk2}/>
+      <rect x="96" y="41" width="50" height="3" rx="1.5" {...blkSm}/>
+      {/* Scene pills */}
+      <rect x="96" y="50" width="22" height="8" rx="4" fill="#575ECF"/>
+      <rect x="121" y="50" width="18" height="8" rx="4" {...blkSm}/>
+      <rect x="142" y="50" width="20" height="8" rx="4" {...blkSm}/>
+      <rect x="165" y="50" width="18" height="8" rx="4" {...blkSm}/>
+      {/* Quick controls 2×2 */}
+      <rect x="96" y="63" width="43" height="38" rx="6" fill="#ede9e4" stroke="#c8c4bf" strokeWidth="1"/>
+      <circle cx="103" cy="71" r="3" fill="#575ECF"/>
+      <rect x="100" y="79" width="28" height="4" rx="2" {...blk2}/>
+      <rect x="100" y="86" width="20" height="3" rx="1.5" fill="#575ECF" opacity="0.5"/>
+      <rect x="143" y="63" width="43" height="38" rx="6" {...blkSm} stroke="#c8c4bf" strokeWidth="1"/>
+      <circle cx="150" cy="71" r="3" fill="#c8c4bf"/>
+      <rect x="148" y="79" width="28" height="4" rx="2" {...blk2}/>
+      <rect x="148" y="86" width="20" height="3" rx="1.5" {...blkSm}/>
+      <rect x="96" y="105" width="43" height="38" rx="6" fill="#ede9e4" stroke="#c8c4bf" strokeWidth="1"/>
+      <circle cx="103" cy="113" r="3" fill="#06b6d4"/>
+      <rect x="100" y="121" width="28" height="4" rx="2" {...blk2}/>
+      <rect x="143" y="105" width="43" height="38" rx="6" fill="#ede9e4" stroke="#c8c4bf" strokeWidth="1"/>
+      <circle cx="150" cy="113" r="3" fill="#10b981"/>
+      <rect x="148" y="121" width="28" height="4" rx="2" {...blk2}/>
+      {/* Energy card */}
+      <rect x="96" y="148" width="90" height="34" rx="6" fill="#111110"/>
+      <rect x="102" y="154" width="35" height="3" rx="1.5" fill="rgba(255,255,255,0.2)"/>
+      <rect x="102" y="160" width="22" height="6" rx="2" fill="rgba(255,255,255,0.5)"/>
+      {[0,1,2,3,4,5,6,7,8].map((i)=><rect key={i} x={150+i*7} y={163-(i===8?14:[6,10,4,14,8,6,12,14,0][i])} width="5" height={[6,10,4,14,8,6,12,14,8][i]} rx="1.5" fill={i===8?'#575ECF':'rgba(255,255,255,0.2)'}/>)}
+    </Phone>
+  )
 
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActiveSection(id)
-        },
-        { threshold: 0.4, rootMargin: '-80px 0px -20% 0px' }
-      )
-      observer.observe(el)
-      observers.push(observer)
-    })
+  if (variant === 'pairing') return (
+    <Phone>
+      {/* Back + progress */}
+      <text x="96" y="28" fontSize="8" fill="#737373" fontFamily="monospace">← Back</text>
+      <rect x="160" y="23" width="10" height="3" rx="1.5" fill="#575ECF"/>
+      <rect x="173" y="23" width="6" height="3" rx="1.5" fill="#dddad5"/>
+      <rect x="182" y="23" width="6" height="3" rx="1.5" fill="#dddad5"/>
+      {/* Eyebrow */}
+      <rect x="115" y="35" width="50" height="3" rx="1.5" {...blkSm}/>
+      {/* Heading */}
+      <rect x="96" y="43" width="80" height="7" rx="2" {...blk2}/>
+      <rect x="96" y="54" width="65" height="4" rx="2" {...blkSm}/>
+      {/* Progress bar */}
+      <rect x="96" y="63" width="90" height="3" rx="1.5" fill="#e8e5e0"/>
+      <rect x="96" y="63" width="60" height="3" rx="1.5" fill="#575ECF"/>
+      {/* Found devices */}
+      {[
+        { label:'Refrigerator', y:73 },
+        { label:'Dishwasher',   y:86 },
+        { label:'Coffee Maker', y:99 },
+      ].map(d=>(
+        <g key={d.label}>
+          <rect x="96" y={d.y} width="90" height="10" rx="5" fill={`${ACCENT}15`} stroke={`${ACCENT}40`} strokeWidth="1"/>
+          <circle cx="103" cy={d.y+5} r="2.5" fill="#22c55e"/>
+          <rect x="109" y={d.y+3} width="30" height="3" rx="1.5" fill="#575ECF" opacity="0.5"/>
+          <rect x="168" y={d.y+3} width="16" height="3" rx="1.5" {...blkSm}/>
+        </g>
+      ))}
+      {/* Scanning indicator */}
+      <rect x="96" y="115" width="90" height="10" rx="5" {...blkSm}/>
+      {[107,118,129].map(x=><circle key={x} cx={x} cy={120} r="2" fill="#c8c4bf"/>)}
+      {/* CTA button */}
+      <rect x="96" y="162" width="90" height="20" rx="8" fill="#111110"/>
+      <rect x="126" y="170" width="40" height="4" rx="2" fill="rgba(255,255,255,0.5)"/>
+    </Phone>
+  )
 
-    const handleScroll = () => setNavVisible(window.scrollY > 400)
-    window.addEventListener('scroll', handleScroll, { passive: true })
+  if (variant === 'devices') return (
+    <Phone>
+      <rect x="96" y="22" width="55" height="7" rx="2" {...blk2}/>
+      <rect x="96" y="33" width="40" height="4" rx="2" {...blkSm}/>
+      {/* Room label */}
+      <rect x="96" y="43" width="30" height="3" rx="1.5" {...blkSm}/>
+      {/* Device rows */}
+      {[
+        { y:50, on:true,  dot:'#3b82f6' },
+        { y:65, on:false, dot:'#c8c4bf' },
+        { y:80, on:true,  dot:'#06b6d4' },
+        { y:95, on:true,  dot:'#d97706' },
+      ].map((d,i)=>(
+        <g key={i}>
+          <rect x="96" y={d.y} width="90" height="12" rx="5" fill={d.on?'#f0efeb':'#f5f4f1'} stroke={d.on?`${d.dot}40`:'#e0ddd8'} strokeWidth="1"/>
+          <rect x="102" y={d.y+3} width="6" height="6" rx="2" fill={d.on?`${d.dot}25`:'#e8e5e0'}/>
+          <circle cx="105" cy={d.y+6} r="2" fill={d.on?d.dot:'#c8c4bf'}/>
+          <rect x="113" y={d.y+3} width="30" height="3" rx="1.5" {...blk2}/>
+          <rect x="113" y={d.y+8} width="20" height="2" rx="1" fill={d.on?d.dot+'60':'#dddad5'}/>
+          {/* Toggle */}
+          <rect x="168" y={d.y+3} width="14" height="7" rx="3.5" fill={d.on?'#575ECF':'#dddad5'}/>
+          <circle cx={d.on?178:171} cy={d.y+6.5} r="3" fill="#fff"/>
+        </g>
+      ))}
+      {/* Laundry label */}
+      <rect x="96" y="114" width="28" height="3" rx="1.5" {...blkSm}/>
+      {[120, 135].map((y,i)=>(
+        <g key={i}>
+          <rect x="96" y={y} width="90" height="12" rx="5" fill="#f5f4f1" stroke="#e0ddd8" strokeWidth="1"/>
+          <rect x="102" y={y+3} width="6" height="6" rx="2" fill="#e8e5e0"/>
+          <rect x="113" y={y+3} width="30" height="3" rx="1.5" {...blk2}/>
+          <rect x="168" y={y+3} width="14" height="7" rx="3.5" fill="#dddad5"/>
+          <circle cx="171" cy={y+6.5} r="3" fill="#fff"/>
+        </g>
+      ))}
+    </Phone>
+  )
 
-    return () => {
-      observers.forEach((o) => o.disconnect())
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
+  if (variant === 'ia') return (
+    <svg width="100%" height="100%" viewBox="0 0 280 210" style={{ position:'absolute', inset:0 }}>
+      {/* Label: BEFORE */}
+      <text x="42" y="18" fontSize="7" fill="#737373" fontFamily="monospace" textAnchor="middle">BEFORE</text>
+      {/* Deep hierarchy left side */}
+      {[
+        { label:'App', y:25 }, { label:'Category', y:55 }, { label:'Device', y:85 }, { label:'Control', y:115 },
+      ].map((n,i)=>(
+        <g key={i}>
+          <rect x="10" y={n.y} width="64" height="22" rx="5" fill={i===0?'#e8e5e0':'#f0efeb'} stroke="#c8c4bf" strokeWidth="1"/>
+          <rect x="16" y={n.y+8} width="30" height="4" rx="2" fill="#c8c4bf"/>
+          {i < 3 && <line x1="42" y1={n.y+22} x2="42" y2={n.y+30} stroke="#c8c4bf" strokeWidth="1" strokeDasharray="2,2"/>}
+        </g>
+      ))}
+      <text x="42" y="148" fontSize="6" fill="#ef4444" fontFamily="sans-serif" textAnchor="middle">4 levels deep</text>
 
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      {/* Divider */}
+      <line x1="86" y1="10" x2="86" y2="200" stroke="#e0ddd8" strokeWidth="1" strokeDasharray="3,3"/>
+
+      {/* Label: AFTER */}
+      <text x="183" y="18" fontSize="7" fill="#575ECF" fontFamily="monospace" textAnchor="middle">AFTER</text>
+      {/* Phone with flat nav */}
+      <rect x="130" y="22" width="106" height="182" rx="10" fill="#f5f4f1" stroke="#b8b4ae" strokeWidth="1.5"/>
+      <rect x="155" y="25" width="56" height="6" rx="3" fill="#c8c4bf"/>
+      {/* Dashboard content blocks */}
+      <rect x="137" y="38" width="92" height="12" rx="4" fill="#dddad5"/>
+      <rect x="137" y="54" width="44" height="38" rx="6" fill="#ede9e4" stroke="#c8c4bf" strokeWidth="1"/>
+      <rect x="185" y="54" width="44" height="38" rx="6" fill="#ede9e4" stroke="#c8c4bf" strokeWidth="1"/>
+      <rect x="137" y="96" width="44" height="38" rx="6" fill="#ede9e4" stroke="#c8c4bf" strokeWidth="1"/>
+      <rect x="185" y="96" width="44" height="38" rx="6" fill="#ede9e4" stroke="#c8c4bf" strokeWidth="1"/>
+      <rect x="137" y="138" width="92" height="24" rx="5" fill="#111110"/>
+      {/* Tab bar */}
+      <rect x="130" y="186" width="106" height="18" rx="0" fill="#e8e5e0"/>
+      <rect x="130" y="185" width="106" height="1" fill="#c8c4bf"/>
+      {[143,162,183,203,222].map((x,i)=><circle key={i} cx={x} cy={195} r={i===0?4:3} fill={i===0?'#575ECF':'#c0beba'}/>)}
+      <text x="183" y="205" fontSize="6" fill="#22c55e" fontFamily="sans-serif" textAnchor="middle">2 levels · tab nav</text>
+    </svg>
+  )
+
+  if (variant === 'routines') return (
+    <Phone>
+      <rect x="96" y="22" width="55" height="7" rx="2" {...blk2}/>
+      <rect x="96" y="33" width="45" height="3" rx="1.5" {...blkSm}/>
+      {/* Routine cards */}
+      {[
+        { y:42, on:true,  accent:'#575ECF' },
+        { y:70, on:true,  accent:'#575ECF' },
+        { y:98, on:false, accent:'#c8c4bf' },
+        { y:126, on:true,  accent:'#575ECF' },
+      ].map((r,i)=>(
+        <g key={i}>
+          <rect x="96" y={r.y} width="90" height="24" rx="7" fill={r.on?`${r.accent}08`:'#f5f4f1'} stroke={r.on?`${r.accent}30`:'#e0ddd8'} strokeWidth="1"/>
+          <rect x="102" y={r.y+5} width="14" height="14" rx="4" fill={r.on?`${r.accent}20`:'#e8e5e0'}/>
+          <circle cx="109" cy={r.y+12} r="4" fill={r.on?r.accent:'#c8c4bf'} opacity="0.5"/>
+          <rect x="120" y={r.y+7} width="35" height="4" rx="2" {...blk2}/>
+          <rect x="120" y={r.y+14} width="50" height="3" rx="1.5" {...blkSm}/>
+          {/* Toggle */}
+          <rect x="168" y={r.y+8} width="14" height="7" rx="3.5" fill={r.on?r.accent:'#dddad5'}/>
+          <circle cx={r.on?178:171} cy={r.y+11.5} r="3" fill="#fff"/>
+        </g>
+      ))}
+      {/* Add new button */}
+      <rect x="96" y="156" width="90" height="22" rx="7" fill="none" stroke="#dddad5" strokeWidth="1" strokeDasharray="3,3"/>
+      <text x="141" y="170" fontSize="8" fill="#c8c4bf" textAnchor="middle" fontFamily="sans-serif">+ New routine</text>
+    </Phone>
+  )
+
+  if (variant === 'alerts') return (
+    <Phone>
+      <rect x="96" y="22" width="55" height="7" rx="2" {...blk2}/>
+      <rect x="96" y="33" width="40" height="4" rx="2" {...blkSm}/>
+      {/* Alert rows */}
+      {[
+        { y:43, color:'#22c55e' },
+        { y:67, color:'#f59e0b' },
+        { y:91, color:'#575ECF' },
+        { y:115, color:'#22c55e' },
+      ].map((a,i)=>(
+        <g key={i}>
+          <rect x="96" y={a.y} width="90" height="20" rx="6" fill="#f5f4f1" stroke={`${a.color}25`} strokeWidth="1"/>
+          <circle cx="103" cy={a.y+10} r="3" fill={a.color}/>
+          <rect x="111" y={a.y+5} width="45" height="4" rx="2" {...blk2}/>
+          <rect x="111" y={a.y+12} width="55" height="3" rx="1.5" {...blkSm}/>
+          <rect x="171" y={a.y+6} width="10" height="3" rx="1.5" {...blkSm}/>
+          <rect x="171" y={a.y+12} width="12" height="3" rx="1.5" fill={a.color} opacity="0.4"/>
+        </g>
+      ))}
+      {/* Severity legend */}
+      <rect x="96" y="142" width="90" height="18" rx="5" fill="#f0efeb"/>
+      {[{c:'#22c55e',l:'Done'},{c:'#f59e0b',l:'Warn'},{c:'#575ECF',l:'Info'}].map((k,i)=>(
+        <g key={i}>
+          <circle cx={105+i*30} cy={151} r="3" fill={k.c}/>
+          <text x={111+i*30} y={153.5} fontSize="6" fill="#737373" fontFamily="sans-serif">{k.l}</text>
+        </g>
+      ))}
+    </Phone>
+  )
+
+  // fallback
+  return (
+    <Phone>
+      <rect x="96" y="30" width="90" height="140" rx="6" fill="#e8e5e0"/>
+    </Phone>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   USER FLOW DIAGRAM
+═══════════════════════════════════════════════════════════════════════════ */
+function UserFlowDiagram() {
+  const BX = 88, BH = 32 // box width, height
+  const arr = (x1: number, y1: number, x2: number, y2: number) => {
+    const mx = (x1 + x2) / 2
+    return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`
   }
 
-  const handleBack = () => {
-    sessionStorage.setItem('homepage-scroll', '0')
-    navigate('/#projects')
-  }
+  // Nodes: [id, x, y, label, sublabel, isMain]
+  type N = [string, number, number, string, string, boolean?]
+  const nodes: N[] = [
+    // Entry
+    ['splash',   30,  48,  'Splash',       'Auto 2s',         false],
+    ['welcome',  160, 48,  'Welcome',      'Entry point',     false],
+    // Auth branch (y=16)
+    ['signin',   290, 16,  'Sign In',      'Returning user',  false],
+    // Onboard branch (y=80)
+    ['ob1',      290, 80,  'Home Type',    'Step 1 of 3',     false],
+    ['ob2',      430, 80,  'Appliances',   'Step 2 of 3',     false],
+    ['pair',     570, 80,  'Pair Scan',    'Step 3 of 3',     false],
+    // Hub
+    ['home',     700, 48,  'Home',         'Main dashboard',  true ],
+    // Tabs (y=160)
+    ['t-home',   100, 160, 'Home Tab',     'Quick controls',  false],
+    ['t-dev',    240, 160, 'Devices',      'All appliances',  false],
+    ['t-rt',     380, 160, 'Routines',     'Automations',     false],
+    ['t-al',     520, 160, 'Alerts',       'Notifications',   false],
+    ['t-set',    660, 160, 'Settings',     'Account & prefs', false],
+    // Sub-screens (y=270)
+    ['dev-d',    180, 270, 'Device Detail','Controls + temp',  false],
+    ['pair-n',   310, 270, '+ Pair New',   'Add appliance',   false],
+    ['rt-d',     380, 270, 'Routine Edit', 'Trigger & action',false],
+    ['rt-n',     490, 270, 'New Routine',  'Builder',         false],
+    ['al-d',     520, 270, 'Alert Detail', 'Action + dismiss', false],
+  ]
+
+  // Edges: [from-x, from-y, to-x, to-y, color]
+  const edges = [
+    // Onboarding path
+    [30+BX,  64,  160,       64,  MUTED],
+    [160+BX, 32,  290,       32,  MUTED],   // welcome → signin
+    [160+BX, 64,  290,       96,  MUTED],   // welcome → ob1
+    [290+BX, 96,  430,       96,  MUTED],
+    [430+BX, 96,  570,       96,  MUTED],
+    // merge to home
+    [290+BX, 32,  700,       64,  MUTED],   // signin → home
+    [570+BX, 96,  700,       64,  MUTED],   // pair → home
+    // home → tabs
+    [700+BX/2, 80, 100+BX/2, 160, ACCENT],
+    [700+BX/2, 80, 240+BX/2, 160, ACCENT],
+    [700+BX/2, 80, 380+BX/2, 160, ACCENT],
+    [700+BX/2, 80, 520+BX/2, 160, ACCENT],
+    [700+BX/2, 80, 660+BX/2, 160, ACCENT],
+    // sub-screens
+    [240+BX/2, 192, 180+BX/2, 270, H_MUTED2],
+    [240+BX/2, 192, 310+BX/2, 270, H_MUTED2],
+    [380+BX/2, 192, 380+BX/2, 270, H_MUTED2],
+    [380+BX/2, 192, 490+BX/2, 270, H_MUTED2],
+    [520+BX/2, 192, 520+BX/2, 270, H_MUTED2],
+  ]
+
 
   return (
-    <div className="relative" style={{ backgroundColor: '#F8F7F4', minHeight: '100vh' }}>
+    <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+      <svg viewBox="0 0 820 330" style={{ width:'100%', minWidth:600, height:'auto', display:'block' }}>
+        {/* Section labels */}
+        <text x="290" y="8" fontSize="8" fill={MUTED} fontFamily={MONO} letterSpacing="0.1em" textAnchor="middle">ONBOARDING</text>
+        <text x="580" y="8" fontSize="8" fill={MUTED} fontFamily={MONO} letterSpacing="0.1em" textAnchor="middle">AUTH</text>
+        <text x="380" y="148" fontSize="8" fill={ACCENT} fontFamily={MONO} letterSpacing="0.1em" textAnchor="middle">MAIN NAVIGATION</text>
+        <text x="380" y="258" fontSize="8" fill={H_MUTED2} fontFamily={MONO} letterSpacing="0.1em" textAnchor="middle">SUB-SCREENS</text>
 
-      {/* ── Sticky side nav (desktop) ── */}
-      <AnimatePresence>
-        {navVisible && (
-          <motion.nav
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-1/2 left-6 z-50 hidden xl:flex flex-col gap-3 -translate-y-1/2"
-            style={{ transform: 'translateY(-50%)' }}
-          >
-            <div
-              className="flex flex-col gap-3 px-3 py-4 rounded-full"
-              style={{ backgroundColor: 'rgba(13,27,42,0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)' }}
-            >
-              {SECTIONS.map(({ id, label }) => (
-                <button
-                  key={id}
-                  onClick={() => scrollTo(id)}
-                  title={label}
-                  className="relative flex items-center justify-center group"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                >
-                  <span
-                    className="block rounded-full transition-all duration-300"
-                    style={{
-                      width: activeSection === id ? 10 : 6,
-                      height: activeSection === id ? 10 : 6,
-                      backgroundColor: activeSection === id ? AMBER : 'rgba(255,255,255,0.3)',
-                      boxShadow: activeSection === id ? `0 0 8px ${AMBER}` : 'none',
-                    }}
-                  />
-                  <span
-                    className="absolute left-6 whitespace-nowrap rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                    style={{ fontSize: 11, backgroundColor: NAVY, color: '#fff' }}
-                  >
-                    {label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </motion.nav>
-        )}
-      </AnimatePresence>
-
-      {/* ── Horizontal nav (mobile) ── */}
-      <AnimatePresence>
-        {navVisible && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="fixed top-0 left-0 right-0 z-50 xl:hidden overflow-x-auto"
-            style={{ backgroundColor: 'rgba(13,27,42,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            <div className="flex gap-1 px-4 py-2">
-              {SECTIONS.map(({ id, label }) => (
-                <button
-                  key={id}
-                  onClick={() => scrollTo(id)}
-                  className="whitespace-nowrap px-3 py-1.5 rounded-full transition-all duration-200"
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 500,
-                    backgroundColor: activeSection === id ? AMBER : 'transparent',
-                    color: activeSection === id ? '#000' : 'rgba(255,255,255,0.6)',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Back button ── */}
-      <button
-        onClick={handleBack}
-        className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200 hover:scale-105"
-        style={{ backgroundColor: 'rgba(13,27,42,0.85)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
-      >
-        <BackArrow />
-        Back
-      </button>
-
-      {/* ══════════════════════════════════════════════════════════════
-          HERO
-      ══════════════════════════════════════════════════════════════ */}
-      <section
-        className="relative flex flex-col justify-center px-6 pt-32 pb-20 overflow-hidden"
-        style={{ backgroundColor: NAVY, minHeight: '100vh' }}
-      >
-        {/* Subtle grid texture */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `linear-gradient(rgba(245,158,11,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.04) 1px, transparent 1px)`,
-            backgroundSize: '48px 48px',
-          }}
-        />
-        {/* Glow blob */}
-        <div
-          className="absolute pointer-events-none"
-          style={{ top: '20%', right: '10%', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)' }}
-        />
-
-        <div className="max-w-5xl mx-auto relative z-10">
-          {/* Category badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8"
-            style={{ backgroundColor: `${AMBER}18`, border: `1px solid ${AMBER}44` }}
-          >
-            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: AMBER, display: 'inline-block' }} />
-            <span style={{ fontSize: 12, color: AMBER, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>Connected Consumer Hardware Concept</span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-bold mb-4"
-            style={{ fontSize: 'clamp(52px, 8vw, 96px)', color: '#FFFFFF', lineHeight: 0.95, letterSpacing: '-2px' }}
-          >
-            Home
-            <span style={{ color: AMBER }}>Sense</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-12"
-            style={{ fontSize: 'clamp(20px, 3vw, 28px)', color: 'rgba(255,255,255,0.55)', fontStyle: 'italic', fontWeight: 300 }}
-          >
-            One app. Every appliance.
-          </motion.p>
-
-          {/* Meta chips */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap gap-3 mb-16"
-          >
-            {[
-              { label: 'Role', value: 'Lead Product Designer' },
-              { label: 'Timeline', value: '14 weeks · 2024' },
-              { label: 'Platform', value: 'iOS + Android' },
-              { label: 'Tools', value: 'Figma, Principle, iOS, Android' },
-            ].map((chip) => (
-              <div
-                key={chip.label}
-                className="px-4 py-2 rounded-full"
-                style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
-              >
-                <span style={{ fontSize: 10, color: AMBER, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>{chip.label} · </span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{chip.value}</span>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Outcome numbers */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-          >
-            {[
-              { num: '+35%', desc: 'Daily engagement lift' },
-              { num: '+40%', desc: 'First-attempt task success' },
-              { num: '−45%', desc: 'First-time pairing friction' },
-            ].map((stat) => (
-              <div
-                key={stat.num}
-                className="rounded-3xl p-6"
-                style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-              >
-                <p className="font-bold mb-1" style={{ fontSize: 40, color: AMBER, lineHeight: 1 }}>{stat.num}</p>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{stat.desc}</p>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.8 }}
-          className="absolute bottom-10 left-1/2 flex flex-col items-center gap-2"
-          style={{ transform: 'translateX(-50%)' }}
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 1.8 }}
-            style={{ width: 24, height: 38, borderRadius: 12, border: '2px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 6 }}
-          >
-            <div style={{ width: 4, height: 8, borderRadius: 2, backgroundColor: AMBER }} />
-          </motion.div>
-          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: 2, textTransform: 'uppercase' }}>Scroll</p>
-        </motion.div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════════════
-          OVERVIEW
-      ══════════════════════════════════════════════════════════════ */}
-      <Section id="overview">
-        <SectionLabel>01 — Overview</SectionLabel>
-        <SectionTitle>The big picture</SectionTitle>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <p className="text-lg mb-6" style={{ color: '#4B5563', lineHeight: 1.8 }}>
-              HomeSense is a unified smart-home companion app that consolidates control for eight kitchen and household appliances into a single, coherent experience. The project was a 14-week end-to-end design sprint — from ethnographic research through pixel-perfect Figma handoff — for a connected consumer hardware concept targeting urban homeowners.
-            </p>
-            <p style={{ color: '#6B7280', lineHeight: 1.8 }}>
-              As Lead Product Designer, I owned the full design lifecycle: defining the research plan, mapping the information architecture, crafting the interaction model, prototyping multiple onboarding variants in Principle, and running five moderated usability sessions. The final designs lifted daily active engagement from 12% to 47% and cut first-time pairing time nearly in half.
-            </p>
-          </motion.div>
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="flex flex-col gap-6">
-            {/* Deliverables */}
-            <motion.div variants={fadeUp} className="rounded-3xl p-6" style={{ backgroundColor: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)' }}>
-              <p className="font-bold mb-4" style={{ fontSize: 13, color: NAVY, textTransform: 'uppercase', letterSpacing: 1 }}>Deliverables</p>
-              <ul className="flex flex-col gap-2">
-                {[
-                  'User research synthesis & affinity map',
-                  'Competitive audit (4 platforms)',
-                  'User persona & journey map',
-                  'Information architecture diagram',
-                  'Wireframe explorations (3 rounds)',
-                  '3 Principle-prototyped onboarding variants',
-                  'High-fidelity Figma component library',
-                  'iOS + Android handoff specs',
-                  'Usability test report (5 sessions)',
-                ].map((d) => (
-                  <li key={d} className="flex items-start gap-2" style={{ fontSize: 13, color: '#374151' }}>
-                    <span style={{ color: AMBER, flexShrink: 0, marginTop: 2 }}>✓</span>
-                    {d}
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Tools */}
-            <motion.div variants={fadeUp} className="rounded-3xl p-6" style={{ backgroundColor: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)' }}>
-              <p className="font-bold mb-4" style={{ fontSize: 13, color: NAVY, textTransform: 'uppercase', letterSpacing: 1 }}>Tools Used</p>
-              <div className="flex flex-wrap gap-2">
-                {['Figma', 'Figma Make', 'Principle', 'iOS TestFlight', 'Android Studio', 'Maze', 'Miro', 'Notion'].map((t) => (
-                  <span key={t} className="px-3 py-1.5 rounded-full" style={{ fontSize: 12, backgroundColor: `${AMBER}15`, color: '#92400E', border: `1px solid ${AMBER}30`, fontWeight: 500 }}>{t}</span>
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </Section>
-
-      {/* ══════════════════════════════════════════════════════════════
-          CHALLENGE
-      ══════════════════════════════════════════════════════════════ */}
-      <Section id="challenge" alt>
-        <SectionLabel>02 — Challenge</SectionLabel>
-        <SectionTitle>A fragmented smart home</SectionTitle>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <p className="text-lg mb-6" style={{ color: '#4B5563', lineHeight: 1.8 }}>
-              The average smart-home household juggles eight separate manufacturer apps — one for the fridge, another for the oven, yet another for the dishwasher. Each app has its own design language, notification cadence, and account ecosystem. The cognitive overhead is immense and abandonment is rampant.
-            </p>
-            <p style={{ color: '#6B7280', lineHeight: 1.8 }}>
-              Research confirmed what early diary studies hinted at: users weren't failing because the hardware was broken. They were failing because the software experience was designed in silos, without any empathy for the multi-appliance household workflow.
-            </p>
-          </motion.div>
-
-          {/* Baseline stats */}
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-2 gap-4">
-            {[
-              { val: '8+', desc: 'Separate apps required per household', neg: true },
-              { val: '4.2 min', desc: 'Average first-time pairing time', neg: true },
-              { val: '52%', desc: 'First-attempt task success on control screens', neg: true },
-              { val: '12%', desc: 'Daily active engagement baseline', neg: true },
-            ].map((s) => (
-              <motion.div
-                key={s.val}
-                variants={fadeUp}
-                className="rounded-3xl p-5"
-                style={{ backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5' }}
-              >
-                <p className="font-bold" style={{ fontSize: 32, color: '#DC2626', lineHeight: 1 }}>{s.val}</p>
-                <p className="mt-2" style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>{s.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* HMW questions */}
-        <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-          <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>How Might We…</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { q: 'How might we reduce the mental model gap between eight different appliance interfaces into a single learnable system?', num: '01' },
-              { q: 'How might we make the first-time pairing experience feel effortless, even for users who are not tech-savvy?', num: '02' },
-              { q: 'How might we surface the right appliance controls at the right moment — without overwhelming the user with everything at once?', num: '03' },
-            ].map((hmw) => (
-              <motion.div
-                key={hmw.num}
-                variants={fadeUp}
-                className="rounded-3xl p-6"
-                style={{ backgroundColor: NAVY, boxShadow: '0 8px 32px rgba(13,27,42,0.15)' }}
-              >
-                <p className="font-bold mb-4" style={{ fontSize: 32, color: `${AMBER}40` }}>{hmw.num}</p>
-                <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', lineHeight: 1.7, fontStyle: 'italic' }}>"{hmw.q}"</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </Section>
-
-      {/* ══════════════════════════════════════════════════════════════
-          RESEARCH
-      ══════════════════════════════════════════════════════════════ */}
-      <Section id="research">
-        <SectionLabel>03 — Research & Discovery</SectionLabel>
-        <SectionTitle>8 interviews, 4 weeks, one clear truth</SectionTitle>
-
-        {/* Interview summary */}
-        <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="rounded-3xl p-8 mb-12" style={{ backgroundColor: NAVY }}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { val: '8', desc: 'Moderated interviews' },
-              { val: '28–45', desc: 'Age range of participants' },
-              { val: '6+', desc: 'Avg smart appliances owned' },
-              { val: '4 wks', desc: 'Field research duration' },
-            ].map((s) => (
-              <div key={s.val}>
-                <p className="font-bold" style={{ fontSize: 40, color: AMBER }}>{s.val}</p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Insight cards */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>Key Research Findings</h3>
-        <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
-          {[
-            { icon: '🧠', title: 'Cognitive Overload', body: '7 of 8 participants described managing multiple apps as "exhausting." They used workarounds like manufacturer remotes or voice assistants to avoid opening apps altogether.' },
-            { icon: '⏱️', title: 'Pairing Abandonment', body: 'All participants had at least one appliance they gave up pairing. The top reason: overly long QR-code or manual-code flows with no progress indication.' },
-            { icon: '📣', title: 'Notification Fatigue', body: 'Participants received an average of 14 push notifications per day across manufacturer apps — 83% of which they considered "low value" and had disabled entirely.' },
-            { icon: '👁️', title: 'Status Anxiety', body: '"Did the dishwasher finish?" was the most common recurring check. Users wanted ambient status glances, not full app launches, to confirm appliance states.' },
-            { icon: '🔋', title: 'Energy Blindspot', body: '6 of 8 participants had no idea which appliances consumed the most energy. All 6 said they would actively change behavior if shown this information clearly.' },
-          ].map((card) => (
-            <motion.div
-              key={card.title}
-              variants={fadeUp}
-              className="rounded-3xl p-6"
-              style={{ backgroundColor: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)' }}
-            >
-              <span style={{ fontSize: 28 }}>{card.icon}</span>
-              <h4 className="font-bold my-3" style={{ fontSize: 15, color: NAVY }}>{card.title}</h4>
-              <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>{card.body}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Competitive analysis table */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>Competitive Analysis</h3>
-        <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="rounded-3xl overflow-hidden mb-16" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)' }}>
-          <div className="overflow-x-auto">
-            <table className="w-full" style={{ borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead>
-                <tr style={{ backgroundColor: NAVY, color: '#fff' }}>
-                  <th className="text-left p-4" style={{ fontWeight: 600 }}>Feature</th>
-                  {['Samsung SmartThings', 'Google Home', 'Apple Home', 'Philips Hue'].map((c) => (
-                    <th key={c} className="text-center p-4" style={{ fontWeight: 600, fontSize: 11 }}>{c}</th>
-                  ))}
-                  <th className="text-center p-4" style={{ fontWeight: 700, color: AMBER, fontSize: 11 }}>HomeSense</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { feature: 'Cross-brand appliance support', vals: ['✓', '✓', '✗', '✗', '✓'] },
-                  { feature: 'Guided pairing flow', vals: ['Partial', '✓', '✓', '✓', '✓'] },
-                  { feature: 'Energy usage dashboard', vals: ['✓', 'Partial', '✗', '✓', '✓'] },
-                  { feature: 'Routine automation', vals: ['✓', '✓', '✓', '✗', '✓'] },
-                  { feature: 'WCAG 2.1 AA compliant', vals: ['✗', 'Partial', '✓', '✗', '✓'] },
-                  { feature: 'Single unified nav hierarchy', vals: ['✗', '✗', '✗', '✗', '✓'] },
-                  { feature: 'Appliance detail controls', vals: ['Partial', 'Partial', '✗', '✓', '✓'] },
-                ].map((row, i) => (
-                  <tr key={row.feature} style={{ backgroundColor: i % 2 === 0 ? '#fff' : '#F8F7F4' }}>
-                    <td className="p-4 font-medium" style={{ color: NAVY }}>{row.feature}</td>
-                    {row.vals.slice(0, 4).map((v, j) => (
-                      <td key={j} className="p-4 text-center" style={{ color: v === '✓' ? '#059669' : v === '✗' ? '#DC2626' : '#D97706' }}>{v}</td>
-                    ))}
-                    <td className="p-4 text-center font-bold" style={{ color: '#059669' }}>{row.vals[4]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-
-        {/* User persona */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>Primary Persona</h3>
-        <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="rounded-3xl p-8 mb-16" style={{ backgroundColor: '#fff', boxShadow: '0 8px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.04)' }}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full mb-4 flex items-center justify-center text-5xl" style={{ backgroundColor: `${AMBER}20`, border: `3px solid ${AMBER}` }}>
-                👩‍💼
-              </div>
-              <h4 className="font-bold" style={{ fontSize: 20, color: NAVY }}>Sarah Chen</h4>
-              <p style={{ fontSize: 13, color: '#6B7280' }}>34 · Boston, MA</p>
-              <p style={{ fontSize: 13, color: '#6B7280' }}>Product Manager</p>
-              <div className="flex flex-wrap gap-1 justify-center mt-3">
-                {['Efficiency-driven', 'Tech-comfortable', 'Time-poor'].map((t) => (
-                  <span key={t} className="px-2 py-1 rounded-full" style={{ fontSize: 10, backgroundColor: `${AMBER}18`, color: '#92400E', border: `1px solid ${AMBER}30` }}>{t}</span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-3" style={{ fontSize: 13, color: NAVY, textTransform: 'uppercase', letterSpacing: 1 }}>About</h5>
-              <p className="mb-4" style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>Sarah owns a 1,400 sq ft condo with 6 smart appliances spread across three brands. She is not a tech enthusiast — she bought smart devices because of energy savings promises, not for the gadget factor. She is comfortable with apps but has zero patience for friction.</p>
-              <h5 className="font-semibold mb-3" style={{ fontSize: 13, color: NAVY, textTransform: 'uppercase', letterSpacing: 1 }}>Goals</h5>
-              <ul className="flex flex-col gap-1">
-                {['Know every appliance status at a glance', 'Start her coffee without opening an app', 'Understand her monthly energy spend', 'Set routines and forget about them'].map((g) => (
-                  <li key={g} className="flex items-start gap-2" style={{ fontSize: 13, color: '#374151' }}>
-                    <span style={{ color: AMBER, flexShrink: 0 }}>→</span>{g}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-semibold mb-3" style={{ fontSize: 13, color: NAVY, textTransform: 'uppercase', letterSpacing: 1 }}>Frustrations</h5>
-              <ul className="flex flex-col gap-1 mb-4">
-                {['"I have 5 apps I never open"', '"Pairing took 20 minutes"', '"I don\'t know which device costs the most"', '"Notifications are noise"'].map((f) => (
-                  <li key={f} className="flex items-start gap-2" style={{ fontSize: 13, color: '#374151', fontStyle: 'italic' }}>
-                    <span style={{ color: '#DC2626', flexShrink: 0 }}>✕</span>{f}
-                  </li>
-                ))}
-              </ul>
-              <h5 className="font-semibold mb-3" style={{ fontSize: 13, color: NAVY, textTransform: 'uppercase', letterSpacing: 1 }}>Smart Appliances Owned</h5>
-              <div className="flex flex-wrap gap-1">
-                {['Refrigerator', 'Dishwasher', 'Oven', 'Coffee Maker', 'Air Purifier', 'Washing Machine'].map((a) => (
-                  <span key={a} className="px-2 py-1 rounded-full" style={{ fontSize: 10, backgroundColor: '#F3F4F6', color: '#374151' }}>{a}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Journey map */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>User Journey Map</h3>
-        <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="overflow-x-auto">
-          <div className="grid grid-cols-5 gap-0 min-w-max md:min-w-0 rounded-3xl overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)' }}>
-            {[
-              {
-                stage: 'Discovery',
-                action: 'Unboxes appliance, finds QR code',
-                emotion: '😐 Curious',
-                pain: 'Where do I start? Which app do I even need?',
-                opp: 'Universal entry point with brand detection',
-              },
-              {
-                stage: 'Setup',
-                action: 'Attempts pairing via manufacturer app',
-                emotion: '😤 Frustrated',
-                pain: '4.2 min average pairing time. Multiple failed attempts.',
-                opp: 'Guided 3-step pairing with progress indicator',
-              },
-              {
-                stage: 'First Use',
-                action: 'Navigates app to find basic controls',
-                emotion: '😕 Confused',
-                pain: 'Cannot find the right screen. Task success only 52%.',
-                opp: 'Clear nav hierarchy + contextual onboarding',
-              },
-              {
-                stage: 'Daily Use',
-                action: 'Checks status, adjusts settings',
-                emotion: '😒 Disengaged',
-                pain: 'Opens app rarely. Uses hardware controls instead.',
-                opp: 'Glanceable home screen + smart notifications',
-              },
-              {
-                stage: 'Routine',
-                action: 'Tries to set automation',
-                emotion: '😖 Overwhelmed',
-                pain: 'Automation builder is buried & complex.',
-                opp: 'Pre-built routine templates + simple editor',
-              },
-            ].map((col, i) => (
-              <motion.div key={col.stage} variants={fadeUp} className="flex flex-col" style={{ minWidth: 160 }}>
-                {/* Stage header */}
-                <div className="p-4 text-center" style={{ backgroundColor: NAVY }}>
-                  <p className="font-bold" style={{ fontSize: 11, color: AMBER, textTransform: 'uppercase', letterSpacing: 1 }}>Stage {i + 1}</p>
-                  <p className="font-bold" style={{ fontSize: 14, color: '#fff', marginTop: 4 }}>{col.stage}</p>
-                </div>
-                {/* Action */}
-                <div className="p-4" style={{ backgroundColor: '#fff', borderBottom: '1px solid #F3F4F6', flex: 1 }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Action</p>
-                  <p style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>{col.action}</p>
-                </div>
-                {/* Emotion */}
-                <div className="p-4" style={{ backgroundColor: '#FFFBEB', borderBottom: '1px solid #FEF3C7' }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>Emotion</p>
-                  <p style={{ fontSize: 13 }}>{col.emotion}</p>
-                </div>
-                {/* Pain point */}
-                <div className="p-4" style={{ backgroundColor: '#FEF2F2', borderBottom: '1px solid #FECACA' }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: '#991B1B', marginBottom: 4 }}>Pain Point</p>
-                  <p style={{ fontSize: 11, color: '#7F1D1D', lineHeight: 1.5 }}>{col.pain}</p>
-                </div>
-                {/* Opportunity */}
-                <div className="p-4" style={{ backgroundColor: '#F0FDF4' }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: '#14532D', marginBottom: 4 }}>Opportunity</p>
-                  <p style={{ fontSize: 11, color: '#166534', lineHeight: 1.5 }}>{col.opp}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </Section>
-
-      {/* ══════════════════════════════════════════════════════════════
-          PROCESS
-      ══════════════════════════════════════════════════════════════ */}
-      <Section id="process" alt>
-        <SectionLabel>04 — Design Process</SectionLabel>
-        <SectionTitle>From chaos to clarity</SectionTitle>
-
-        {/* IA Diagram */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>Information Architecture</h3>
-        <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="rounded-3xl p-8 mb-16" style={{ backgroundColor: NAVY, boxShadow: '0 8px 40px rgba(13,27,42,0.2)' }}>
-          {/* Root */}
-          <div className="flex justify-center mb-6">
-            <div className="px-6 py-3 rounded-2xl font-bold text-center" style={{ backgroundColor: AMBER, color: '#000', fontSize: 14 }}>HomeSense App</div>
-          </div>
-          {/* L1 — Tabs */}
-          <div className="grid grid-cols-4 gap-3 mb-4">
-            {[
-              { label: 'Home', items: ['Status overview', 'Active appliances', 'Energy summary', 'Quick actions'] },
-              { label: 'Devices', items: ['All appliances', 'Device detail', 'Controls', 'Schedule device'] },
-              { label: 'Energy', items: ['Weekly chart', 'Cost estimate', 'Top consumers', 'Efficiency score'] },
-              { label: 'Schedules', items: ['Routines', 'Add routine', 'Upcoming runs', 'Edit routine'] },
-            ].map((tab) => (
-              <div key={tab.label} className="flex flex-col gap-2">
-                <div className="rounded-xl p-3 text-center font-semibold" style={{ backgroundColor: 'rgba(245,158,11,0.2)', border: `1px solid ${AMBER}50`, color: AMBER, fontSize: 13 }}>{tab.label}</div>
-                {tab.items.map((item) => (
-                  <div key={item} className="rounded-lg px-3 py-2 text-center" style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{item}</div>
-                ))}
-              </div>
-            ))}
-          </div>
-          {/* Settings branch */}
-          <div className="flex justify-center mt-4">
-            <div className="flex flex-col items-center gap-2">
-              <div style={{ width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.2)' }} />
-              <div className="px-4 py-2 rounded-xl text-center" style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>Settings · Account · Notifications · Accessibility</div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Wireframe evolution */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>Wireframe Evolution</h3>
-        <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          {[
-            {
-              phase: 'Before',
-              label: 'Manufacturer App Pattern',
-              issues: ['One app per appliance', 'Inconsistent nav patterns', 'Buried controls', 'No cross-device view'],
-              color: '#FEF2F2',
-              border: '#FECACA',
-              tag: '#DC2626',
-            },
-            {
-              phase: 'Iteration 1',
-              label: 'Unified Dashboard v1',
-              issues: ['Single app architecture', 'Tab bar introduced', 'Too much info density', 'Overwhelming home screen'],
-              color: '#FFFBEB',
-              border: '#FDE68A',
-              tag: '#D97706',
-            },
-            {
-              phase: 'Final',
-              label: 'Progressive Disclosure',
-              issues: ['Contextual information', 'Glanceable home view', 'Detail on demand', 'WCAG 2.1 compliant'],
-              color: '#F0FDF4',
-              border: '#BBF7D0',
-              tag: '#059669',
-            },
-          ].map((wf) => (
-            <motion.div
-              key={wf.phase}
-              variants={fadeUp}
-              className="rounded-3xl overflow-hidden"
-              style={{ backgroundColor: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.04)' }}
-            >
-              {/* Wireframe sketch representation */}
-              <div className="p-6" style={{ backgroundColor: wf.color, borderBottom: `1px solid ${wf.border}` }}>
-                <div className="mx-auto rounded-2xl overflow-hidden" style={{ width: 140, height: 240, backgroundColor: '#1E293B', position: 'relative' }}>
-                  {/* Status bar */}
-                  <div className="flex justify-between px-3 pt-2 pb-1" style={{ fontSize: 7, color: 'rgba(255,255,255,0.4)' }}>
-                    <span>9:41</span><span>⚡</span>
-                  </div>
-                  {wf.phase === 'Before' && (
-                    <div className="px-2 py-1 flex flex-col gap-1">
-                      <div className="rounded-md p-2" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
-                        <div className="h-1 w-12 rounded mb-1" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }} />
-                        <div className="h-10 w-full rounded" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }} />
-                      </div>
-                      {[1, 2].map((n) => (
-                        <div key={n} className="rounded-md p-2 flex items-center gap-1" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
-                          <div className="rounded-sm flex-shrink-0" style={{ width: 20, height: 20, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-                          <div className="flex-1">
-                            <div className="h-1 w-10 rounded mb-1" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }} />
-                            <div className="h-1 w-8 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }} />
-                          </div>
-                        </div>
-                      ))}
-                      <div className="rounded-md p-2 mt-8" style={{ backgroundColor: 'rgba(220,38,38,0.2)', border: '1px dashed rgba(220,38,38,0.4)' }}>
-                        <div className="h-1 w-full rounded" style={{ backgroundColor: 'rgba(220,38,38,0.3)' }} />
-                        <p style={{ fontSize: 7, color: '#FCA5A5', marginTop: 4 }}>Wrong app! Switch to Fridge app</p>
-                      </div>
-                    </div>
-                  )}
-                  {wf.phase === 'Iteration 1' && (
-                    <div className="px-2 py-1 flex flex-col gap-1">
-                      <div className="rounded-md p-2" style={{ backgroundColor: 'rgba(245,158,11,0.1)' }}>
-                        <div className="h-1 w-16 rounded mb-1" style={{ backgroundColor: `${AMBER}40` }} />
-                        <div className="grid grid-cols-3 gap-1 mt-1">
-                          {[1, 2, 3, 4, 5, 6].map((n) => (
-                            <div key={n} className="rounded" style={{ height: 24, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }} />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="rounded-md p-2" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
-                        <div className="h-1 w-12 rounded mb-1" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
-                        <div className="flex gap-1 items-end" style={{ height: 30 }}>
-                          {[40, 60, 45, 70, 55, 65, 50].map((h, i) => (
-                            <div key={i} className="flex-1 rounded-sm" style={{ height: `${h}%`, backgroundColor: `${AMBER}50` }} />
-                          ))}
-                        </div>
-                      </div>
-                      <div style={{ fontSize: 7, color: '#D97706', marginTop: 2 }}>↑ Information overload on first view</div>
-                    </div>
-                  )}
-                  {wf.phase === 'Final' && (
-                    <div className="px-2 py-1 flex flex-col gap-1">
-                      <div className="h-5 rounded-md mb-1" style={{ backgroundColor: 'rgba(245,158,11,0.15)' }}>
-                        <div className="h-1 w-10 rounded mx-auto mt-2" style={{ backgroundColor: `${AMBER}60` }} />
-                      </div>
-                      <div className="grid grid-cols-2 gap-1">
-                        {[1, 2, 3, 4].map((n) => (
-                          <div key={n} className="rounded-lg p-1.5" style={{ backgroundColor: 'rgba(245,158,11,0.1)', border: `1px solid ${AMBER}30` }}>
-                            <div className="h-1 w-5 rounded mb-1" style={{ backgroundColor: `${AMBER}40` }} />
-                            <div className="h-1 w-8 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
-                          </div>
-                        ))}
-                      </div>
-                      <div className="rounded-lg p-2 mt-1" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
-                        <div className="flex gap-1 items-end" style={{ height: 24 }}>
-                          {[40, 60, 45, 70, 55, 65, 80].map((h, i) => (
-                            <div key={i} className="flex-1 rounded-sm" style={{ height: `${h}%`, backgroundColor: i === 6 ? AMBER : `${AMBER}35` }} />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex justify-around mt-2 pt-1" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                        {['⌂', '⊞', '⚡', '⏰'].map((ic) => (
-                          <span key={ic} style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{ic}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="px-2 py-1 rounded-full font-bold" style={{ fontSize: 10, backgroundColor: `${wf.tag}15`, color: wf.tag, border: `1px solid ${wf.tag}30` }}>{wf.phase}</span>
-                  <h4 className="font-bold" style={{ fontSize: 14, color: NAVY }}>{wf.label}</h4>
-                </div>
-                <ul className="flex flex-col gap-1.5">
-                  {wf.issues.map((issue) => (
-                    <li key={issue} className="flex items-start gap-2" style={{ fontSize: 12, color: '#6B7280' }}>
-                      <span style={{ color: wf.tag, flexShrink: 0 }}>{wf.phase === 'Final' ? '✓' : wf.phase === 'Iteration 1' ? '△' : '✕'}</span>
-                      {issue}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Onboarding variants */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>Onboarding Variants (Prototyped in Principle)</h3>
-        <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              variant: 'Variant A',
-              title: 'Manual Code Entry',
-              desc: 'Users enter a pairing code found in the appliance manual. Clean, brand-agnostic, but high friction.',
-              pros: ['Works offline', 'Brand agnostic'],
-              cons: ['Avg 4.2 min completion', '38% dropoff on code step'],
-              chosen: false,
-            },
-            {
-              variant: 'Variant B',
-              title: 'QR Code Scan + Confirm',
-              desc: 'Scan the QR code on the appliance, confirm on the app. Faster but failed when labels were damaged.',
-              pros: ['2.8 min completion', 'Visual and tactile'],
-              cons: ['Fails with damaged labels', 'Camera permission friction'],
-              chosen: false,
-            },
-            {
-              variant: 'Variant C — CHOSEN',
-              title: 'Smart Detect + Guided Steps',
-              desc: 'App uses BLE scanning to detect nearby appliances, then guides user through a 3-step confirmation flow. Reduced pairing time by 45%.',
-              pros: ['2.3 min completion', 'No manual code needed', '45% less friction', '92% first-attempt success'],
-              cons: ['Requires BLE permissions', 'Needs appliance firmware v2+'],
-              chosen: true,
-            },
-          ].map((v) => (
-            <motion.div
-              key={v.variant}
-              variants={fadeUp}
-              className="rounded-3xl p-6"
-              style={{
-                backgroundColor: v.chosen ? NAVY : '#fff',
-                boxShadow: v.chosen ? `0 8px 40px rgba(13,27,42,0.2), 0 0 0 2px ${AMBER}` : '0 4px 24px rgba(0,0,0,0.06)',
-                border: v.chosen ? `2px solid ${AMBER}` : '1px solid rgba(0,0,0,0.04)',
-              }}
-            >
-              <span className="px-3 py-1 rounded-full font-bold inline-block mb-3" style={{ fontSize: 10, backgroundColor: v.chosen ? AMBER : `${AMBER}15`, color: v.chosen ? '#000' : '#92400E', textTransform: 'uppercase', letterSpacing: 1 }}>{v.variant}</span>
-              <h4 className="font-bold mb-2" style={{ fontSize: 16, color: v.chosen ? '#fff' : NAVY }}>{v.title}</h4>
-              <p className="mb-4" style={{ fontSize: 13, color: v.chosen ? 'rgba(255,255,255,0.7)' : '#6B7280', lineHeight: 1.6 }}>{v.desc}</p>
-              <div className="flex flex-col gap-1 mb-3">
-                {v.pros.map((p) => (
-                  <div key={p} className="flex items-start gap-1.5" style={{ fontSize: 12, color: v.chosen ? '#6EE7B7' : '#059669' }}>
-                    <span>✓</span>{p}
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-col gap-1">
-                {v.cons.map((c) => (
-                  <div key={c} className="flex items-start gap-1.5" style={{ fontSize: 12, color: v.chosen ? 'rgba(252,165,165,0.9)' : '#DC2626' }}>
-                    <span>✕</span>{c}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </Section>
-
-      {/* ══════════════════════════════════════════════════════════════
-          SOLUTION — Interactive phone mockup
-      ══════════════════════════════════════════════════════════════ */}
-      <Section id="solution">
-        <SectionLabel>05 — The Solution</SectionLabel>
-        <SectionTitle>HomeSense — Interactive Prototype</SectionTitle>
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mb-16 max-w-2xl"
-          style={{ fontSize: 16, color: '#6B7280', lineHeight: 1.8 }}
-        >
-          Tap the tabs, toggle appliances on and off, and explore the device detail views. This is a fully interactive React prototype of the final HomeSense design — built pixel-for-pixel from the Figma handoff.
-        </motion.p>
-
-        <div className="relative flex justify-center">
-          {/* Glow behind phone */}
-          <div
-            className="absolute pointer-events-none"
-            style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, height: 400, borderRadius: '50%', background: `radial-gradient(circle, ${AMBER}22 0%, transparent 70%)`, filter: 'blur(20px)' }}
+        {/* Edges */}
+        {edges.map(([x1,y1,x2,y2,color],i) => (
+          <path key={i} d={arr(x1 as number, y1 as number, x2 as number, y2 as number)}
+            fill="none" stroke={color as string} strokeWidth="1.5" strokeDasharray={color === MUTED ? '4,3' : undefined} opacity="0.5"
+            markerEnd={`url(#arr-${color===ACCENT?'acc':'def'})`}
           />
+        ))}
 
-          {/* Annotation left — Nav architecture */}
-          <Annotation text="4-tab bottom nav mirrors mental model: Place → Device → Cost → Time" side="left" top="20%" />
-          {/* Annotation right — Energy */}
-          <Annotation text="Energy dashboard surfaces blind-spot insight. Top request from 6/8 participants." side="right" top="42%" />
-          {/* Annotation left — Toggle */}
-          <Annotation text="44px tap targets on all toggles — WCAG 2.1 compliant minimum" side="left" top="62%" />
-          {/* Annotation right — Tab */}
-          <Annotation text="Amber accent denotes active state; meets 3:1 contrast ratio minimum" side="right" top="82%" />
+        {/* Arrow markers */}
+        <defs>
+          <marker id="arr-acc" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill={ACCENT}/>
+          </marker>
+          <marker id="arr-def" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill={MUTED}/>
+          </marker>
+        </defs>
 
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="relative z-10"
-          >
-            <PhoneMockup />
-          </motion.div>
-        </div>
-      </Section>
+        {/* Nodes */}
+        {nodes.map(([id, x, y, label, sub, isMain]) => {
+          const isSub = (y as number) >= 270
+          const isTab = (y as number) === 160
+          const fillColor = isMain ? FG : isTab ? BONE : CARD
+          const borderColor = isMain ? FG : isTab ? `${ACCENT}40` : BORDER
+          return (
+            <g key={id as string}>
+              <rect
+                x={x as number} y={y as number}
+                width={BX} height={BH}
+                rx="8"
+                fill={fillColor}
+                stroke={isMain ? 'none' : borderColor}
+                strokeWidth={isTab ? 1.5 : 1}
+              />
+              {isMain && <rect x={x as number} y={y as number} width={BX} height={BH} rx="8" fill={ACCENT}/>}
+              <text
+                x={(x as number) + BX/2} y={(y as number) + 13}
+                textAnchor="middle" fontSize={isSub?9:10}
+                fontWeight="600" fill={isMain ? '#fff' : FG}
+                fontFamily={SANS}
+              >{label}</text>
+              <text
+                x={(x as number) + BX/2} y={(y as number) + 24}
+                textAnchor="middle" fontSize="8"
+                fill={isMain ? 'rgba(255,255,255,0.6)' : MUTED}
+                fontFamily={SANS}
+              >{sub}</text>
+            </g>
+          )
+        })}
 
-      {/* ══════════════════════════════════════════════════════════════
-          TESTING
-      ══════════════════════════════════════════════════════════════ */}
-      <Section id="testing" alt>
-        <SectionLabel>06 — Testing & Validation</SectionLabel>
-        <SectionTitle>5 sessions. Real insights. Measurable fixes.</SectionTitle>
+        {/* Legend */}
+        <rect x="10" y="305" width="10" height="2" rx="1" fill={ACCENT}/>
+        <text x="24" y="310" fontSize="8" fill={ACCENT} fontFamily={SANS}>Core navigation</text>
+        <line x1="130" y1="306" x2="140" y2="306" stroke={MUTED} strokeWidth="1.5" strokeDasharray="3,2"/>
+        <text x="144" y="310" fontSize="8" fill={MUTED} fontFamily={SANS}>Onboarding / auth</text>
+        <rect x="254" y="305" width="10" height="2" rx="1" fill={H_MUTED2}/>
+        <text x="268" y="310" fontSize="8" fill={H_MUTED2} fontFamily={SANS}>Sub-screens (sheets / modals)</text>
+      </svg>
+    </div>
+  )
+}
 
-        {/* Onboarding variant results */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>Onboarding Variant Test Results</h3>
-        <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
-          {[
-            { variant: 'Variant A — Manual Code', time: '4.2 min', success: '62%', dropoff: '38%', nps: '2.1 / 5', winner: false },
-            { variant: 'Variant B — QR Scan', time: '2.8 min', success: '74%', dropoff: '22%', nps: '3.4 / 5', winner: false },
-            { variant: 'Variant C — Smart Detect', time: '2.3 min', success: '92%', dropoff: '8%', nps: '4.6 / 5', winner: true },
-          ].map((r) => (
-            <motion.div
-              key={r.variant}
-              variants={fadeUp}
-              className="rounded-3xl p-6"
-              style={{ backgroundColor: r.winner ? NAVY : '#fff', border: r.winner ? `2px solid ${AMBER}` : '1px solid rgba(0,0,0,0.06)', boxShadow: r.winner ? `0 8px 40px rgba(13,27,42,0.2)` : '0 4px 24px rgba(0,0,0,0.06)' }}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <h4 className="font-bold" style={{ fontSize: 13, color: r.winner ? AMBER : NAVY, maxWidth: 160 }}>{r.variant}</h4>
-                {r.winner && <span className="px-2 py-1 rounded-full" style={{ fontSize: 9, backgroundColor: AMBER, color: '#000', fontWeight: 700, whiteSpace: 'nowrap' }}>Winner</span>}
+/* Metric card with count-up */
+function MetricCard({ target, suffix, label, desc, started, index }: { target:number; suffix:string; label:string; desc:string; started:boolean; index:number }) {
+  const val = useCountUp(target, 1100 + index * 150, started)
+  return (
+    <div style={{ padding:'40px 28px', borderRight: index < 2 ? HL : 'none' }}>
+      <div style={{ fontFamily: SERIF, fontSize:56, fontWeight:700, color: FG, lineHeight:1, marginBottom:8 }}>{val}{suffix}</div>
+      <div style={{ fontFamily: SANS, fontSize:13, fontWeight:600, color: FG, marginBottom:6 }}>{label}</div>
+      <div style={{ fontFamily: SANS, fontSize:12, color: MUTED, lineHeight:1.55 }}>{desc}</div>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MAIN EXPORT
+═══════════════════════════════════════════════════════════════════════════ */
+export default function SmartHomeCaseStudy() {
+  const navigate   = useNavigate()
+  const protoRef   = useRef<HTMLDivElement>(null)
+  const processRef = useRef<HTMLDivElement>(null)
+  const activeSection = useSectionObserver()
+
+  const scrollTo = (ref: React.RefObject<Element | null>) =>
+    ref.current?.scrollIntoView({ behavior:'smooth', block:'start' })
+
+  /* Metric count-up */
+  const metricsRef = useRef<HTMLDivElement>(null)
+  const [metricsStarted, setMetricsStarted] = useState(false)
+  useEffect(() => {
+    const el = metricsRef.current; if (!el) return
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setMetricsStarted(true); obs.disconnect() } }, { threshold:0.3 })
+    obs.observe(el); return () => obs.disconnect()
+  }, [])
+
+  const METRICS = [
+    { target:35, suffix:'%', label:'Daily engagement lift',           desc:'Measured 30 days post-launch vs. legacy single-appliance apps.' },
+    { target:40, suffix:'%', label:'First-attempt task success',      desc:'On primary control screens, after WCAG 2.1 nav rebuild.' },
+    { target:45, suffix:'%', label:'Less first-time pairing friction', desc:'From 5 moderated tests of 3 onboarding variants in Principle.' },
+  ]
+
+  return (
+    <div style={{ backgroundColor: BG, color: FG, minHeight:'100vh', fontFamily: SANS }}>
+
+      {/* Fixed section nav */}
+      <SectionNav active={activeSection} />
+
+      {/* ── Header: back + try prototype only ─────────────────────────── */}
+      <header style={{ position:'sticky', top:0, zIndex:40, backgroundColor:'rgba(250,250,248,0.9)', backdropFilter:'blur(12px)', borderBottom: HL }}>
+        <Box style={{ height:52, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <button onClick={() => navigate('/')}
+            style={{ fontFamily: SANS, fontSize:13, fontWeight:600, color: MUTED, background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:6, padding:0 }}>
+            ← Back
+          </button>
+          <button onClick={() => scrollTo(protoRef)}
+            style={{ fontFamily: SANS, fontSize:12, fontWeight:600, backgroundColor: FG, color: BG, border:'none', borderRadius:999, padding:'7px 16px', cursor:'pointer', display:'flex', alignItems:'center', gap:6 }}>
+            Try prototype ↗
+          </button>
+        </Box>
+      </header>
+
+      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      <div id="hero" style={{ scrollMarginTop:60 }}>
+        <Box style={{ padding:'72px 48px 0' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 200px', gap:48, alignItems:'start' }}>
+            <div>
+              <p style={{ fontFamily: MONO, fontSize:10, color: MUTED, letterSpacing:'0.12em', textTransform:'uppercase', margin:'0 0 22px' }}>
+                Case study · Smart appliance hub · iOS & Android · 2024
+              </p>
+              <h1 style={{ fontFamily: SERIF, fontSize:'clamp(40px, 6vw, 72px)', color: FG, margin:'0 0 20px', lineHeight:1.1, fontWeight:700 }}>
+                One app for the{' '}
+                <em style={{ color: ACCENT }}>whole kitchen.</em>
+              </h1>
+              <p style={{ fontFamily: SANS, fontSize:16, color: MUTED, margin:'0 0 10px', maxWidth:520 }}>
+                Hearth: Smart Appliance Hub · Connected Kitchen Companion
+              </p>
+              <p style={{ fontFamily: SANS, fontSize:15, color: FG, lineHeight:1.7, margin:'0 0 32px', maxWidth:540, opacity:0.7 }}>
+                Homeowners juggled 8+ inconsistent manufacturer apps. Hearth consolidates every kitchen appliance into one accessible, delightful experience: unified navigation, guided pairing, smart routines, and real-time alerts.
+              </p>
+              <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+                <button onClick={() => scrollTo(protoRef)}
+                  style={{ fontFamily: SANS, fontSize:13, fontWeight:600, backgroundColor: FG, color: BG, border:'none', borderRadius:999, padding:'11px 22px', cursor:'pointer', display:'flex', alignItems:'center', gap:7 }}>
+                  📱 Try the live prototype
+                </button>
+                <button onClick={() => scrollTo(processRef)}
+                  style={{ fontFamily: SANS, fontSize:13, fontWeight:600, backgroundColor:'transparent', color: FG, border: HL, borderRadius:999, padding:'11px 22px', cursor:'pointer' }}>
+                  Read the process ↓
+                </button>
               </div>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:18, paddingTop:8 }}>
               {[
-                { label: 'Avg Time', val: r.time },
-                { label: 'Task Success', val: r.success },
-                { label: 'Dropoff Rate', val: r.dropoff },
-                { label: 'User Rating', val: r.nps },
-              ].map((m) => (
-                <div key={m.label} className="flex items-center justify-between py-2" style={{ borderBottom: `1px solid ${r.winner ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'}` }}>
-                  <span style={{ fontSize: 12, color: r.winner ? 'rgba(255,255,255,0.5)' : '#9CA3AF' }}>{m.label}</span>
-                  <span className="font-bold" style={{ fontSize: 14, color: r.winner ? '#fff' : NAVY }}>{m.val}</span>
+                { label:'Role',      value:'UX Designer' },
+                { label:'Tools',     value:'Figma · Figma Make · Principle' },
+                { label:'Platforms', value:'iOS · Android' },
+                { label:'Timeline',  value:'14 weeks · 2024' },
+                { label:'By',        value:'Karishma Dilip Gawali' },
+              ].map(m => (
+                <div key={m.label}>
+                  <p style={{ fontFamily: MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color: MUTED, margin:'0 0 3px' }}>{m.label}</p>
+                  <p style={{ fontFamily: SANS, fontSize:12, color: FG, margin:0, fontWeight:500 }}>{m.value}</p>
                 </div>
               ))}
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Usability findings */}
-        <h3 className="font-bold mb-6" style={{ fontSize: 20, color: NAVY }}>Usability Findings & Resolutions</h3>
-        <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="flex flex-col gap-4">
-          {[
-            {
-              severity: 'Critical',
-              color: '#DC2626',
-              bg: '#FEF2F2',
-              issue: 'Users couldn\'t locate the Energy screen',
-              finding: '4 of 5 participants looked in "Settings" for energy data. Tab label "Energy" was overlooked because the tab icon (a lightning bolt) was perceived as a power/on-off control.',
-              fix: 'Changed icon to a chart/bar-graph symbol and ran A/B label test. "Energy" → "Usage" reduced confusion by 80% in follow-up test.',
-              before: '20% task success on Energy screen navigation',
-              after: '96% task success after icon + label change',
-            },
-            {
-              severity: 'Critical',
-              color: '#DC2626',
-              bg: '#FEF2F2',
-              issue: 'Toggle state not visually distinct enough',
-              finding: '3 participants were unsure whether an appliance was on or off. The original design used only color (green/gray) which failed for colorblind users.',
-              fix: 'Added position shift to toggles + text label ("On"/"Off") and ensured 4.5:1 contrast ratio for on-state. Also added haptic feedback pattern in spec.',
-              before: '58% correct toggle state recognition',
-              after: '99% correct recognition after redesign',
-            },
-            {
-              severity: 'Critical',
-              color: '#DC2626',
-              bg: '#FEF2F2',
-              issue: 'Pairing progress bar caused anxiety at 70%',
-              finding: 'All 5 participants expressed anxiety when the pairing progress bar stalled visually at 70% for several seconds (during BLE handshake). 2 participants tapped "Cancel".',
-              fix: 'Added animated skeleton pulse during BLE phase + inline copy "Establishing secure connection... (10–15 sec)". Reduced premature cancellations by 90%.',
-              before: '2 of 5 participants cancelled mid-pairing',
-              after: '0 of 5 cancelled in follow-up round',
-            },
-            {
-              severity: 'Moderate',
-              color: '#D97706',
-              bg: '#FFFBEB',
-              issue: 'Routine editor felt overwhelming',
-              finding: '3 participants didn\'t attempt to create a routine in the open task. When prompted, they described the trigger/condition/action model as "complicated."',
-              fix: 'Redesigned routine creation as a pre-built template gallery first, with a "build custom" escape hatch. Template completion rate 84% vs 31% for blank builder.',
-              before: '31% routine creation completion rate',
-              after: '84% completion via template-first flow',
-            },
-            {
-              severity: 'Moderate',
-              color: '#D97706',
-              bg: '#FFFBEB',
-              issue: 'Back navigation from device detail unclear',
-              finding: '2 participants used the device\'s back gesture instead of the in-app Back button, losing their context. In-app back button was confused with the OS button.',
-              fix: 'Added a persistent breadcrumb (Devices / Refrigerator) at top of detail screen and increased Back button tap target to 48px × 48px.',
-              before: '40% used wrong back mechanism, lost context',
-              after: '95% used correct in-app navigation',
-            },
-          ].map((finding) => (
-            <motion.div
-              key={finding.issue}
-              variants={fadeUp}
-              className="rounded-3xl p-6"
-              style={{ backgroundColor: '#fff', border: '1px solid rgba(0,0,0,0.04)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <span className="px-3 py-1 rounded-full font-bold flex-shrink-0" style={{ fontSize: 10, backgroundColor: finding.bg, color: finding.color, border: `1px solid ${finding.color}30` }}>{finding.severity}</span>
-                <h4 className="font-bold" style={{ fontSize: 15, color: NAVY }}>{finding.issue}</h4>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="rounded-2xl p-4" style={{ backgroundColor: finding.bg }}>
-                  <p className="font-semibold mb-2" style={{ fontSize: 11, color: finding.color, textTransform: 'uppercase', letterSpacing: 1 }}>Finding</p>
-                  <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>{finding.finding}</p>
-                </div>
-                <div className="rounded-2xl p-4" style={{ backgroundColor: '#F0F9FF', border: '1px solid #BAE6FD' }}>
-                  <p className="font-semibold mb-2" style={{ fontSize: 11, color: '#0369A1', textTransform: 'uppercase', letterSpacing: 1 }}>Fix Applied</p>
-                  <p style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>{finding.fix}</p>
-                </div>
-                <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-                  <div>
-                    <p className="font-semibold mb-1" style={{ fontSize: 10, color: '#DC2626', textTransform: 'uppercase', letterSpacing: 1 }}>Before</p>
-                    <p style={{ fontSize: 12, color: '#374151' }}>{finding.before}</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold mb-1" style={{ fontSize: 10, color: '#059669', textTransform: 'uppercase', letterSpacing: 1 }}>After</p>
-                    <p style={{ fontSize: 12, color: '#374151' }}>{finding.after}</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </Section>
-
-      {/* ══════════════════════════════════════════════════════════════
-          RESULTS
-      ══════════════════════════════════════════════════════════════ */}
-      <Section id="results">
-        <SectionLabel>07 — Results & Impact</SectionLabel>
-        <SectionTitle>Numbers that tell the story</SectionTitle>
-
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16"
-        >
-          {[
-            { metric: 'Daily Engagement', before: '12%', after: '47%', change: '+35%', positive: true, icon: '📈' },
-            { metric: 'Task Success Rate', before: '52%', after: '92%', change: '+40%', positive: true, icon: '✅' },
-            { metric: 'Avg Pairing Time', before: '4.2 min', after: '2.3 min', change: '−45%', positive: true, icon: '⚡' },
-            { metric: 'WCAG Compliance', before: 'Not audited', after: '100%', change: 'AA+', positive: true, icon: '♿' },
-            { metric: 'User Satisfaction', before: '2.9 / 5.0', after: '4.6 / 5.0', change: '+59%', positive: true, icon: '⭐' },
-            { metric: 'Support Tickets', before: 'Baseline', after: '−52%', change: '−52%', positive: true, icon: '🎯' },
-          ].map((r) => (
-            <motion.div
-              key={r.metric}
-              variants={fadeUp}
-              className="rounded-3xl p-7 relative overflow-hidden"
-              style={{ backgroundColor: NAVY, boxShadow: '0 8px 40px rgba(13,27,42,0.15)' }}
-            >
-              {/* Background glow */}
-              <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 120, height: 120, background: `radial-gradient(circle at top right, ${AMBER}18, transparent 70%)` }} />
-              <div className="flex items-start justify-between mb-4">
-                <span style={{ fontSize: 28 }}>{r.icon}</span>
-                <span className="font-bold px-3 py-1 rounded-full" style={{ fontSize: 14, backgroundColor: `${AMBER}20`, color: AMBER, border: `1px solid ${AMBER}40` }}>{r.change}</span>
-              </div>
-              <p className="font-bold mb-4" style={{ fontSize: 40, color: AMBER, lineHeight: 1 }}>{r.after}</p>
-              <p className="font-semibold mb-2" style={{ fontSize: 14, color: '#fff' }}>{r.metric}</p>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Previously: {r.before}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Impact narrative */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="rounded-3xl p-10"
-          style={{ backgroundColor: '#fff', boxShadow: '0 8px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.04)' }}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div>
-              <h3 className="font-bold mb-4" style={{ fontSize: 22, color: NAVY }}>What the numbers mean</h3>
-              <p className="mb-4" style={{ color: '#6B7280', lineHeight: 1.8 }}>
-                A 35-point lift in daily engagement is not just a vanity metric — it represents a meaningful shift in how users relate to their smart appliances. When people engage with HomeSense daily, they are more likely to catch inefficiencies (like the fridge door left ajar) and respond to actionable energy insights.
-              </p>
-              <p style={{ color: '#6B7280', lineHeight: 1.8 }}>
-                The 45% reduction in pairing time directly eliminated the most common abandonment point in the existing experience. By compressing that from 4.2 minutes to 2.3, the design transformed a friction wall into a confidence-building first win.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4" style={{ fontSize: 22, color: NAVY }}>Accessibility as a feature</h3>
-              <p className="mb-4" style={{ color: '#6B7280', lineHeight: 1.8 }}>
-                Achieving WCAG 2.1 AA compliance across all screens was a non-negotiable design constraint, not an afterthought. The color contrast audit, 44px minimum touch target enforcement, and screen-reader-compatible component labeling directly contributed to the 40-point task success lift — for all users, not just those with disabilities.
-              </p>
-              <p style={{ color: '#6B7280', lineHeight: 1.8 }}>
-                The 52% drop in support tickets is perhaps the most telling business metric: when users can successfully complete tasks without assistance, it validates that the redesigned information architecture and navigation hierarchy are genuinely learnable.
-              </p>
             </div>
           </div>
-        </motion.div>
-      </Section>
+          {/* 3-phone hero mockup */}
+          <HeroMockup />
+        </Box>
+      </div>
 
-      {/* ══════════════════════════════════════════════════════════════
-          LEARNINGS
-      ══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6" style={{ backgroundColor: NAVY }}>
-        <div className="max-w-5xl mx-auto">
-          <SectionLabel>Learnings</SectionLabel>
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="font-bold mb-12"
-            style={{ fontSize: 'clamp(28px, 4vw, 40px)', color: '#fff', lineHeight: 1.2 }}
-          >
-            What I'd carry forward
-          </motion.h2>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
+      {/* ── Metrics ───────────────────────────────────────────────────── */}
+      <div ref={metricsRef} style={{ borderTop: HL, borderBottom: HL }}>
+        <Box>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)' }}>
+            {METRICS.map((m, i) => <MetricCard key={m.label} {...m} started={metricsStarted} index={i} />)}
+          </div>
+        </Box>
+      </div>
+
+      {/* ── 01 Overview ───────────────────────────────────────────────── */}
+      <div id="overview" style={{ borderTop: HL, padding:'80px 0', scrollMarginTop:60 }} ref={processRef}>
+        <Box>
+          <Eyebrow>01 · Overview</Eyebrow>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:32 }}>
             {[
-              {
-                icon: '🎯',
-                title: 'Test the mental model, not the interface',
-                body: 'The toggle confusion and Energy tab misattribution were both rooted in broken mental models, not bad visual design. Future research will include mental model mapping sessions before any wireframing begins — understanding what users expect to find where is more valuable than any heuristic audit.',
-              },
-              {
-                icon: '🔄',
-                title: 'Prototype at fidelity appropriate to the risk',
-                body: 'Spending two weeks polishing Principle prototypes before running initial concept tests slowed the project. The pairing flow learnings from Variant A could have surfaced in week 2 with paper prototypes. Reserve high-fidelity prototyping for final validation, not early exploration.',
-              },
-              {
-                icon: '♿',
-                title: 'Accessibility constraints produce better design',
-                body: 'Every time the WCAG audit flagged an issue — insufficient contrast, small tap targets, missing labels — fixing it resulted in a design that worked better for everyone. Accessibility isn\'t a compliance checkbox; it\'s a forcing function for design clarity.',
-              },
-            ].map((l) => (
-              <motion.div
-                key={l.title}
-                variants={fadeUp}
-                className="rounded-3xl p-6"
-                style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-              >
-                <span style={{ fontSize: 36, marginBottom: 16, display: 'block' }}>{l.icon}</span>
-                <h4 className="font-bold mb-3" style={{ fontSize: 16, color: AMBER, lineHeight: 1.4 }}>{l.title}</h4>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>{l.body}</p>
-              </motion.div>
+              { h:'Product',     b:'HomeSense is a unified companion app that maps eight kitchen appliance control flows into one seamless mobile experience.' },
+              { h:'Challenge',   b:'Homeowners were juggling 8+ manufacturer apps, each with inconsistent navigation, accessibility gaps, and time-consuming pairing flows.' },
+              { h:'Opportunity', b:'Consolidate all appliances into a single, accessible, delightful interface that reduces cognitive load and increases daily engagement.' },
+            ].map(c => (
+              <div key={c.h}>
+                <h3 style={{ fontFamily: SERIF, fontSize:22, color: FG, margin:'0 0 12px', fontWeight:600 }}>{c.h}</h3>
+                <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:0 }}>{c.b}</p>
+              </div>
             ))}
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </Box>
+      </div>
 
-      {/* ══════════════════════════════════════════════════════════════
-          FOOTER CTA
-      ══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 text-center" style={{ backgroundColor: '#F8F7F4' }}>
-        <div className="max-w-2xl mx-auto">
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="uppercase tracking-widest font-semibold mb-4"
-            style={{ color: AMBER, fontSize: 12 }}
-          >
-            Next Project
-          </motion.p>
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="font-bold mb-6"
-            style={{ fontSize: 'clamp(32px, 5vw, 52px)', color: NAVY, lineHeight: 1.1 }}
-          >
-            FitSense Wearable
-          </motion.h2>
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="mb-10"
-            style={{ fontSize: 16, color: '#6B7280', lineHeight: 1.8 }}
-          >
-            Designing a health coaching companion for a next-generation fitness wearable — balancing data density with moment-to-moment glanceability.
-          </motion.p>
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <a
-              href="/fitness-wearable"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold transition-all duration-200 hover:scale-105"
-              style={{ backgroundColor: NAVY, color: '#fff', fontSize: 15, textDecoration: 'none' }}
-            >
-              Explore Next Project →
-            </a>
-            <button
-              onClick={handleBack}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold transition-all duration-200 hover:scale-105"
-              style={{ backgroundColor: 'transparent', color: NAVY, border: `2px solid ${NAVY}`, fontSize: 15, cursor: 'pointer' }}
-            >
-              ← Back to All Projects
-            </button>
-          </motion.div>
+      {/* ── 02 Problem ────────────────────────────────────────────────── */}
+      <Sec id="problem">
+        <Eyebrow>02 · Problem</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Four pain points, one product gap.</h2>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:24 }}>
+          {[
+            { label:'Fragmented controls',     body:'Owners managed 3–8 separate apps with different UX patterns, no cross-device awareness, no shared state.' },
+            { label:'Confusing pairing',        body:'Average first-time pairing took 4.2 minutes with a 48% drop-off rate at the BLE handshake step.' },
+            { label:'Inconsistent navigation', body:'Each appliance app had a different IA, forcing users to re-learn navigation for every new device.' },
+            { label:'Accessibility debt',       body:'Touch targets averaged 32pt (below WCAG 2.1 minimum). Contrast ratios as low as 3.1:1 in key flows.' },
+          ].map(p => (
+            <div key={p.label} style={{ borderTop:`2px solid ${FG}`, paddingTop:16 }}>
+              <p style={{ fontFamily: MONO, fontSize:9, color: ACCENT, letterSpacing:'0.12em', textTransform:'uppercase', margin:'0 0 10px' }}>Pain point</p>
+              <h3 style={{ fontFamily: SERIF, fontSize:20, color: FG, margin:'0 0 8px', fontWeight:600 }}>{p.label}</h3>
+              <p style={{ fontFamily: SANS, fontSize:13, color: MUTED, lineHeight:1.6, margin:0 }}>{p.body}</p>
+            </div>
+          ))}
         </div>
-      </section>
+      </Sec>
+
+      {/* ── 03 Objectives ─────────────────────────────────────────────── */}
+      <Sec id="objectives" bone>
+        <Eyebrow>03 · Objectives</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Four clear goals.</h2>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:28 }}>
+          {[
+            { n:'01', h:'Unify eight into one',       b:'Single app, single IA: all eight appliance control flows in one place with consistent patterns.' },
+            { n:'02', h:'Raise accessibility to AA+', b:'WCAG 2.1 AA minimum on contrast, touch targets, focus management, and status grammar.' },
+            { n:'03', h:'Cut pairing time in half',   b:'Redesign the onboarding and pairing flow using BLE auto-discovery and a guided "kitchen scan" approach.' },
+            { n:'04', h:'Drive daily engagement',     b:'Surface routines, energy insights, and alerts that give owners a reason to open the app every morning.' },
+          ].map(o => (
+            <div key={o.n} style={{ display:'flex', gap:16 }}>
+              <span style={{ fontFamily: MONO, fontSize:12, color: ACCENT, fontWeight:700, flexShrink:0, paddingTop:4 }}>{o.n}</span>
+              <div>
+                <h3 style={{ fontFamily: SERIF, fontSize:20, color: FG, margin:'0 0 8px', fontWeight:600 }}>{o.h}</h3>
+                <p style={{ fontFamily: SANS, fontSize:13, color: MUTED, lineHeight:1.6, margin:0 }}>{o.b}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* ── 04 Process ────────────────────────────────────────────────── */}
+      <Sec id="process">
+        <Eyebrow>04 · Process</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>14 weeks, 8 phases.</h2>
+        <div>
+          {[
+            { w:'Weeks 1–2',   t:'Stakeholder alignment',         d:'Define project scope, success metrics, and technical constraints with product and engineering.' },
+            { w:'Weeks 2–4',   t:'User understanding',            d:'8 in-depth interviews with connected-appliance owners. Affinity mapping, journey mapping.' },
+            { w:'Weeks 4–5',   t:'Competitive audit',             d:'Evaluated 12 appliance apps across navigation patterns, onboarding flows, and accessibility.' },
+            { w:'Weeks 5–7',   t:'IA & wireframing',              d:'Collapsed 4-level hierarchy to 2-level. Lo-fi wireframes across 8 core flows.' },
+            { w:'Weeks 7–9',   t:'Onboarding exploration',        d:'3 onboarding variants prototyped in Principle, tested in 5 moderated remote sessions.' },
+            { w:'Weeks 9–11',  t:'Visual design & accessibility', d:'Hi-fi in Figma. WCAG 2.1 audit, 48pt touch targets, 7:1 contrast on body copy.' },
+            { w:'Weeks 11–13', t:'Usability testing',             d:'12 unmoderated sessions via Maze. Iterated on control density and alert hierarchy.' },
+            { w:'Weeks 13–14', t:'Handoff & documentation',       d:'Figma component library, spec annotations, motion guidelines, and developer Q&A.' },
+          ].map((p, i, arr) => (
+            <div key={p.w} style={{ display:'grid', gridTemplateColumns:'170px 1fr', gap:24, padding:'20px 0', borderTop: HL, borderBottom: i === arr.length - 1 ? HL : 'none' }}>
+              <span style={{ fontFamily: MONO, fontSize:11, color: MUTED, paddingTop:3 }}>{p.w}</span>
+              <div>
+                <h3 style={{ fontFamily: SERIF, fontSize:18, color: FG, margin:'0 0 6px', fontWeight:600 }}>{p.t}</h3>
+                <p style={{ fontFamily: SANS, fontSize:13, color: MUTED, lineHeight:1.6, margin:0 }}>{p.d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* ── 05 Research ───────────────────────────────────────────────── */}
+      <Sec id="research" bone>
+        <Eyebrow>05 · User Understanding</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Who we designed for.</h2>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:32 }}>
+          <div>
+            <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:'0 0 20px' }}>8 in-depth interviews with homeowners who owned 2+ connected appliances. Patterns emerged around context-switching frustration, fear during pairing, and low awareness of automation features.</p>
+            <ul style={{ margin:0, padding:'0 0 0 18px' }}>
+              {['Average 3.4 apps per household for appliance control','72% found pairing "stressful" or "confusing"','0 of 8 had ever set up a routine or automation','5 of 8 said they "just gave up" on advanced features','All 8 wanted one place to check appliance status'].map(b => (
+                <li key={b} style={{ fontFamily: SANS, fontSize:13, color: MUTED, lineHeight:1.6, marginBottom:7 }}>{b}</li>
+              ))}
+            </ul>
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+            {[
+              { name:'Anika · 34', role:'Busy working professional', goals:'Control appliances from work, get notified when a cycle finishes, automate morning routines.', frustrations:'Opens 4 apps just to check if the dishwasher is done. Gave up on schedules.' },
+              { name:'Sameer · 42', role:'Multitasking home cook', goals:'Preheat oven on his way home, track energy usage, share access with his partner.', frustrations:'Pairing takes 20+ minutes. Different apps have completely different UX logic.' },
+            ].map(p => (
+              <div key={p.name} style={{ border: HL, borderRadius:16, padding:20, backgroundColor: CARD }}>
+                <p style={{ fontFamily: MONO, fontSize:9, color: ACCENT, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 4px' }}>Persona</p>
+                <h3 style={{ fontFamily: SERIF, fontSize:18, color: FG, margin:'0 0 3px', fontWeight:600 }}>{p.name}</h3>
+                <p style={{ fontFamily: SANS, fontSize:11, color: MUTED, margin:'0 0 14px' }}>{p.role}</p>
+                {[{ l:'Goals', v:p.goals }, { l:'Frustrations', v:p.frustrations }].map(r => (
+                  <div key={r.l} style={{ marginTop:10 }}>
+                    <p style={{ fontFamily: MONO, fontSize:9, color: MUTED, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 4px' }}>{r.l}</p>
+                    <p style={{ fontFamily: SANS, fontSize:12, color: FG, margin:0, lineHeight:1.5 }}>{r.v}</p>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </Sec>
+
+      {/* ── 06 IA ─────────────────────────────────────────────────────── */}
+      <Sec id="ia">
+        <Eyebrow>06 · Information Architecture</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.15 }}>Three primitives, eight flows.</h2>
+        <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, margin:'0 0 36px', maxWidth:620, lineHeight:1.7 }}>We collapsed eight independent control surfaces into a single hierarchy built on Spaces, Devices, and Routines. Every flow lives inside one of them.</p>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:10 }}>
+          {[
+            { n:'01', l:'Onboarding & account' },{ n:'02', l:'Appliance pairing' },
+            { n:'03', l:'Dashboard overview'  },{ n:'04', l:'Appliance detail'  },
+            { n:'05', l:'Routine creation'    },{ n:'06', l:'Alerts & notifications' },
+            { n:'07', l:'Maintenance reminders'},{ n:'08', l:'Settings & permissions' },
+          ].map(f => (
+            <div key={f.n} style={{ border: HL, borderRadius:13, padding:'15px 13px', backgroundColor: CARD }}>
+              <p style={{ fontFamily: MONO, fontSize:9, color: ACCENT, letterSpacing:'0.1em', margin:'0 0 8px' }}>{f.n}</p>
+              <h3 style={{ fontFamily: SERIF, fontSize:14, color: FG, margin:0, fontWeight:600, lineHeight:1.3 }}>{f.l}</h3>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* ── 07 User Flow ──────────────────────────────────────────────── */}
+      <Sec id="userflow" bone>
+        <Eyebrow>07 · User Flow</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.15 }}>Every path, mapped.</h2>
+        <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, margin:'0 0 36px', maxWidth:640, lineHeight:1.7 }}>
+          Two entry paths, new user onboarding and returning sign-in, merge at the main dashboard. From there, five primary tabs and their sub-screens form the complete navigable surface of Hearth.
+        </p>
+        <UserFlowDiagram />
+      </Sec>
+
+      {/* ── 08 Wireframes ─────────────────────────────────────────────── */}
+      <Sec id="wireframes">
+        <Eyebrow>08 · Wireframes & UX Evolution</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>From lo-fi to system.</h2>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16 }}>
+          {[
+            { badge:'Lo-fi → Mid-fi',   title:'Dashboard',        variant:'dashboard', desc:'Evolved from 11 controls per screen to 4 primary actions with progressive disclosure.' },
+            { badge:'Pairing v1 → v3',  title:'Pairing flow',     variant:'pairing',   desc:'Three variants tested. Guided "kitchen scan" reduced drop-off from 48% to 8%.' },
+            { badge:'Mid-fi → Hi-fi',   title:'Control screens',  variant:'devices',   desc:'Consistent gesture vocabulary and control patterns across all 8 appliances.' },
+            { badge:'IA v1 → v2',       title:'Tab navigation',   variant:'ia',        desc:'Collapsed from 4 levels deep to 2 levels with a persistent bottom tab bar.' },
+            { badge:'Concept → Final',  title:'Routine builder',  variant:'routines',  desc:'Simplified trigger-action model replacing a complex conditional logic interface.' },
+            { badge:'Audit → Redesign', title:'Settings & alerts',variant:'alerts',    desc:'WCAG audit triggered a full redesign of alert hierarchy and notification grouping.' },
+          ].map(w => (
+            <div key={w.title} style={{ border: HL, borderRadius:16, overflow:'hidden', backgroundColor: CARD }}>
+              <div style={{ aspectRatio:'4/3', backgroundColor:'#f0efec', position:'relative', overflow:'hidden' }}>
+                <WireframeScreen variant={w.variant} />
+              </div>
+              <div style={{ padding:'13px 15px' }}>
+                <span style={{ fontFamily: MONO, fontSize:9, color: ACCENT, letterSpacing:'0.1em', textTransform:'uppercase' }}>{w.badge}</span>
+                <h3 style={{ fontFamily: SERIF, fontSize:16, color: FG, margin:'4px 0 6px', fontWeight:600 }}>{w.title}</h3>
+                <p style={{ fontFamily: SANS, fontSize:12, color: MUTED, margin:0, lineHeight:1.5 }}>{w.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* ── 09 Onboarding ─────────────────────────────────────────────── */}
+      <Sec id="onboarding">
+        <Eyebrow>09 · Onboarding Exploration</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.15 }}>Three variants. One winner.</h2>
+        <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, margin:'0 0 36px', maxWidth:600, lineHeight:1.7 }}>We prototyped three onboarding approaches in Principle and ran five moderated sessions. The guided "kitchen scan" won decisively.</p>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16 }}>
+          {[
+            { v:'Variant A', t:'QR-first',           hi:false, benefit:'Familiar to most users', risk:'Requires physical label access', outcome:'Dropped. 62% could not complete without assistance.' },
+            { v:'Variant B', t:'BLE discovery',       hi:false, benefit:'Fully automatic pairing', risk:'High false-positive rate, confusing disambiguation', outcome:'Dropped. Users panicked when 4+ devices appeared at once.' },
+            { v:'Variant C', t:'Guided kitchen scan', hi:true,  benefit:'Room-by-room with visual confirmation', risk:'Slightly longer, requires camera permission', outcome:'✅ Selected. Friction down 45%. Completion 92%.' },
+          ].map(v => (
+            <div key={v.v} style={{ border: v.hi ? `2px solid ${FG}` : HL, borderRadius:16, padding:20, backgroundColor: v.hi ? BONE : CARD }}>
+              <p style={{ fontFamily: MONO, fontSize:9, color: v.hi ? ACCENT : MUTED, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 8px' }}>{v.v}</p>
+              <h3 style={{ fontFamily: SERIF, fontSize:20, color: FG, margin:'0 0 16px', fontWeight:600 }}>{v.t}</h3>
+              {[{ l:'Benefit', val:v.benefit }, { l:'Risk', val:v.risk }, { l:'Outcome', val:v.outcome }].map(r => (
+                <div key={r.l} style={{ borderTop: HL, paddingTop:10, marginTop:10 }}>
+                  <p style={{ fontFamily: MONO, fontSize:9, color: MUTED, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 4px' }}>{r.l}</p>
+                  <p style={{ fontFamily: SANS, fontSize:12, color: FG, margin:0, lineHeight:1.5 }}>{r.val}</p>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* ── 10 Accessibility ──────────────────────────────────────────── */}
+      <Sec id="accessibility" bone>
+        <Eyebrow>10 · Accessibility & Usability</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Accessible by design, not retrofit.</h2>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:36 }}>
+          <div>
+            <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:'0 0 20px' }}>Accessibility wasn't a final checklist; it was a design constraint from day one. Every pattern decision was evaluated against WCAG 2.1 AA requirements before moving to the next phase.</p>
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {['WCAG 2.1 AA+ contrast on all body text','48pt minimum touch targets across all controls','Clear visual hierarchy with consistent landmark structure','Icon + text label pairs, never icon-only controls','Maximum 5 controls per screen (down from 11)','Consistent status grammar: Idle · Active · Attention · Done'].map(item => (
+                <div key={item} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                  <span style={{ color: ACCENT, fontSize:14, flexShrink:0 }}>✓</span>
+                  <span style={{ fontFamily: SANS, fontSize:13, color: FG, lineHeight:1.5 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop:24, borderTop:`2px solid ${ACCENT}`, paddingTop:16 }}>
+              <span style={{ fontFamily: SERIF, fontSize:22, color: ACCENT, fontWeight:700 }}>+40%</span>
+              <span style={{ fontFamily: SANS, fontSize:13, color: MUTED, marginLeft:10 }}>first-attempt task success</span>
+            </div>
+          </div>
+          <div style={{ backgroundColor: FG, borderRadius:20, padding:'24px 28px' }}>
+            <p style={{ fontFamily: MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color:'rgba(255,255,255,0.35)', margin:'0 0 20px' }}>Before → After</p>
+            {[
+              { metric:'Touch target',              before:'32 pt', after:'48 pt' },
+              { metric:'Body contrast ratio',       before:'3.8:1', after:'7.2:1' },
+              { metric:'Controls per screen',       before:'11',    after:'5'     },
+              { metric:'First-attempt task success',before:'54%',   after:'94%'   },
+            ].map((r, i, arr) => (
+              <div key={r.metric} style={{ display:'grid', gridTemplateColumns:'1fr 72px 72px', gap:12, padding:'12px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none', alignItems:'center' }}>
+                <span style={{ fontFamily: SANS, fontSize:12, color:'rgba(255,255,255,0.55)' }}>{r.metric}</span>
+                <span style={{ fontFamily: MONO, fontSize:12, color:'rgba(255,255,255,0.28)', textDecoration:'line-through' }}>{r.before}</span>
+                <span style={{ fontFamily: MONO, fontSize:13, color: AMBER, fontWeight:700 }}>{r.after}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Sec>
+
+      {/* ── Testimonial ───────────────────────────────────────────────── */}
+      <div style={{ backgroundColor: FG, padding:'80px 0' }}>
+        <Box>
+          <div style={{ maxWidth:760 }}>
+            <span style={{ fontSize:52, color: AMBER, lineHeight:1, display:'block', marginBottom:16, fontFamily: SERIF }}>"</span>
+            <blockquote style={{ fontFamily: SERIF, fontSize:'clamp(22px, 3vw, 38px)', color: BG, margin:'0 0 24px', lineHeight:1.4, fontWeight:600 }}>
+              It used to take me forty minutes to set up Sunday brunch. Now I tap once and the oven preheats while the coffee starts brewing.
+            </blockquote>
+            <p style={{ fontFamily: MONO, fontSize:11, color:'rgba(250,250,248,0.4)', margin:0, letterSpacing:'0.06em' }}>Beta participant, moderated test #4</p>
+          </div>
+        </Box>
+      </div>
+
+      {/* ── 11 Final Design ───────────────────────────────────────────── */}
+      <Sec id="final-design">
+        <Eyebrow>11 · Final Design</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Spaces over apps.</h2>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:40 }}>
+          <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:0 }}>The final design organises every appliance flow under three top-level primitives (Spaces, Devices, Routines) with a persistent bottom tab bar as the single navigation surface. No hidden drawers, no deep hierarchies.</p>
+          <ul style={{ margin:0, padding:0, listStyle:'none', display:'flex', flexDirection:'column', gap:9 }}>
+            {['Splash · welcome · sign in · permissions · confirmation','Pair flow · auto-discovery · Wi-Fi handoff · naming · success','Home · dashboard · routines · status strip','Appliance detail · per-device controls · diagnostics','Routines · trigger · action · review · saved','Alerts · severity · recommendations · resolve','Maintenance · step-by-step guide · mark complete','Settings · profile · household · devices · permissions'].map(item => (
+              <li key={item} style={{ borderLeft:`2px solid ${ACCENT}`, paddingLeft:12, fontFamily: SANS, fontSize:12, color: MUTED, lineHeight:1.5 }}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      </Sec>
+
+      {/* ── 12 Interactive Prototype ──────────────────────────────────── */}
+      <div ref={protoRef} id="prototype" style={{ scrollMarginTop:60 }}>
+        <Sec bone>
+          <Eyebrow>12 · Interactive Prototype</Eyebrow>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:56, alignItems:'start' }}>
+            <div style={{ position:'sticky', top:72 }}>
+              <h2 style={{ fontFamily: SERIF, fontSize:'clamp(28px, 3.5vw, 48px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.15 }}>
+                Try the <em style={{ color: ACCENT }}>whole flow.</em>
+              </h2>
+              <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:'0 0 28px' }}>
+                Fully interactive, built in React, not a video. Toggle devices, enable routines, tap a device for detail controls, add a new appliance through the full pairing flow. Tap Reset to restore defaults.
+              </p>
+              <div style={{ borderTop: HL, paddingTop:20 }}>
+                <p style={{ fontFamily: MONO, fontSize:9, color: MUTED, letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 14px' }}>Suggested flows</p>
+                <div style={{ display:'flex', flexDirection:'column', gap:11 }}>
+                  {['Wait for the splash screen, then tap into the app','On Home, tap a device card to toggle it on or off','Switch to Devices, tap any row to see full controls','Tap + to walk through the full pairing wizard','Enable Dinner Prep in Routines, then check Alerts'].map((f, i) => (
+                    <div key={f} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                      <span style={{ fontFamily: MONO, fontSize:10, color: ACCENT, flexShrink:0, width:20 }}>{String(i+1).padStart(2,'0')}</span>
+                      <span style={{ fontFamily: SANS, fontSize:13, color: FG, lineHeight:1.4 }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <PhonePrototype />
+          </div>
+        </Sec>
+      </div>
+
+      {/* ── 13 Results ────────────────────────────────────────────────── */}
+      <Sec id="results">
+        <Eyebrow>13 · Results & Impact</Eyebrow>
+        <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Numbers that moved.</h2>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16, marginBottom:32 }}>
+          {[
+            { value:'35%', label:'Daily engagement lift',          desc:'More owners returned daily, not just when something broke. Measured 30 days post-launch.' },
+            { value:'40%', label:'First-attempt task success',     desc:'On primary control screens, from 54% to 94%, after the accessibility and hierarchy rebuild.' },
+            { value:'45%', label:'Less pairing friction',          desc:'From 4.2 min to 2.3 min average setup time across 5 moderated onboarding sessions.' },
+          ].map(r => (
+            <div key={r.label} style={{ border: HL, borderRadius:20, padding:'28px 22px', backgroundColor: CARD }}>
+              <div style={{ fontFamily: SERIF, fontSize:52, color: FG, fontWeight:700, lineHeight:1, marginBottom:8 }}>{r.value}</div>
+              <div style={{ fontFamily: SANS, fontSize:13, fontWeight:600, color: FG, marginBottom:8 }}>{r.label}</div>
+              <div style={{ fontFamily: SANS, fontSize:12, color: MUTED, lineHeight:1.5 }}>{r.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: HL, paddingTop:28 }}>
+          <h3 style={{ fontFamily: SERIF, fontSize:22, color: FG, margin:'0 0 10px', fontWeight:600 }}>Also measured</h3>
+          <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, maxWidth:700, margin:0 }}>WCAG 2.1 AA compliance: 100% across all screens. User satisfaction: 4.6/5 (up from 3.1/5). Support tickets related to pairing: down 52%. These weren't the target metrics; they were the side effects of designing for clarity.</p>
+        </div>
+      </Sec>
+
+      {/* ── 14 Reflection ─────────────────────────────────────────────── */}
+      <Sec id="reflection" bone>
+        <Eyebrow>14 · Reflection</Eyebrow>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:40 }}>
+          <div>
+            <h2 style={{ fontFamily: SERIF, fontSize:'clamp(22px, 2.5vw, 34px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.3 }}>
+              Designing for connected hardware taught me that the hardest interface is the one between products.
+            </h2>
+            <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:0 }}>The individual appliance UIs weren't the problem; the seams between them were. The moment someone closes one app and opens another is the moment they lose context, confidence, and motivation.</p>
+          </div>
+          <div>
+            <h3 style={{ fontFamily: SERIF, fontSize:20, color: FG, margin:'0 0 12px', fontWeight:600 }}>What I'd do differently</h3>
+            <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:0 }}>I'd run cross-team alignment workshops earlier, before wireframes and not after. Firmware constraints surfaced in week 8 and required redesigning the BLE pairing flow mid-prototype. Earlier technical discovery would have saved two weeks and preserved an onboarding variant that tested very well but wasn't feasible given API limitations.</p>
+          </div>
+        </div>
+      </Sec>
+
+      {/* ── Final CTA ─────────────────────────────────────────────────── */}
+      <div style={{ borderTop: HL, padding:'80px 0' }}>
+        <Box style={{ display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:24 }}>
+          <h2 style={{ fontFamily: SERIF, fontSize:'clamp(28px, 4vw, 52px)', color: FG, margin:0, fontWeight:700, maxWidth:580, lineHeight:1.15 }}>
+            Want to see it move?{' '}<em style={{ color: ACCENT }}>Try the prototype.</em>
+          </h2>
+          <button onClick={() => scrollTo(protoRef)}
+            style={{ fontFamily: SANS, fontSize:14, fontWeight:600, backgroundColor: FG, color: BG, border:'none', borderRadius:999, padding:'14px 28px', cursor:'pointer', display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+            Launch the demo ↗
+          </button>
+        </Box>
+      </div>
+
+      {/* ── Footer ────────────────────────────────────────────────────── */}
+      <footer style={{ borderTop: HL, padding:'24px 0' }}>
+        <Box style={{ display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
+          <span style={{ fontFamily: MONO, fontSize:11, color: MUTED }}>© 2025 Karishma Dilip Gawali</span>
+          <div style={{ display:'flex', gap:16, alignItems:'center' }}>
+            <span style={{ fontFamily: MONO, fontSize:11, color: MUTED }}>UX case study · Smart Home Companion App</span>
+            <button onClick={() => navigate('/')}
+              style={{ fontFamily: MONO, fontSize:11, color: MUTED, background:'none', border: HL, borderRadius:999, padding:'5px 14px', cursor:'pointer' }}>
+              ← Portfolio
+            </button>
+          </div>
+        </Box>
+      </footer>
+
     </div>
   )
 }
