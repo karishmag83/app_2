@@ -15,6 +15,17 @@ const MONO   = 'ui-monospace, "SF Mono", "Courier New", monospace'
 const SANS   = '"Inter", system-ui, -apple-system, sans-serif'
 const AMBER  = '#F59E0B'
 
+/* ─── Mobile hook ────────────────────────────────────────────────────────── */
+function useIsMobile() {
+  const [mobile, setMobile] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const fn = () => setMobile(window.innerWidth < 768)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return mobile
+}
+
 /* ─── Count-up hook ──────────────────────────────────────────────────────── */
 function useCountUp(target: number, duration: number, started: boolean) {
   const [val, setVal] = useState(0)
@@ -37,11 +48,13 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: MUTED, margin: '0 0 18px' }}>{children}</p>
 }
 function Box({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px', ...style }}>{children}</div>
+  const isMobile = useIsMobile()
+  return <div style={{ maxWidth: 1280, margin: '0 auto', padding: `0 ${isMobile ? '20px' : '48px'}`, ...style }}>{children}</div>
 }
 function Sec({ id, bone, children }: { id?: string; bone?: boolean; children: React.ReactNode }) {
+  const isMobile = useIsMobile()
   return (
-    <section id={id} style={{ borderTop: HL, backgroundColor: bone ? BONE : 'transparent', padding: '80px 0', scrollMarginTop: 60 }}>
+    <section id={id} style={{ borderTop: HL, backgroundColor: bone ? BONE : 'transparent', padding: `${isMobile ? '48px' : '80px'} 0`, scrollMarginTop: 60 }}>
       <Box>{children}</Box>
     </section>
   )
@@ -69,7 +82,9 @@ const NAV_SECTIONS = [
 ]
 
 function SectionNav({ active }: { active: string }) {
+  const isMobile = useIsMobile()
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (isMobile) return null
   return (
     <nav style={{ position: 'fixed', right: 20, top: '50%', transform: 'translateY(-50%)', zIndex: 40, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
       {NAV_SECTIONS.map(s => {
@@ -1347,8 +1362,9 @@ function UserFlowDiagram() {
 /* Metric card with count-up */
 function MetricCard({ target, suffix, label, desc, started, index }: { target:number; suffix:string; label:string; desc:string; started:boolean; index:number }) {
   const val = useCountUp(target, 1100 + index * 150, started)
+  const isMobile = useIsMobile()
   return (
-    <div style={{ padding:'40px 28px', borderRight: index < 2 ? HL : 'none' }}>
+    <div style={{ padding: isMobile ? '28px 0' : '40px 28px', borderRight: (!isMobile && index < 2) ? HL : 'none', borderBottom: (isMobile && index < 2) ? HL : 'none' }}>
       <div style={{ fontFamily: SERIF, fontSize:56, fontWeight:700, color: FG, lineHeight:1, marginBottom:8 }}>{val}{suffix}</div>
       <div style={{ fontFamily: SANS, fontSize:13, fontWeight:600, color: FG, marginBottom:6 }}>{label}</div>
       <div style={{ fontFamily: SANS, fontSize:12, color: MUTED, lineHeight:1.55 }}>{desc}</div>
@@ -1364,6 +1380,8 @@ export default function SmartHomeCaseStudy() {
   const protoRef   = useRef<HTMLDivElement>(null)
   const processRef = useRef<HTMLDivElement>(null)
   const activeSection = useSectionObserver()
+  const isMobile = useIsMobile()
+  const cols = (desktop: string, mob = '1fr') => isMobile ? mob : desktop
 
   const scrollTo = (ref: React.RefObject<Element | null>) =>
     ref.current?.scrollIntoView({ behavior:'smooth', block:'start' })
@@ -1405,8 +1423,8 @@ export default function SmartHomeCaseStudy() {
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <div id="hero" style={{ scrollMarginTop:60 }}>
-        <Box style={{ padding:'72px 48px 0' }}>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 200px', gap:48, alignItems:'start' }}>
+        <Box style={{ padding: isMobile ? '40px 20px 0' : '72px 48px 0' }}>
+          <div style={{ display:'grid', gridTemplateColumns: cols('1fr 200px'), gap: isMobile ? 32 : 48, alignItems:'start' }}>
             <div>
               <p style={{ fontFamily: MONO, fontSize:10, color: MUTED, letterSpacing:'0.12em', textTransform:'uppercase', margin:'0 0 22px' }}>
                 Case study · Smart appliance hub · iOS & Android · 2024
@@ -1455,17 +1473,17 @@ export default function SmartHomeCaseStudy() {
       {/* ── Metrics ───────────────────────────────────────────────────── */}
       <div ref={metricsRef} style={{ borderTop: HL, borderBottom: HL }}>
         <Box>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)' }}>
+          <div style={{ display:'grid', gridTemplateColumns: cols('repeat(3, 1fr)') }}>
             {METRICS.map((m, i) => <MetricCard key={m.label} {...m} started={metricsStarted} index={i} />)}
           </div>
         </Box>
       </div>
 
       {/* ── 01 Overview ───────────────────────────────────────────────── */}
-      <div id="overview" style={{ borderTop: HL, padding:'80px 0', scrollMarginTop:60 }} ref={processRef}>
+      <div id="overview" style={{ borderTop: HL, padding: isMobile ? '48px 0' : '80px 0', scrollMarginTop:60 }} ref={processRef}>
         <Box>
           <Eyebrow>01 · Overview</Eyebrow>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:32 }}>
+          <div style={{ display:'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap:32 }}>
             {[
               { h:'Product',     b:'HomeSense is a unified companion app that maps eight kitchen appliance control flows into one seamless mobile experience.' },
               { h:'Challenge',   b:'Homeowners were juggling 8+ manufacturer apps, each with inconsistent navigation, accessibility gaps, and time-consuming pairing flows.' },
@@ -1484,7 +1502,7 @@ export default function SmartHomeCaseStudy() {
       <Sec id="problem">
         <Eyebrow>02 · Problem</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Four pain points, one product gap.</h2>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:24 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('repeat(2, 1fr)'), gap:24 }}>
           {[
             { label:'Fragmented controls',     body:'Owners managed 3–8 separate apps with different UX patterns, no cross-device awareness, no shared state.' },
             { label:'Confusing pairing',        body:'Average first-time pairing took 4.2 minutes with a 48% drop-off rate at the BLE handshake step.' },
@@ -1504,7 +1522,7 @@ export default function SmartHomeCaseStudy() {
       <Sec id="objectives" bone>
         <Eyebrow>03 · Objectives</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Four clear goals.</h2>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:28 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('repeat(2, 1fr)'), gap:28 }}>
           {[
             { n:'01', h:'Unify eight into one',       b:'Single app, single IA: all eight appliance control flows in one place with consistent patterns.' },
             { n:'02', h:'Raise accessibility to AA+', b:'WCAG 2.1 AA minimum on contrast, touch targets, focus management, and status grammar.' },
@@ -1537,7 +1555,7 @@ export default function SmartHomeCaseStudy() {
             { w:'Weeks 11–13', t:'Usability testing',             d:'12 unmoderated sessions via Maze. Iterated on control density and alert hierarchy.' },
             { w:'Weeks 13–14', t:'Handoff & documentation',       d:'Figma component library, spec annotations, motion guidelines, and developer Q&A.' },
           ].map((p, i, arr) => (
-            <div key={p.w} style={{ display:'grid', gridTemplateColumns:'170px 1fr', gap:24, padding:'20px 0', borderTop: HL, borderBottom: i === arr.length - 1 ? HL : 'none' }}>
+            <div key={p.w} style={{ display:'grid', gridTemplateColumns: cols('170px 1fr'), gap:24, padding:'20px 0', borderTop: HL, borderBottom: i === arr.length - 1 ? HL : 'none' }}>
               <span style={{ fontFamily: MONO, fontSize:11, color: MUTED, paddingTop:3 }}>{p.w}</span>
               <div>
                 <h3 style={{ fontFamily: SERIF, fontSize:18, color: FG, margin:'0 0 6px', fontWeight:600 }}>{p.t}</h3>
@@ -1552,7 +1570,7 @@ export default function SmartHomeCaseStudy() {
       <Sec id="research" bone>
         <Eyebrow>05 · User Understanding</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Who we designed for.</h2>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:32 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('1fr 1fr'), gap:32 }}>
           <div>
             <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:'0 0 20px' }}>8 in-depth interviews with homeowners who owned 2+ connected appliances. Patterns emerged around context-switching frustration, fear during pairing, and low awareness of automation features.</p>
             <ul style={{ margin:0, padding:'0 0 0 18px' }}>
@@ -1587,7 +1605,7 @@ export default function SmartHomeCaseStudy() {
         <Eyebrow>06 · Information Architecture</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.15 }}>Three primitives, eight flows.</h2>
         <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, margin:'0 0 36px', maxWidth:620, lineHeight:1.7 }}>We collapsed eight independent control surfaces into a single hierarchy built on Spaces, Devices, and Routines. Every flow lives inside one of them.</p>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:10 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('repeat(4, 1fr)', '1fr 1fr'), gap:10 }}>
           {[
             { n:'01', l:'Onboarding & account' },{ n:'02', l:'Appliance pairing' },
             { n:'03', l:'Dashboard overview'  },{ n:'04', l:'Appliance detail'  },
@@ -1616,7 +1634,7 @@ export default function SmartHomeCaseStudy() {
       <Sec id="wireframes">
         <Eyebrow>08 · Wireframes & UX Evolution</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>From lo-fi to system.</h2>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap:16 }}>
           {[
             { badge:'Lo-fi → Mid-fi',   title:'Dashboard',        variant:'dashboard', desc:'Evolved from 11 controls per screen to 4 primary actions with progressive disclosure.' },
             { badge:'Pairing v1 → v3',  title:'Pairing flow',     variant:'pairing',   desc:'Three variants tested. Guided "kitchen scan" reduced drop-off from 48% to 8%.' },
@@ -1644,7 +1662,7 @@ export default function SmartHomeCaseStudy() {
         <Eyebrow>09 · Onboarding Exploration</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.15 }}>Three variants. One winner.</h2>
         <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, margin:'0 0 36px', maxWidth:600, lineHeight:1.7 }}>We prototyped three onboarding approaches in Principle and ran five moderated sessions. The guided "kitchen scan" won decisively.</p>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap:16 }}>
           {[
             { v:'Variant A', t:'QR-first',           hi:false, benefit:'Familiar to most users', risk:'Requires physical label access', outcome:'Dropped. 62% could not complete without assistance.' },
             { v:'Variant B', t:'BLE discovery',       hi:false, benefit:'Fully automatic pairing', risk:'High false-positive rate, confusing disambiguation', outcome:'Dropped. Users panicked when 4+ devices appeared at once.' },
@@ -1668,7 +1686,7 @@ export default function SmartHomeCaseStudy() {
       <Sec id="accessibility" bone>
         <Eyebrow>10 · Accessibility & Usability</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Accessible by design, not retrofit.</h2>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:36 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('1fr 1fr'), gap:36 }}>
           <div>
             <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:'0 0 20px' }}>Accessibility wasn't a final checklist; it was a design constraint from day one. Every pattern decision was evaluated against WCAG 2.1 AA requirements before moving to the next phase.</p>
             <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -1719,7 +1737,7 @@ export default function SmartHomeCaseStudy() {
       <Sec id="final-design">
         <Eyebrow>11 · Final Design</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Spaces over apps.</h2>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:40 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('1fr 1fr'), gap:40 }}>
           <p style={{ fontFamily: SANS, fontSize:14, color: MUTED, lineHeight:1.7, margin:0 }}>The final design organises every appliance flow under three top-level primitives (Spaces, Devices, Routines) with a persistent bottom tab bar as the single navigation surface. No hidden drawers, no deep hierarchies.</p>
           <ul style={{ margin:0, padding:0, listStyle:'none', display:'flex', flexDirection:'column', gap:9 }}>
             {['Splash · welcome · sign in · permissions · confirmation','Pair flow · auto-discovery · Wi-Fi handoff · naming · success','Home · dashboard · routines · status strip','Appliance detail · per-device controls · diagnostics','Routines · trigger · action · review · saved','Alerts · severity · recommendations · resolve','Maintenance · step-by-step guide · mark complete','Settings · profile · household · devices · permissions'].map(item => (
@@ -1733,8 +1751,8 @@ export default function SmartHomeCaseStudy() {
       <div ref={protoRef} id="prototype" style={{ scrollMarginTop:60 }}>
         <Sec bone>
           <Eyebrow>12 · Interactive Prototype</Eyebrow>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:56, alignItems:'start' }}>
-            <div style={{ position:'sticky', top:72 }}>
+          <div style={{ display:'grid', gridTemplateColumns: cols('1fr 1fr'), gap: isMobile ? 32 : 56, alignItems:'start' }}>
+            <div style={{ position: isMobile ? 'static' : 'sticky', top:72 }}>
               <h2 style={{ fontFamily: SERIF, fontSize:'clamp(28px, 3.5vw, 48px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.15 }}>
                 Try the <em style={{ color: ACCENT }}>whole flow.</em>
               </h2>
@@ -1762,7 +1780,7 @@ export default function SmartHomeCaseStudy() {
       <Sec id="results">
         <Eyebrow>13 · Results & Impact</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize:'clamp(32px, 4vw, 52px)', color: FG, margin:'0 0 40px', fontWeight:700, lineHeight:1.15 }}>Numbers that moved.</h2>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16, marginBottom:32 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap:16, marginBottom:32 }}>
           {[
             { value:'35%', label:'Daily engagement lift',          desc:'More owners returned daily, not just when something broke. Measured 30 days post-launch.' },
             { value:'40%', label:'First-attempt task success',     desc:'On primary control screens, from 54% to 94%, after the accessibility and hierarchy rebuild.' },
@@ -1784,7 +1802,7 @@ export default function SmartHomeCaseStudy() {
       {/* ── 14 Reflection ─────────────────────────────────────────────── */}
       <Sec id="reflection" bone>
         <Eyebrow>14 · Reflection</Eyebrow>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:40 }}>
+        <div style={{ display:'grid', gridTemplateColumns: cols('1fr 1fr'), gap:40 }}>
           <div>
             <h2 style={{ fontFamily: SERIF, fontSize:'clamp(22px, 2.5vw, 34px)', color: FG, margin:'0 0 16px', fontWeight:700, lineHeight:1.3 }}>
               Designing for connected hardware taught me that the hardest interface is the one between products.

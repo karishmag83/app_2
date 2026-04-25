@@ -43,16 +43,29 @@ function useCountUp(target: number, duration: number, started: boolean) {
   return val
 }
 
+/* ── Mobile hook ────────────────────────────────────────────────────────────── */
+function useIsMobile() {
+  const [mobile, setMobile] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const fn = () => setMobile(window.innerWidth < 768)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return mobile
+}
+
 /* ── Shared layout helpers ──────────────────────────────────────────────────── */
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: MUTED, margin: '0 0 18px' }}>{children}</p>
 }
 function Box({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 48px', ...style }}>{children}</div>
+  const isMobile = useIsMobile()
+  return <div style={{ maxWidth: 1280, margin: '0 auto', padding: `0 ${isMobile ? '20px' : '48px'}`, ...style }}>{children}</div>
 }
 function Sec({ id, bone, children }: { id?: string; bone?: boolean; children: React.ReactNode }) {
+  const isMobile = useIsMobile()
   return (
-    <section id={id} style={{ borderTop: HL, backgroundColor: bone ? BONE : 'transparent', padding: '80px 0', scrollMarginTop: 60 }}>
+    <section id={id} style={{ borderTop: HL, backgroundColor: bone ? BONE : 'transparent', padding: `${isMobile ? '48px' : '80px'} 0`, scrollMarginTop: 60 }}>
       <Box>{children}</Box>
     </section>
   )
@@ -78,7 +91,9 @@ const NAV_SECTIONS = [
 ]
 
 function SectionNav({ active }: { active: string }) {
+  const isMobile = useIsMobile()
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (isMobile) return null
   return (
     <nav style={{ position: 'fixed', right: 20, top: '50%', transform: 'translateY(-50%)', zIndex: 40, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
       {NAV_SECTIONS.map(s => {
@@ -1223,8 +1238,9 @@ function MetricCard({ target, suffix, label, desc, started, index }: {
   target: number; suffix: string; label: string; desc: string; started: boolean; index: number
 }) {
   const val = useCountUp(target, 1400, started)
+  const isMobile = useIsMobile()
   return (
-    <div style={{ padding: '40px 28px', borderRight: index < 2 ? HL : 'none' }}>
+    <div style={{ padding: isMobile ? '28px 0' : '40px 28px', borderRight: (!isMobile && index < 2) ? HL : 'none', borderBottom: (isMobile && index < 2) ? HL : 'none' }}>
       <div style={{ fontFamily: SERIF, fontSize: 56, fontWeight: 700, color: FG, lineHeight: 1, marginBottom: 8 }}>{val}{suffix}</div>
       <div style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: FG, marginBottom: 6 }}>{label}</div>
       <div style={{ fontFamily: SANS, fontSize: 12, color: MUTED, lineHeight: 1.55 }}>{desc}</div>
@@ -1240,6 +1256,8 @@ export default function FitnessWearableCaseStudy() {
   const protoRef = useRef<HTMLDivElement>(null)
   const processRef = useRef<HTMLDivElement>(null)
   const activeSection = useSectionObserver()
+  const isMobile = useIsMobile()
+  const cols = (desktop: string, mob = '1fr') => isMobile ? mob : desktop
 
   const scrollTo = (ref: React.RefObject<Element | null>) =>
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -1283,8 +1301,8 @@ export default function FitnessWearableCaseStudy() {
 
       {/* Hero */}
       <div id="hero" style={{ scrollMarginTop: 60 }}>
-        <Box style={{ padding: '72px 48px 0' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: 48, alignItems: 'start' }}>
+        <Box style={{ padding: isMobile ? '40px 20px 0' : '72px 48px 0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: cols('1fr 200px'), gap: isMobile ? 32 : 48, alignItems: 'start' }}>
             <div>
               <p style={{ fontFamily: MONO, fontSize: 10, color: MUTED, letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 22px' }}>
                 Case study · Connected fitness wearable · iOS &amp; Android · 2024
@@ -1393,17 +1411,17 @@ export default function FitnessWearableCaseStudy() {
       {/* Metrics bar */}
       <div ref={metricsRef} style={{ borderTop: HL, borderBottom: HL }}>
         <Box>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(3, 1fr)') }}>
             {METRICS.map((m, i) => <MetricCard key={m.label} {...m} started={metricsStarted} index={i} />)}
           </div>
         </Box>
       </div>
 
       {/* 01 Overview */}
-      <div id="overview" style={{ borderTop: HL, padding: '80px 0', scrollMarginTop: 60 }} ref={processRef}>
+      <div id="overview" style={{ borderTop: HL, padding: isMobile ? '48px 0' : '80px 0', scrollMarginTop: 60 }} ref={processRef}>
         <Box>
           <Eyebrow>01 · Overview</Eyebrow>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap: 32 }}>
             {[
               { h: 'Product',     b: 'Pulse is a companion app for connected fitness wearables that translates raw biometric data (heart rate, sleep, HRV) into plain-language insights users can act on every day.' },
               { h: 'Challenge',   b: 'Wearable owners checked their device an average of 7 times daily but acted on data only 1.2 times. Onboarding had a 65% abandonment rate. All 4 core flows failed comprehension testing.' },
@@ -1422,7 +1440,7 @@ export default function FitnessWearableCaseStudy() {
       <Sec id="problem">
         <Eyebrow>02 · Problem</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 4vw, 52px)', color: FG, margin: '0 0 40px', fontWeight: 700, lineHeight: 1.15 }}>Four gaps, one broken experience.</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(2, 1fr)'), gap: 24 }}>
           {[
             { label: 'Data without context',   body: 'Users saw "72 BPM · 52ms HRV" with zero sense of whether those numbers were good, bad, or worth worrying about. Metrics without benchmarks create anxiety, not action.' },
             { label: 'Onboarding abandonment', body: 'Average drop-off during device pairing and permissions was 65%. The permission wall appeared before users understood what the app did or why it needed access.' },
@@ -1442,7 +1460,7 @@ export default function FitnessWearableCaseStudy() {
       <Sec id="objectives" bone>
         <Eyebrow>03 · Objectives</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 4vw, 52px)', color: FG, margin: '0 0 40px', fontWeight: 700, lineHeight: 1.15 }}>Four measurable goals.</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 28 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(2, 1fr)'), gap: 28 }}>
           {[
             { n: '01', h: 'Translate data into language',   b: 'Apply the Raw to Context to Insight to Action model on every screen. No metric should ever stand alone without a plain-language interpretation.' },
             { n: '02', h: 'Cut onboarding drop-off',        b: 'Reduce abandonment from 65% to under 30% by deferring non-critical permissions and showing value before asking for access.' },
@@ -1472,7 +1490,7 @@ export default function FitnessWearableCaseStudy() {
             { w: 'Weeks 6–10',  t: 'Design and prototyping',      d: 'Designed all screens in Figma. Prototyped 3 onboarding variants in Principle. Tested micro-interactions in ProtoPie. Ran 5 moderated sessions across 2 rounds.' },
             { w: 'Weeks 10–12', t: 'Testing and handoff',         d: 'Tested 4 core flows with 6 participants. Iterated on insight card density and notification clarity. Delivered annotated specs, motion guidelines, and a complete component library.' },
           ].map((p, i, arr) => (
-            <div key={p.w} style={{ display: 'grid', gridTemplateColumns: '170px 1fr', gap: 24, padding: '20px 0', borderTop: HL, borderBottom: i === arr.length - 1 ? HL : 'none' }}>
+            <div key={p.w} style={{ display: 'grid', gridTemplateColumns: cols('170px 1fr'), gap: 24, padding: '20px 0', borderTop: HL, borderBottom: i === arr.length - 1 ? HL : 'none' }}>
               <span style={{ fontFamily: MONO, fontSize: 11, color: MUTED, paddingTop: 3 }}>{p.w}</span>
               <div>
                 <h3 style={{ fontFamily: SERIF, fontSize: 18, color: FG, margin: '0 0 6px', fontWeight: 600 }}>{p.t}</h3>
@@ -1487,7 +1505,7 @@ export default function FitnessWearableCaseStudy() {
       <Sec id="research" bone>
         <Eyebrow>05 · User Understanding</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 4vw, 52px)', color: FG, margin: '0 0 40px', fontWeight: 700, lineHeight: 1.15 }}>Who we were designing for.</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('1fr 1fr'), gap: 32 }}>
           <div>
             <p style={{ fontFamily: SANS, fontSize: 14, color: MUTED, lineHeight: 1.7, margin: '0 0 20px' }}>
               10 in-depth interviews with wearable owners: casual walkers, amateur runners, and competitive athletes. All owned a device. None could confidently explain their HRV or VO2 Max score without looking it up. The data was there. The meaning wasn't.
@@ -1540,7 +1558,7 @@ export default function FitnessWearableCaseStudy() {
         <p style={{ fontFamily: SANS, fontSize: 14, color: MUTED, margin: '0 0 40px', maxWidth: 620, lineHeight: 1.7 }}>
           The core design principle: no raw number appears on screen without a plain-language interpretation. We defined a four-step translation model applied to every metric, card, and notification in the app.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(4, 1fr)', '1fr 1fr'), gap: 0 }}>
           {[
             { n: '01', step: 'Raw',     eg: 'HRV: 52ms · Sleep: 6h 14m · Resting HR: 68 BPM',                      note: 'What the device measured. Accurate, but meaningless to most users.' },
             { n: '02', step: 'Context', eg: 'HRV is in your top 35%. Sleep was 74 min below your 7-day average.',    note: 'A benchmark that gives the number meaning relative to the user.' },
@@ -1568,7 +1586,7 @@ export default function FitnessWearableCaseStudy() {
         <p style={{ fontFamily: SANS, fontSize: 14, color: MUTED, margin: '0 0 36px', maxWidth: 620, lineHeight: 1.7 }}>
           The original app had a 6-level hierarchy that buried key data behind multiple taps. We restructured it into 4 primary tabs (Today, Activity, Health, Workouts) with a maximum of 3 levels anywhere in the app.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(4, 1fr)', '1fr 1fr'), gap: 10 }}>
           {[
             { n: '01', l: 'Onboarding and pairing'    },
             { n: '02', l: 'Daily summary and insights' },
@@ -1591,7 +1609,7 @@ export default function FitnessWearableCaseStudy() {
       <Sec id="wireframes">
         <Eyebrow>08 · Wireframes &amp; UX Evolution</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 4vw, 52px)', color: FG, margin: '0 0 40px', fontWeight: 700, lineHeight: 1.15 }}>From numbers to narrative.</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap: 16 }}>
           {[
             { badge: 'Lo-fi to Mid-fi',    title: 'Today screen',     variant: 'today-lofi', desc: 'Evolved from a raw metric list to an insight-first card hierarchy with a clear daily focus.' },
             { badge: 'Mid-fi to Hi-fi',    title: 'Today (final)',    variant: 'today-hifi', desc: 'Added contextual benchmarks, color-coded zones, and the insight card with action prompt.' },
@@ -1621,7 +1639,7 @@ export default function FitnessWearableCaseStudy() {
         <p style={{ fontFamily: SANS, fontSize: 14, color: MUTED, margin: '0 0 36px', maxWidth: 600, lineHeight: 1.7 }}>
           We prototyped three onboarding approaches in Principle and ran moderated sessions with 6 participants. The permission timing was the single biggest lever for completion.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap: 16 }}>
           {[
             { v: 'Variant A', t: 'Permission-first',          hi: false, benefit: 'Covers all access requirements upfront', risk: 'Users see a wall of prompts before seeing any app value', outcome: 'Dropped. 71% abandoned at the Bluetooth prompt before seeing the app.' },
             { v: 'Variant B', t: 'Auto device scan',          hi: false, benefit: 'Finds devices automatically, no manual input', risk: 'Multiple unknown devices appear at once, no clear guidance', outcome: 'Dropped. Users panicked. 58% tapped "Cancel" when they saw unfamiliar device names.' },
@@ -1645,7 +1663,7 @@ export default function FitnessWearableCaseStudy() {
       <Sec id="accessibility">
         <Eyebrow>10 · Accessibility &amp; Usability</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 4vw, 52px)', color: FG, margin: '0 0 40px', fontWeight: 700, lineHeight: 1.15 }}>Color is never the only signal.</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 36 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('1fr 1fr'), gap: 36 }}>
           <div>
             <p style={{ fontFamily: SANS, fontSize: 14, color: MUTED, lineHeight: 1.7, margin: '0 0 20px' }}>
               Pulse uses color to communicate health zones (Resting, Fat Burn, Cardio, Peak), but color alone is never sufficient. Every zone has a text label. Every alert has an icon. Every metric has both a value and a plain-language status. Accessibility was part of the design spec from week one, not a checklist at the end.
@@ -1695,7 +1713,7 @@ export default function FitnessWearableCaseStudy() {
         <p style={{ fontFamily: SANS, fontSize: 14, color: MUTED, margin: '0 0 36px', maxWidth: 640, lineHeight: 1.7 }}>
           Every screen applies the same translation logic. Raw metrics are never shown without context. Insights are always accompanied by a clear next step. The visual hierarchy is consistent across all four tabs.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(2, 1fr)'), gap: 16 }}>
           {[
             { tab: 'Today', color: BLUE,   desc: 'The daily summary applies the full framework in a single scroll. A step ring anchors the view, four metric cards provide context, and an insight card delivers the day\'s key recommendation.' },
             { tab: 'Activity', color: GREEN, desc: 'A weekly active-minutes donut shows progress toward the goal. A 7-day step bar chart surfaces weekly patterns. Apple-style rings show Move, Exercise, and Stand completion at a glance.' },
@@ -1732,10 +1750,10 @@ export default function FitnessWearableCaseStudy() {
       <Sec id="results" bone>
         <Eyebrow>13 · Outcomes</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 4vw, 52px)', color: FG, margin: '0 0 40px', fontWeight: 700, lineHeight: 1.15 }}>The framework worked.</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, borderTop: HL, borderBottom: HL, marginBottom: 40 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap: 0, borderTop: HL, borderBottom: HL, marginBottom: 40 }}>
           {METRICS.map((m, i) => <MetricCard key={m.label} {...m} started={metricsStarted} index={i} />)}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('repeat(3, 1fr)'), gap: 16 }}>
           {[
             { value: '3.8x/day', label: 'Daily active usage',     desc: 'Up from 1.2x before the redesign. Users now act on data, not just check it.' },
             { value: 'NPS 68',   label: 'Post-test satisfaction', desc: 'Net Promoter Score from participant surveys after moderated sessions.' },
@@ -1754,7 +1772,7 @@ export default function FitnessWearableCaseStudy() {
       <Sec id="reflection">
         <Eyebrow>14 · Reflection</Eyebrow>
         <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 4vw, 52px)', color: FG, margin: '0 0 40px', fontWeight: 700, lineHeight: 1.15 }}>What I learned.</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: cols('1fr 1fr'), gap: 40 }}>
           <div>
             {[
               { h: 'What worked', b: 'The data translation framework gave the entire team a shared lens for evaluation. Every design decision could be tested against a single question: does this help the user move from Raw to Action? That made critiques faster and more productive, and it made the handoff much cleaner because engineers and PMs were using the same vocabulary.' },
