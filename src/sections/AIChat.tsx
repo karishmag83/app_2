@@ -110,9 +110,10 @@ export default function AIChat({ onClose }: AIChatProps) {
       
       <div
         ref={modalRef}
-        className="fixed inset-0 sm:inset-auto sm:bottom-4 sm:right-4 w-full sm:w-96 h-[100dvh] sm:h-[600px] sm:rounded-2xl bg-white shadow-2xl flex flex-col z-50 overflow-hidden"
+        className="fixed inset-0 sm:inset-auto sm:bottom-4 sm:right-4 w-full sm:w-96 h-[100dvh] sm:h-[600px] sm:rounded-2xl bg-white shadow-2xl flex flex-col z-50 overflow-hidden text-gray-900"
         style={{
-          backgroundColor: 'var(--chat-bg, white)',
+          backgroundColor: 'white',
+          color: '#111827',
         }}
       >
         {/* Header */}
@@ -203,9 +204,9 @@ export default function AIChat({ onClose }: AIChatProps) {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask me anything..."
-            className="flex-1 px-4 py-2 rounded-full border outline-none text-sm"
+            className="flex-1 px-4 py-2 rounded-full border outline-none text-sm text-gray-900 bg-white placeholder-gray-400"
             style={{
               borderColor: 'var(--primary-color, #ec4899)',
             }}
