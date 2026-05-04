@@ -6,6 +6,14 @@ interface ThemeSelectorProps {
 
 const themes = [
   {
+    id: 'blush',
+    name: 'Blush Petal',
+    desc: 'Soft & romantic warmth',
+    bgColor: '#fff5f7',
+    accentColor: '#f472b6',
+    barColor: '#fda4af',
+  },
+  {
     id: 'indigo',
     name: 'Electric Indigo',
     desc: 'Designer\'s staple',
@@ -14,20 +22,20 @@ const themes = [
     barColor: '#818cf8',
   },
   {
-    id: 'emerald',
-    name: 'Deep Emerald',
-    desc: 'Fresh & natural',
-    bgColor: '#ecfdf5',
-    accentColor: '#059669',
-    barColor: '#34d399',
+    id: 'lavender',
+    name: 'Lavender Dream',
+    desc: 'Dreamy & creative',
+    bgColor: '#faf5ff',
+    accentColor: '#9333ea',
+    barColor: '#c084fc',
   },
   {
-    id: 'amber',
-    name: 'Amber Gold',
-    desc: 'Warm & creative',
-    bgColor: '#fffbeb',
-    accentColor: '#d97706',
-    barColor: '#fbbf24',
+    id: 'pastelred',
+    name: 'Pastel Red',
+    desc: 'Gentle & warm',
+    bgColor: '#fff0ef',
+    accentColor: '#f87171',
+    barColor: '#fca5a5',
   },
   {
     id: 'crimson',
@@ -36,14 +44,6 @@ const themes = [
     bgColor: '#fff1f3',
     accentColor: '#e11d48',
     barColor: '#fb7185',
-  },
-  {
-    id: 'cyan',
-    name: 'Ocean Cyan',
-    desc: 'Cool & futuristic',
-    bgColor: '#ecfeff',
-    accentColor: '#0891b2',
-    barColor: '#22d3ee',
   },
   {
     id: 'graphite',
@@ -55,21 +55,41 @@ const themes = [
   },
 ]
 
-function playClickSound() {
+function playKeyClickSound() {
   try {
     const ctx = new AudioContext()
+
+    // White noise burst — the "click" transient
+    const bufferSize = Math.floor(ctx.sampleRate * 0.035)
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+    const data = buffer.getChannelData(0)
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 6)
+    }
+    const noise = ctx.createBufferSource()
+    noise.buffer = buffer
+    const noiseGain = ctx.createGain()
+    noiseGain.gain.setValueAtTime(0.35, ctx.currentTime)
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035)
+    noise.connect(noiseGain)
+    noiseGain.connect(ctx.destination)
+
+    // Low-frequency body thump — the "weight" of the key
     const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.connect(gain)
-    gain.connect(ctx.destination)
+    const oscGain = ctx.createGain()
     osc.type = 'sine'
-    osc.frequency.setValueAtTime(1100, ctx.currentTime)
-    osc.frequency.exponentialRampToValueAtTime(550, ctx.currentTime + 0.06)
-    gain.gain.setValueAtTime(0.25, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09)
+    osc.frequency.setValueAtTime(180, ctx.currentTime)
+    osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.025)
+    oscGain.gain.setValueAtTime(0.18, ctx.currentTime)
+    oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025)
+    osc.connect(oscGain)
+    oscGain.connect(ctx.destination)
+
+    noise.start(ctx.currentTime)
     osc.start(ctx.currentTime)
-    osc.stop(ctx.currentTime + 0.09)
-    osc.onended = () => ctx.close()
+    noise.stop(ctx.currentTime + 0.035)
+    osc.stop(ctx.currentTime + 0.025)
+    noise.onended = () => ctx.close()
   } catch {
     // Web Audio not available
   }
@@ -79,7 +99,7 @@ export default function ThemeSelector({ onSelect }: ThemeSelectorProps) {
   const cardsRef = useRef<HTMLDivElement[]>([])
 
   const handleSelect = (id: string) => {
-    playClickSound()
+    playKeyClickSound()
     onSelect(id)
   }
 
@@ -99,7 +119,7 @@ export default function ThemeSelector({ onSelect }: ThemeSelectorProps) {
               key={theme.id}
               ref={el => { if (el) cardsRef.current[index] = el }}
               onClick={() => handleSelect(theme.id)}
-              className="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 border-2 border-gray-100 cursor-pointer overflow-hidden"
+              className="group relative bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 border-2 cursor-pointer overflow-hidden"
               style={{ borderColor: 'transparent' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = theme.accentColor + '55')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}
@@ -113,22 +133,22 @@ export default function ThemeSelector({ onSelect }: ThemeSelectorProps) {
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                   <div className="h-2 w-10 rounded-full opacity-60" style={{ backgroundColor: theme.accentColor }} />
                   <div className="flex gap-1">
-                    {[0,1,2].map(i => (
+                    {[0, 1, 2].map(i => (
                       <div key={i} className="w-1.5 h-1.5 rounded-full opacity-30" style={{ backgroundColor: theme.accentColor }} />
                     ))}
                   </div>
                 </div>
-                {/* Simulated heading */}
+                {/* Simulated content bars */}
                 <div className="absolute top-9 left-3 right-8 space-y-1.5">
                   <div className="h-2 w-20 rounded-full opacity-50" style={{ backgroundColor: theme.accentColor }} />
                   <div className="h-1.5 w-14 rounded-full opacity-25" style={{ backgroundColor: theme.accentColor }} />
                 </div>
                 {/* Simulated button */}
                 <div
-                  className="absolute bottom-3 left-3 h-5 w-14 rounded-full opacity-85 flex items-center justify-center"
-                  style={{ backgroundColor: theme.accentColor }}
+                  className="absolute bottom-3 left-3 h-5 w-14 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: theme.accentColor + 'cc' }}
                 >
-                  <div className="h-1 w-8 rounded-full bg-white opacity-70" />
+                  <div className="h-1 w-8 rounded-full bg-white opacity-80" />
                 </div>
                 {/* Accent dot */}
                 <div
@@ -140,7 +160,7 @@ export default function ThemeSelector({ onSelect }: ThemeSelectorProps) {
               <h3 className="font-display font-semibold text-lg mb-0.5 text-gray-900">{theme.name}</h3>
               <p className="text-sm text-gray-500">{theme.desc}</p>
 
-              {/* Active color flash on corner */}
+              {/* Hover corner tint */}
               <div
                 className="absolute top-0 right-0 w-10 h-10 rounded-bl-2xl rounded-tr-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 style={{ backgroundColor: theme.accentColor + '22' }}

@@ -21,12 +21,12 @@ gsap.registerPlugin(ScrollTrigger)
 
 // Theme configuration with proper contrast colors
 const themeConfig: Record<string, { bg: string; primary: string; text: string }> = {
-  indigo:   { bg: '#f5f3ff', primary: '#4f46e5', text: '#1a1730' },
-  emerald:  { bg: '#ecfdf5', primary: '#059669', text: '#052e16' },
-  amber:    { bg: '#fffbeb', primary: '#d97706', text: '#1c1005' },
-  crimson:  { bg: '#fff1f3', primary: '#e11d48', text: '#1a0010' },
-  cyan:     { bg: '#ecfeff', primary: '#0891b2', text: '#04161a' },
-  graphite: { bg: '#f8f9fa', primary: '#1e293b', text: '#0f172a' },
+  blush:     { bg: '#fff5f7', primary: '#f472b6', text: '#4a1528' },
+  indigo:    { bg: '#f5f3ff', primary: '#4f46e5', text: '#1a1730' },
+  lavender:  { bg: '#faf5ff', primary: '#9333ea', text: '#2e1065' },
+  pastelred: { bg: '#fff0ef', primary: '#f87171', text: '#450a0a' },
+  crimson:   { bg: '#fff1f3', primary: '#e11d48', text: '#1a0010' },
+  graphite:  { bg: '#f8f9fa', primary: '#1e293b', text: '#0f172a' },
 }
 
 function App() {
@@ -38,7 +38,7 @@ function App() {
     }
     return false
   })
-  const [, setCurrentTheme] = useState('indigo')
+  const [, setCurrentTheme] = useState('blush')
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [showAIChat, setShowAIChat] = useState(false)
   const mainRef = useRef<HTMLDivElement>(null)
@@ -64,8 +64,8 @@ function App() {
       document.body.style.color = '#ede8f5'
     } else {
       root.removeAttribute('data-dark')
-      const savedTheme = localStorage.getItem('portfolio-theme') ?? 'indigo'
-      const theme = themeConfig[savedTheme] ? savedTheme : 'indigo'
+      const savedTheme = localStorage.getItem('portfolio-theme') ?? 'blush'
+      const theme = themeConfig[savedTheme] ? savedTheme : 'blush'
       applyTheme(theme)
     }
   }
@@ -80,7 +80,7 @@ function App() {
   useEffect(() => {
     const savedDark = localStorage.getItem('portfolio-dark-mode') === 'true'
     const savedTheme = localStorage.getItem('portfolio-theme')
-    const initialTheme = savedTheme && themeConfig[savedTheme] ? savedTheme : 'indigo'
+    const initialTheme = savedTheme && themeConfig[savedTheme] ? savedTheme : 'blush'
     setCurrentTheme(initialTheme)
 
     if (savedDark) {
