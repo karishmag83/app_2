@@ -30,12 +30,12 @@ const themes = [
     barColor: '#c084fc',
   },
   {
-    id: 'pastelred',
-    name: 'Pastel Red',
-    desc: 'Gentle & warm',
-    bgColor: '#fff0ef',
-    accentColor: '#f87171',
-    barColor: '#fca5a5',
+    id: 'peach',
+    name: 'Peachy Orange',
+    desc: 'Warm & sun-kissed',
+    bgColor: '#fff7ed',
+    accentColor: '#f97316',
+    barColor: '#fb923c',
   },
   {
     id: 'crimson',
@@ -55,51 +55,35 @@ const themes = [
   },
 ]
 
-function playKeyClickSound() {
-  try {
-    const ctx = new AudioContext()
-
-    // White noise burst — the "click" transient
-    const bufferSize = Math.floor(ctx.sampleRate * 0.035)
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-    const data = buffer.getChannelData(0)
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 6)
+function playClickSound() {
+  const audio = new Audio('/click.wav')
+  audio.volume = 0.3
+  audio.play().catch(() => {
+    // Fallback: Web Audio API square wave (matches reference site)
+    try {
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'square'
+      osc.frequency.setValueAtTime(1000, ctx.currentTime)
+      gain.gain.setValueAtTime(0.1, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.1)
+      osc.onended = () => ctx.close()
+    } catch {
+      // Web Audio not available
     }
-    const noise = ctx.createBufferSource()
-    noise.buffer = buffer
-    const noiseGain = ctx.createGain()
-    noiseGain.gain.setValueAtTime(0.35, ctx.currentTime)
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035)
-    noise.connect(noiseGain)
-    noiseGain.connect(ctx.destination)
-
-    // Low-frequency body thump — the "weight" of the key
-    const osc = ctx.createOscillator()
-    const oscGain = ctx.createGain()
-    osc.type = 'sine'
-    osc.frequency.setValueAtTime(180, ctx.currentTime)
-    osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.025)
-    oscGain.gain.setValueAtTime(0.18, ctx.currentTime)
-    oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025)
-    osc.connect(oscGain)
-    oscGain.connect(ctx.destination)
-
-    noise.start(ctx.currentTime)
-    osc.start(ctx.currentTime)
-    noise.stop(ctx.currentTime + 0.035)
-    osc.stop(ctx.currentTime + 0.025)
-    noise.onended = () => ctx.close()
-  } catch {
-    // Web Audio not available
-  }
+  })
 }
 
 export default function ThemeSelector({ onSelect }: ThemeSelectorProps) {
   const cardsRef = useRef<HTMLDivElement[]>([])
 
   const handleSelect = (id: string) => {
-    playKeyClickSound()
+    playClickSound()
     onSelect(id)
   }
 
