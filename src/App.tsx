@@ -23,7 +23,7 @@ gsap.registerPlugin(ScrollTrigger)
 const themeConfig: Record<string, { bg: string; primary: string; text: string }> = {
   blush:     { bg: '#fff5f7', primary: '#f472b6', text: '#4a1528' },
   indigo:    { bg: '#f5f3ff', primary: '#4f46e5', text: '#1a1730' },
-  lavender:  { bg: '#faf5ff', primary: '#9333ea', text: '#2e1065' },
+  sky:       { bg: '#f0f9ff', primary: '#0284c7', text: '#0c1a2e' },
   peach:     { bg: '#fff7ed', primary: '#f97316', text: '#431407' },
   crimson:   { bg: '#fff1f3', primary: '#e11d48', text: '#1a0010' },
   graphite:  { bg: '#f8f9fa', primary: '#1e293b', text: '#0f172a' },

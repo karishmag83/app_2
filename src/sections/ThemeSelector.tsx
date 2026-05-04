@@ -22,12 +22,12 @@ const themes = [
     barColor: '#818cf8',
   },
   {
-    id: 'lavender',
-    name: 'Lavender Dream',
-    desc: 'Dreamy & creative',
-    bgColor: '#faf5ff',
-    accentColor: '#9333ea',
-    barColor: '#c084fc',
+    id: 'sky',
+    name: 'Sky',
+    desc: 'Light & airy',
+    bgColor: '#f0f9ff',
+    accentColor: '#0284c7',
+    barColor: '#38bdf8',
   },
   {
     id: 'peach',
