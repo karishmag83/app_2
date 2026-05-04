@@ -145,9 +145,7 @@ export default function AIChat({ onClose }: AIChatProps) {
         <div
           ref={messagesRef}
           className="flex-1 overflow-y-auto p-4 space-y-4"
-          style={{
-            backgroundColor: 'var(--chat-bg, #f9fafb)',
-          }}
+          style={{ backgroundColor: '#f9fafb' }}
         >
           {messages.map((msg) => (
             <div
@@ -155,13 +153,13 @@ export default function AIChat({ onClose }: AIChatProps) {
               className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                  msg.type === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-none'
-                    : 'bg-gray-200 text-gray-900 rounded-bl-none'
-                }`}
+                className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.type === 'user' ? 'rounded-br-none' : 'rounded-bl-none'}`}
+                style={{
+                  backgroundColor: msg.type === 'user' ? '#2563eb' : '#e5e7eb',
+                  color: msg.type === 'user' ? '#ffffff' : '#111827',
+                }}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                <p className="text-sm whitespace-pre-wrap" style={{ color: 'inherit' }}>{msg.text}</p>
               </div>
             </div>
           ))}
@@ -199,7 +197,7 @@ export default function AIChat({ onClose }: AIChatProps) {
         </div>
 
         {/* Input */}
-        <div className="border-t p-4 flex gap-2" style={{ borderColor: 'var(--primary-color, #ec4899)' }}>
+        <div className="border-t p-4 flex gap-2" style={{ borderColor: 'var(--primary-color, #ec4899)', backgroundColor: '#ffffff' }}>
           <input
             type="text"
             value={inputValue}
