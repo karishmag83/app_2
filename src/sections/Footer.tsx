@@ -77,13 +77,16 @@ export default function Footer() {
     return () => ctx.revert()
   }, [])
 
-  const splitText = (text: string) => {
-    return text.split('').map((char, i) => (
-      <span key={i} className="char inline-block" style={{ whiteSpace: char === ' ' ? 'pre' : 'normal' }}>
-        {char}
+  // Letters animate one by one, but each word stays whole so a line can only break between words
+  const splitText = (text: string) =>
+    text.split(' ').map((word, w, words) => (
+      <span key={w} className="inline-block whitespace-nowrap">
+        {word.split('').map((char, i) => (
+          <span key={i} className="char inline-block">{char}</span>
+        ))}
+        {w < words.length - 1 && <span className="char inline-block" style={{ whiteSpace: 'pre' }}>{' '}</span>}
       </span>
     ))
-  }
 
   return (
     <footer
@@ -94,7 +97,8 @@ export default function Footer() {
         <div className="flex flex-col items-center text-center">
           {/* Headline */}
           <h2 className="footer-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-8 px-4">
-            {splitText("Have a great idea? Let's build it.")}
+            <span className="block">{splitText('Have a great idea?')}</span>
+            <span className="block">{splitText("Let's build it.")}</span>
           </h2>
 
           {/* Social Links */}

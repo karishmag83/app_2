@@ -1033,26 +1033,37 @@ button.liquid-glass:active { transform: scale(0.95); }
 .chat-scrim.is-open { opacity: 1; }
 [data-dark="true"] .chat-scrim { background: rgba(0, 0, 0, 0.45); }
 
-/* Phones: a bottom sheet that rises to about 80% of the screen, page dimmed behind it */
+/* Phones: a compact floating card that sizes to its content (up to ~70% of the
+   screen), inset from the edges so the page stays visible around it */
 .chat-panel {
-  inset: auto 0 0 0;
-  height: min(80dvh, 700px);
-  padding-bottom: env(safe-area-inset-bottom);
-  border-radius: 28px 28px 0 0;
-  background: color-mix(in srgb, var(--surface-color) 88%, transparent);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  backdrop-filter: blur(30px) saturate(180%);
-  box-shadow: inset 0 1px 0.5px var(--lg-rim-hi), 0 -24px 60px -24px rgba(0, 0, 0, 0.45);
   color: var(--text-color);
   opacity: 0;
-  transform: translateY(48px);
-  transform-origin: bottom center;
   transition: opacity 0.3s var(--ease-apple), transform 0.55s var(--ease-out-expo);
 }
 .chat-panel.is-open { opacity: 1; transform: none; }
 @media (max-width: 639px) {
-  .chat-scrim { background: rgba(0, 0, 0, 0.32); }
-  [data-dark="true"] .chat-panel { background: color-mix(in srgb, var(--surface-color) 86%, transparent); }
+  .chat-panel {
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom) + var(--chat-kb, 0px));
+    max-height: min(70dvh, 600px, calc(var(--chat-vv, 100dvh) - 24px));
+    border-radius: 28px;
+    background: color-mix(in srgb, var(--surface-color) 90%, transparent);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    backdrop-filter: blur(30px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0.5px var(--lg-rim-hi),
+      inset 0 0 0 1px color-mix(in srgb, var(--border-color) 70%, transparent),
+      0 30px 70px -20px rgba(0, 0, 0, 0.45);
+    transform: translateY(32px) scale(0.98);
+    transform-origin: bottom center;
+  }
+  .chat-panel.is-open { transform: none; }
+  .chat-scrim { background: rgba(0, 0, 0, 0.3); }
+  [data-dark="true"] .chat-panel {
+    background: color-mix(in srgb, var(--surface-color) 88%, transparent);
+    box-shadow: inset 0 1px 0.5px var(--lg-rim-hi), inset 0 0 0 1px var(--border-color), 0 30px 70px -20px rgba(0, 0, 0, 0.85);
+  }
 }
 
 @media (min-width: 640px) {
@@ -1060,7 +1071,6 @@ button.liquid-glass:active { transform: scale(0.95); }
     inset: auto 24px 24px auto;
     width: 420px;
     height: min(700px, calc(100dvh - 48px));
-    padding-bottom: 0;
     border-radius: 30px;
     transform: translateY(16px) scale(0.98);
     transform-origin: bottom right;

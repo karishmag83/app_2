@@ -193,6 +193,16 @@ export default function AIChat({ onClose }: AIChatProps) {
 
   const nextId = () => `m-${Date.now().toString(36)}-${++idRef.current}`
 
+  /**
+   * Put the cursor in the text box. On touch screens this would raise the
+   * keyboard over the answer, so it only happens there when the visitor asked
+   * to type (force), e.g. "Check fit for my role".
+   */
+  const focusInput = (force = false) => {
+    const finePointer = window.matchMedia?.('(pointer: fine)').matches
+    if (force || finePointer) inputRef.current?.focus({ preventScroll: true })
+  }
+
   // Enter animation + focus management
   useEffect(() => {
     returnFocusRef.current = document.activeElement
@@ -208,6 +218,25 @@ export default function AIChat({ onClose }: AIChatProps) {
       if (revealRef.current) window.clearInterval(revealRef.current)
       const el = returnFocusRef.current
       if (el instanceof HTMLElement) el.focus({ preventScroll: true })
+    }
+  }, [])
+
+  // Phones: keep the sheet above the on-screen keyboard and within the visible area
+  useEffect(() => {
+    const vv = window.visualViewport
+    const panel = panelRef.current
+    if (!vv || !panel) return
+    const update = () => {
+      const keyboard = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      panel.style.setProperty('--chat-kb', `${Math.round(keyboard)}px`)
+      panel.style.setProperty('--chat-vv', `${Math.round(vv.height)}px`)
+    }
+    update()
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
     }
   }, [])
 
@@ -340,7 +369,7 @@ export default function AIChat({ onClose }: AIChatProps) {
     } finally {
       abortRef.current = null
       setBusy(false)
-      inputRef.current?.focus({ preventScroll: true })
+      focusInput()
     }
   }
 
@@ -352,12 +381,12 @@ export default function AIChat({ onClose }: AIChatProps) {
     setMessages([])
     setFitMode(false)
     setInput('')
-    inputRef.current?.focus()
+    focusInput()
   }
 
   const startFit = () => {
     setFitMode(true)
-    window.setTimeout(() => inputRef.current?.focus(), 0)
+    window.setTimeout(() => focusInput(true), 0)
   }
 
   const onSuggestion = (s: string) => {
@@ -413,14 +442,14 @@ export default function AIChat({ onClose }: AIChatProps) {
         <div ref={scrollRef} className="chat-scroll flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-5 sm:px-5">
           {messages.length === 0 ? (
             <div className="chat-welcome flex min-h-full flex-col justify-end">
-              <div className="mb-6">
-                <span className="mb-5 inline-block">
+              <div className="mb-5 sm:mb-6">
+                <span className="mb-5 hidden sm:inline-block">
                   <AIMark size={56} />
                 </span>
-                <p className="font-display text-[26px] font-semibold leading-[1.15] tracking-tight">
+                <p className="font-display text-[22px] font-semibold leading-[1.15] tracking-tight sm:text-[26px]">
                   Ask anything about Karishma's work.
                 </p>
-                <p className="mt-2 text-[14px] leading-relaxed" style={{ color: 'var(--muted-color)' }}>
+                <p className="mt-2 text-[13.5px] leading-relaxed sm:text-[14px]" style={{ color: 'var(--muted-color)' }}>
                   Ask about her experience, case studies or process, or paste a job description to see how she fits.
                 </p>
               </div>
@@ -429,10 +458,10 @@ export default function AIChat({ onClose }: AIChatProps) {
                   <button
                     key={label}
                     type="button"
-                    className="chat-starter flex flex-col items-start gap-3 rounded-2xl p-3.5 text-left text-[13.5px] font-medium leading-snug"
+                    className="chat-starter flex items-center gap-2.5 rounded-2xl p-3 text-left text-[13.5px] font-medium leading-snug sm:flex-col sm:items-start sm:gap-3 sm:p-3.5"
                     onClick={() => (prompt ? void send(prompt, { fit: false }) : startFit())}
                   >
-                    <Icon className="h-4 w-4" style={{ color: 'var(--primary-color)' }} aria-hidden="true" />
+                    <Icon className="h-4 w-4 shrink-0" style={{ color: 'var(--primary-color)' }} aria-hidden="true" />
                     {label}
                   </button>
                 ))}
@@ -526,8 +555,8 @@ export default function AIChat({ onClose }: AIChatProps) {
                   void send(input)
                 }
               }}
-              placeholder={fitMode ? 'Paste the role’s responsibilities and requirements…' : 'Ask about her work, experience or fit…'}
-              className="chat-input max-h-56 flex-1 resize-none bg-transparent py-2 text-[14.5px] leading-relaxed outline-none"
+              placeholder={fitMode ? 'Paste the role’s responsibilities and requirements…' : 'Ask about her work or fit…'}
+              className="chat-input max-h-40 flex-1 resize-none bg-transparent py-2 text-[16px] leading-relaxed outline-none sm:max-h-56 sm:text-[14.5px]"
             />
             {busy ? (
               <button type="button" onClick={stop} className="chat-send h-9 w-9 shrink-0" aria-label="Stop generating" title="Stop">
