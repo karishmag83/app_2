@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import CaseStudyAssistant from '@/components/case-study/CaseStudyAssistant'
+import { CASE_SUMMARIES } from '@/data/caseStudies'
 
 /* ── Types ──────────────────────────────────────────────────────────────────── */
 type AppTab    = 'today' | 'activity' | 'health' | 'workouts'
@@ -1286,6 +1288,7 @@ export default function FitnessWearableCaseStudy() {
   return (
     <div style={{ backgroundColor: BG, color: FG, minHeight: '100vh', fontFamily: SANS }}>
       <SectionNav active={activeSection} />
+      <CaseStudyAssistant summary={CASE_SUMMARIES['fitness-wearable']} sections={NAV_SECTIONS} trackerFrom={768} />
 
       {/* Header */}
       <header style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: 'rgba(250,250,249,0.9)', backdropFilter: 'blur(12px)', borderBottom: HL }}>

@@ -1,24 +1,8 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { FOLIO_SECTIONS } from '@/data/caseStudies';
 
-const sections = [
-  { id: 'walkthrough', label: 'Product Walkthrough' },
-  { id: 'hero', label: 'Overview' },
-  { id: 'context', label: 'Context & Problem' },
-  { id: 'goals', label: 'Goals & Metrics' },
-  { id: 'users', label: 'Users & JTBD' },
-  { id: 'strategy', label: 'UX Strategy' },
-  { id: 'architecture', label: 'IA & Flows' },
-  { id: 'data-layer', label: 'Data & Trust' },
-  { id: 'visualizations', label: 'Data Viz System' },
-  { id: 'screens', label: 'Key Screens' },
-  { id: 'components', label: 'Component System' },
-  { id: 'performance', label: 'Performance' },
-  { id: 'testing', label: 'Usability Testing' },
-  { id: 'accessibility', label: 'Accessibility' },
-  { id: 'roadmap', label: 'Roadmap' },
-  { id: 'reflection', label: 'Reflection' },
-];
+const sections = FOLIO_SECTIONS;
 
 export const StickyNav = () => {
   const [activeSection, setActiveSection] = useState('walkthrough');

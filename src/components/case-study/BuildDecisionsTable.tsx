@@ -34,7 +34,29 @@ const decisions = [
 export const BuildDecisionsTable = () => {
   return (
     <div className="card-elevated overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Phones: one card per decision, so nothing scrolls sideways */}
+      <ul className="divide-y divide-border md:hidden">
+        {decisions.map((row) => (
+          <li key={row.requirement} className="p-5">
+            <p className="font-semibold text-foreground">{row.requirement}</p>
+            <dl className="mt-3 space-y-2.5 text-sm">
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Wix approach</dt>
+                <dd className="mt-0.5 text-foreground/80">{row.approach}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tradeoff</dt>
+                <dd className="mt-0.5 text-foreground/80">{row.tradeoff}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Outcome</dt>
+                <dd className="mt-0.5 text-accent">{row.outcome}</dd>
+              </div>
+            </dl>
+          </li>
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-muted/50 border-b border-border">

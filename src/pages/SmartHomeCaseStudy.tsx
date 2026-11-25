@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import CaseStudyAssistant from '@/components/case-study/CaseStudyAssistant'
+import { CASE_SUMMARIES } from '@/data/caseStudies'
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 const BG     = '#fafaf8'
@@ -1406,6 +1408,7 @@ export default function SmartHomeCaseStudy() {
 
       {/* Fixed section nav */}
       <SectionNav active={activeSection} />
+      <CaseStudyAssistant summary={CASE_SUMMARIES['smart-home']} sections={NAV_SECTIONS} trackerFrom={768} />
 
       {/* ── Header: back + try prototype only ─────────────────────────── */}
       <header style={{ position:'sticky', top:0, zIndex:40, backgroundColor:'rgba(250,250,248,0.9)', backdropFilter:'blur(12px)', borderBottom: HL }}>

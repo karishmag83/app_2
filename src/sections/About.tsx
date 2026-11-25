@@ -30,11 +30,10 @@ function splitOrg(org: string) {
   return { name, parent: rest.join(', ') || undefined }
 }
 
-/** The organization's logo on a white tile, like an app icon. */
-function OrgLogo({ item, size }: { item: CareerItem; size: 'lg' | 'md' }) {
-  const box = size === 'lg' ? 'h-14 w-14 rounded-[16px]' : 'h-12 w-12 rounded-[14px]'
+/** The organization's logo on a white tile, like an app icon. One size everywhere in the career section. */
+function OrgLogo({ item }: { item: CareerItem }) {
   return (
-    <span className={`career-logo block shrink-0 overflow-hidden ${box}`}>
+    <span className="career-logo block h-12 w-12 shrink-0 overflow-hidden rounded-[14px]">
       {item.logo && <img src={item.logo} alt="" className="h-full w-full object-contain" loading="lazy" decoding="async" />}
     </span>
   )
@@ -46,14 +45,14 @@ function RoleRow({ role }: { role: CareerItem }) {
   return (
     <li className="career-row grid gap-6 px-6 py-8 sm:px-10 sm:py-10 md:grid-cols-12 md:gap-10">
       <div className="flex gap-4 sm:gap-5 md:col-span-5">
-        <OrgLogo item={role} size="lg" />
+        <OrgLogo item={role} />
         <div className="min-w-0 pt-0.5">
-          <h4 className="font-display text-[1.55rem] font-semibold leading-tight tracking-tight sm:text-[1.7rem]" style={{ color: 'var(--text-color)' }}>
+          <h4 className="font-display text-[1.3rem] font-semibold leading-snug tracking-tight sm:text-[1.4rem]" style={{ color: 'var(--text-color)' }}>
             {name}
           </h4>
           {parent && <p className="mt-0.5 text-[14px] leading-snug" style={{ color: 'var(--muted-color)' }}>{parent}</p>}
-          <p className="mt-2 text-[15px] font-medium leading-snug" style={{ color: 'var(--text-soft)' }}>{role.title}</p>
-          <p className="career-year mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px]">
+          <p className="mt-1.5 text-[15px] font-medium leading-snug" style={{ color: 'var(--text-soft)' }}>{role.title}</p>
+          <p className="career-year mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px]">
             <span className="tabular-nums">{yearsOf(role.period)}</span>
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -62,9 +61,9 @@ function RoleRow({ role }: { role: CareerItem }) {
           </p>
         </div>
       </div>
-      <div className="md:col-span-7 md:pt-1">
+      <div className="md:col-span-7 md:pt-0.5">
         {role.brief && (
-          <p className="text-[16px] leading-[1.7] sm:text-[17px]" style={{ color: 'var(--muted-color)' }}>{role.brief}</p>
+          <p className="text-[15px] leading-[1.7] sm:text-[16px]" style={{ color: 'var(--muted-color)' }}>{role.brief}</p>
         )}
         {role.areas?.length ? (
           <ul className="mt-5 flex flex-wrap gap-2" aria-label="Focus areas">
@@ -92,7 +91,7 @@ function CareerGroup({ title, items, columns }: { title: string; items: CareerIt
           return (
             <li key={item.id} className="career-cell flex flex-col p-6 sm:p-8">
               <div className="flex items-start justify-between gap-4">
-                <OrgLogo item={item} size="md" />
+                <OrgLogo item={item} />
                 <span className="career-year pt-1 text-[14px] tabular-nums">{yearsOf(item.period)}</span>
               </div>
               <p className="mt-6 font-display text-[1.3rem] font-semibold leading-snug tracking-tight sm:text-[1.4rem]" style={{ color: 'var(--text-color)' }}>
@@ -226,7 +225,7 @@ export default function About() {
 
         {/* Career: a clean ledger, the way a recruiter reads a résumé */}
         <div id="experience" className="mx-auto mt-28 max-w-6xl scroll-mt-24 lg:mt-36">
-          <div className="about-reveal mb-10 flex flex-col gap-5 md:mb-12 md:flex-row md:items-end md:justify-between md:gap-10">
+          <div className="about-reveal mb-10 md:mb-12">
             <div className="max-w-2xl">
               <span className="mb-4 inline-block text-sm font-medium uppercase tracking-wider opacity-60" style={{ color: 'var(--primary-color)' }}>
                 Career
@@ -236,15 +235,6 @@ export default function About() {
                 Product design and front-end development across enterprise software, healthcare, and fintech.
               </p>
             </div>
-            <a
-              href={PROFILE.resumeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="career-resume group inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-5 py-2.5 text-[15px] font-semibold md:self-auto"
-            >
-              Full résumé
-              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
-            </a>
           </div>
 
           <ol className="career-card career-ledger rounded-[28px]" aria-label="Work experience">

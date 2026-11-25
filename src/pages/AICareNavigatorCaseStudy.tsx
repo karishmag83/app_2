@@ -12,6 +12,8 @@ import UsabilityTesting from "@/components/case-study/UsabilityTesting";
 import Results from "@/components/case-study/Results";
 import CaseStudyFooter from "@/components/case-study/CaseStudyFooter";
 import ScrollProgress from "@/components/case-study/ScrollProgress";
+import CaseStudyAssistant from "@/components/case-study/CaseStudyAssistant";
+import { CASE_SUMMARIES, AI_CARE_SECTIONS } from "@/data/caseStudies";
 
 const AICareNavigatorCaseStudy = () => {
   useEffect(() => {
@@ -21,6 +23,7 @@ const AICareNavigatorCaseStudy = () => {
   return (
     <main className="overflow-hidden">
       <ScrollProgress />
+      <CaseStudyAssistant summary={CASE_SUMMARIES["ai-care-navigator"]} sections={AI_CARE_SECTIONS} trackerFrom={768} />
       <section id="hero">
         <CaseStudyHero />
       </section>

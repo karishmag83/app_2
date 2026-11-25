@@ -1,5 +1,7 @@
 import { CaseStudyPage } from '@/components/folio-case-study/CaseStudyPage'
 import '@/components/folio-case-study/lovable-case-study.css'
+import CaseStudyAssistant from '@/components/case-study/CaseStudyAssistant'
+import { CASE_SUMMARIES, FOLIO_SECTIONS } from '@/data/caseStudies'
 
 export default function FolioTrackerCaseStudy() {
   return (
@@ -27,6 +29,7 @@ export default function FolioTrackerCaseStudy() {
       } as React.CSSProperties}
     >
       <CaseStudyPage />
+      <CaseStudyAssistant summary={CASE_SUMMARIES['folio-tracker']} sections={FOLIO_SECTIONS} trackerFrom={1024} tone="dark" />
     </div>
   )
 }

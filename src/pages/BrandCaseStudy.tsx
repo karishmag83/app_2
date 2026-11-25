@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import CaseStudyAssistant from '@/components/case-study/CaseStudyAssistant'
+import { CASE_SUMMARIES } from '@/data/caseStudies'
 
 // ─── Brand Database ───────────────────────────────────────────────────────────
 const BRANDS: Record<string, BrandData> = {
@@ -943,7 +945,12 @@ export default function BrandCaseStudy() {
     )
   }
 
-  if (brand.id === 'bloom') return <BloomLayout brand={brand} onBack={onBack} />
-  if (brand.id === 'harvest') return <HarvestLayout brand={brand} onBack={onBack} />
-  return <VoltaLayout brand={brand} onBack={onBack} />
+  const Layout = brand.id === 'bloom' ? BloomLayout : brand.id === 'harvest' ? HarvestLayout : VoltaLayout
+  const summary = CASE_SUMMARIES[`brand-${brand.id}`]
+  return (
+    <>
+      <Layout brand={brand} onBack={onBack} />
+      {summary && <CaseStudyAssistant key={brand.id} summary={summary} />}
+    </>
+  )
 }

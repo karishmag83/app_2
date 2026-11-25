@@ -37,6 +37,8 @@ import { AssetChecklist } from '@/components/case-study/AssetChecklist';
 import { InterviewScript } from '@/components/case-study/InterviewScript';
 import { DataNeededCallout } from '@/components/case-study/DataNeededCallout';
 import '@/components/restoration-medicine-case-study/restoration-medicine-index.css';
+import CaseStudyAssistant from '@/components/case-study/CaseStudyAssistant';
+import { CASE_SUMMARIES, RESTORATION_SECTIONS } from '@/data/caseStudies';
 
 /** The production site Karishma designed and built. */
 const LIVE_SITE = 'https://www.restorationmedicine.com/';
@@ -125,6 +127,7 @@ const RestorationMedicineCaseStudy = () => {
     >
       <ReadingProgress />
       <TableOfContents />
+      <CaseStudyAssistant summary={CASE_SUMMARIES['restoration-medicine']} sections={RESTORATION_SECTIONS} trackerFrom={1024} />
 
       <main className="lg:ml-64">
         {/* Back to Home button */}
@@ -750,7 +753,7 @@ const RestorationMedicineCaseStudy = () => {
               description="How I leveraged Wix's capabilities to deliver a professional, maintainable site that the client can update independently."
             />
 
-            <div className="grid lg:grid-cols-2 gap-8 mb-12">
+            <div className="grid lg:grid-cols-2 gap-8 mb-12 [&>*]:min-w-0">
               <div className="space-y-6">
                 <div className="card-elevated p-6">
                   <h3 className="font-semibold mb-4">Build Approach</h3>

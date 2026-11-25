@@ -175,7 +175,7 @@ export const AccessibilitySection = () => {
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-card rounded-lg p-6 border border-border">
             <span className="label block mb-4">Positive Value</span>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-3xl font-bold text-primary">+$747.65</span>
               <span className="text-lg text-primary">(+0.57%)</span>
               <span className="text-primary">↑</span>
@@ -186,7 +186,7 @@ export const AccessibilitySection = () => {
           </div>
           <div className="bg-card rounded-lg p-6 border border-border">
             <span className="label block mb-4">Negative Value</span>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-3xl font-bold text-red-400">-$1,234.56</span>
               <span className="text-lg text-red-400">(-1.71%)</span>
               <span className="text-red-400">↓</span>

@@ -12,6 +12,8 @@ import ResultsSection from "@/components/repack-case-study/ResultsSection";
 import ReflectionSection from "@/components/repack-case-study/ReflectionSection";
 import ScrollProgress from "@/components/repack-case-study/ScrollProgress";
 import Footer from "@/components/repack-case-study/Footer";
+import CaseStudyAssistant from "@/components/case-study/CaseStudyAssistant";
+import { CASE_SUMMARIES, REPACK_SECTIONS } from "@/data/caseStudies";
 
 const RePackCaseStudy = () => {
   const navigate = useNavigate();
@@ -63,6 +65,7 @@ const RePackCaseStudy = () => {
       </button>
 
       <ScrollProgress />
+      <CaseStudyAssistant summary={CASE_SUMMARIES["repack-portal"]} sections={REPACK_SECTIONS} trackerFrom={768} tone="dark" />
       
       <div id="hero">
         <HeroSection />

@@ -1,19 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { REPACK_SECTIONS } from "@/data/caseStudies";
 
-const allSections = [
-  { id: "hero", label: "Intro" },
-  { id: "challenge", label: "Challenge" },
-  { id: "problem", label: "Problem" },
-  { id: "research", label: "Research" },
-  { id: "design-process", label: "Design Process" },
-  { id: "solution", label: "Solution" },
-  { id: "results", label: "Results" },
-  { id: "reflection", label: "Reflection" },
-];
-
-// Filter out Challenge section from checkpoints display
-const sections = allSections.filter(s => s.id !== "challenge");
+// The Challenge section is read as part of the intro, so it has no checkpoint
+const sections = REPACK_SECTIONS;
 
 const ScrollProgress = () => {
   const [activeSection, setActiveSection] = useState(0);

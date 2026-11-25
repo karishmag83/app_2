@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUp } from 'lucide-react';
+import { ArrowLeft, ArrowUp, ArrowUpRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { StickyNav } from './StickyNav';
 import { WalkthroughSection } from './WalkthroughSection';
@@ -31,30 +31,34 @@ export const CaseStudyPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Phones get a compact bar: icon back button, stacked title, short live link */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between gap-3">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Back to Home"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground sm:h-auto sm:w-auto sm:gap-2 sm:rounded-lg sm:border-0 sm:px-3 sm:py-2 sm:text-sm sm:font-medium"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            <span className="hidden whitespace-nowrap sm:inline">Back to Home</span>
           </button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-              <span className="text-xl font-bold text-primary">F</span>
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-primary/20 flex items-center justify-center">
+              <span className="text-lg sm:text-xl font-bold text-primary">F</span>
             </div>
-            <div>
+            <div className="flex flex-col leading-tight sm:flex-row sm:items-baseline sm:gap-2">
               <span className="font-semibold text-foreground">Folio</span>
-              <span className="text-sm text-muted-foreground ml-2">UX Case Study</span>
+              <span className="whitespace-nowrap text-xs sm:text-sm text-muted-foreground">UX Case Study</span>
             </div>
           </div>
-          <a 
-            href="https://portfoliotrackerwebapp.lovable.app" 
-            target="_blank" 
+          <a
+            href="https://portfoliotrackerwebapp.lovable.app"
+            target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full sm:rounded-lg bg-primary px-3.5 py-2 text-[13px] sm:px-4 sm:text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            View Live App
+            <span className="sm:hidden">Live app</span>
+            <span className="hidden sm:inline">View Live App</span>
+            <ArrowUpRight className="h-3.5 w-3.5 sm:hidden" aria-hidden="true" />
           </a>
         </div>
       </header>

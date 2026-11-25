@@ -1,19 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { AI_CARE_SECTIONS } from "@/data/caseStudies";
 
-const sections = [
-  { id: "hero", label: "Overview" },
-  { id: "problem", label: "Problem" },
-  { id: "research", label: "Research" },
-  { id: "personas", label: "Personas" },
-  { id: "architecture", label: "Architecture" },
-  { id: "wireframes", label: "Wireframes" },
-  { id: "process", label: "Process" },
-  { id: "solution", label: "Solution" },
-  { id: "product", label: "Final Product" },
-  { id: "testing", label: "Testing" },
-  { id: "results", label: "Results" },
-];
+const sections = AI_CARE_SECTIONS;
 
 const ScrollProgress = () => {
   const [activeSection, setActiveSection] = useState(0);
