@@ -10,7 +10,7 @@ export default function Projects() {
     <section 
       ref={sectionRef}
       id="projects"
-      className="py-24 lg:py-32 overflow-hidden scroll-mt-24"
+      className="pt-16 pb-24 lg:pt-20 lg:pb-32 overflow-hidden scroll-mt-24"
     >
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
@@ -47,7 +47,7 @@ export default function Projects() {
                 </div>
 
                 {/* Content */}
-                <div className={`p-8 lg:p-10 flex flex-col justify-center ${index % 2 === 1 ? 'lg:order-1' : ''}`}>
+                <div className={`min-w-0 p-6 sm:p-8 lg:p-10 flex flex-col justify-center ${index % 2 === 1 ? 'lg:order-1' : ''}`}>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {project.tags.map((tag) => (
                       <span 
@@ -74,17 +74,17 @@ export default function Projects() {
                   </p>
 
                   {/* Metrics */}
-                  <div className="flex gap-6 mb-6">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-6">
                     {project.metrics.map((metric) => {
                       const Icon = metric.icon
                       return (
-                        <div key={metric.label} className="text-center">
+                        <div key={metric.label} className="min-w-0">
                           <div className="text-2xl font-display font-bold" style={{ color: 'var(--primary-color)' }}>
                             {metric.value}
                           </div>
-                          <div className="text-xs opacity-60 flex items-center gap-1 justify-center">
-                            <Icon className="w-3 h-3" />
-                            {metric.label}
+                          <div className="mt-0.5 flex items-start gap-1 text-xs leading-snug opacity-60">
+                            <Icon className="mt-[2px] h-3 w-3 shrink-0" />
+                            <span>{metric.label}</span>
                           </div>
                         </div>
                       )

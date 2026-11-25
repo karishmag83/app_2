@@ -194,7 +194,7 @@ export const PerformanceSection = () => {
         <div className="flex items-center justify-center my-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
-              <span className="text-lg font-bold text-destructive">1.8s</span>
+              <span className="text-lg font-bold text-red-400">1.8s</span>
             </div>
             <ArrowRight className="w-8 h-8 text-primary" />
             <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center">

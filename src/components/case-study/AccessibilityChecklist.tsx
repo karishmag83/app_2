@@ -122,7 +122,7 @@ export const AccessibilityChecklist = () => {
               </div>
               <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
               {item.notes && (
-                <p className="text-xs text-muted-foreground/80 mt-2 italic">{item.notes}</p>
+                <p className="text-xs text-muted-foreground mt-2 italic">{item.notes}</p>
               )}
             </div>
           </div>

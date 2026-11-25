@@ -10,6 +10,7 @@ import FolioTrackerCaseStudy from './pages/FolioTrackerCaseStudy'
 import BrandCaseStudy from './pages/BrandCaseStudy'
 import SmartHomeCaseStudy from './pages/SmartHomeCaseStudy'
 import FitnessWearableCaseStudy from './pages/FitnessWearableCaseStudy'
+import LightCanvas from './components/LightCanvas'
 
 function DesignSystemRedirect() {
   useEffect(() => {
@@ -25,13 +26,13 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/DesignSystem/*" element={<DesignSystemRedirect />} />
-        <Route path="/ai-care-navigator-case-study" element={<AICareNavigatorCaseStudy />} />
-        <Route path="/repack-portal" element={<RePackCaseStudy />} />
-        <Route path="/restoration-medicine" element={<RestorationMedicineCaseStudy />} />
-        <Route path="/folio-tracker-case-study" element={<FolioTrackerCaseStudy />} />
-        <Route path="/brand/:id" element={<BrandCaseStudy />} />
-        <Route path="/smart-home" element={<SmartHomeCaseStudy />} />
-        <Route path="/fitness-wearable" element={<FitnessWearableCaseStudy />} />
+        <Route path="/ai-care-navigator-case-study" element={<LightCanvas><AICareNavigatorCaseStudy /></LightCanvas>} />
+        <Route path="/repack-portal" element={<LightCanvas><RePackCaseStudy /></LightCanvas>} />
+        <Route path="/restoration-medicine" element={<LightCanvas><RestorationMedicineCaseStudy /></LightCanvas>} />
+        <Route path="/folio-tracker-case-study" element={<LightCanvas><FolioTrackerCaseStudy /></LightCanvas>} />
+        <Route path="/brand/:id" element={<LightCanvas><BrandCaseStudy /></LightCanvas>} />
+        <Route path="/smart-home" element={<LightCanvas><SmartHomeCaseStudy /></LightCanvas>} />
+        <Route path="/fitness-wearable" element={<LightCanvas><FitnessWearableCaseStudy /></LightCanvas>} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

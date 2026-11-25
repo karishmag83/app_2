@@ -21,7 +21,29 @@ const workDropdown = [
 interface NavigationProps {
   onThemeWheelClick?: () => void
   isDarkMode?: boolean
-  onToggleDark?: () => void
+  onToggleDark?: (origin?: { x: number; y: number }) => void
+}
+
+function centerOf(el: Element) {
+  const r = el.getBoundingClientRect()
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+}
+
+/** Moon in light mode, sun in dark mode; the two glyphs turn as they swap. */
+function DarkToggle({ dark, onToggle }: { dark: boolean; onToggle?: NavigationProps['onToggleDark'] }) {
+  return (
+    <button
+      type="button"
+      onClick={e => onToggle?.(centerOf(e.currentTarget))}
+      className="nav-icon"
+      data-dark={dark || undefined}
+      aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={dark ? 'Light mode' : 'Dark mode'}
+    >
+      <Moon className="nav-icon-moon h-[18px] w-[18px]" aria-hidden="true" />
+      <Sun className="nav-icon-sun h-[18px] w-[18px]" aria-hidden="true" />
+    </button>
+  )
 }
 
 export default function Navigation({ onThemeWheelClick, isDarkMode = false, onToggleDark }: NavigationProps) {
@@ -87,32 +109,28 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
     }
   }
 
-  // Derived style helpers
-  const dm = isDarkMode
-  const linkIdle   = dm ? '#9490a8' : '#374151'
-  const linkHover  = dm ? '#ede8f5' : '#000000'
-  const navBg      = dm
-    ? isScrolled ? 'rgba(14,13,19,0.92)' : 'rgba(14,13,19,0.85)'
-    : undefined
-  const navClass   = dm
-    ? `fixed top-0 left-0 right-0 z-50 transition-all duration-500 backdrop-blur-xl ${isScrolled ? 'py-4' : 'py-6'}`
-    : `fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-soft py-4' : 'bg-white/95 backdrop-blur-sm shadow-sm py-6'}`
-  const navShadow  = dm && isScrolled ? '0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.4)' : undefined
+  // On the glass capsule, idle links sit a step darker so they stay legible over any content
+  const linkIdle = isScrolled ? 'var(--text-soft)' : 'var(--muted-color)'
+  const linkHover = 'var(--text-color)'
+
+  // Moves the capsule's specular highlight with the pointer, like light on glass
+  const trackLight = (e: React.PointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    e.currentTarget.style.setProperty('--lg-x', `${e.clientX - r.left}px`)
+    e.currentTarget.style.setProperty('--lg-y', `${e.clientY - r.top}px`)
+  }
 
   return (
     <>
-      <nav
-        ref={navRef}
-        className={navClass}
-        style={{ backgroundColor: navBg, boxShadow: navShadow }}
-      >
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      {/* Transparent at the top of the page; a floating liquid-glass capsule once content scrolls beneath */}
+      <nav ref={navRef} className={`site-nav fixed inset-x-0 top-0 z-50 ${isScrolled ? 'is-scrolled' : ''}`}>
+        <div className="nav-shell mx-auto flex items-center justify-between" onPointerMove={trackLight}>
 
           {/* Logo */}
           <a
             href="#"
             className="font-display font-bold text-xl hover:scale-105 transition-transform"
-            style={{ color: dm ? '#ede8f5' : undefined }}
+            style={{ color: 'var(--text-color)' }}
             onClick={(e) => {
               e.preventDefault()
               window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -122,7 +140,7 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
           </a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-7">
+          <div className="hidden lg:flex items-center gap-7">
 
             {/* Work dropdown */}
             <div ref={workRef} className="relative">
@@ -146,10 +164,8 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
                 <div
                   className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-2xl overflow-hidden"
                   style={{
-                    backgroundColor: dm ? '#1c1b28' : '#ffffff',
-                    boxShadow: dm
-                      ? '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08)'
-                      : '0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04)',
+                    backgroundColor: 'var(--surface-color)',
+                    boxShadow: '0 0 0 1px var(--border-color), 0 18px 40px -16px rgba(0,0,0,0.35)',
                   }}
                 >
                   {workDropdown.map((item) => (
@@ -159,13 +175,13 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
                       onClick={(e) => handleLinkClick(e, item.href)}
                       className="flex flex-col px-4 py-3 transition-colors"
                       style={{
-                        borderBottom: dm ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.04)',
+                        borderBottom: '1px solid var(--border-color)',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = dm ? 'rgba(255,255,255,0.05)' : '#f9fafb')}
+                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--surface-2)')}
                       onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                     >
-                      <span className="text-sm font-medium" style={{ color: dm ? '#d4d0e4' : '#111827' }}>{item.label}</span>
-                      <span className="text-xs mt-0.5" style={{ color: dm ? '#6b6880' : '#9ca3af' }}>{item.desc}</span>
+                      <span className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>{item.label}</span>
+                      <span className="text-xs mt-0.5" style={{ color: 'var(--subtle-color)' }}>{item.desc}</span>
                     </a>
                   ))}
                 </div>
@@ -190,126 +206,46 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
               )
             })}
 
-            {/* Day / Night pill toggle */}
-            <button
-              onClick={onToggleDark}
-              aria-label={dm ? 'Switch to light mode' : 'Switch to dark mode'}
-              title={dm ? 'Light mode' : 'Dark mode'}
-              className="relative flex items-center rounded-full flex-shrink-0 transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-              style={{
-                width: '52px',
-                height: '26px',
-                backgroundColor: dm ? 'rgba(165,180,252,0.12)' : 'rgba(0,0,0,0.08)',
-                border: dm ? '1px solid rgba(165,180,252,0.22)' : '1px solid rgba(0,0,0,0.10)',
-              }}
-            >
-              {/* Sun icon */}
-              <Sun
-                style={{
-                  position: 'absolute',
-                  left: '6px',
-                  width: '11px',
-                  height: '11px',
-                  color: dm ? '#6b6880' : '#f59e0b',
-                  opacity: dm ? 0.4 : 1,
-                  transition: 'opacity 0.35s ease, color 0.35s ease',
-                  zIndex: 1,
-                  flexShrink: 0,
-                }}
-              />
-              {/* Moon icon */}
-              <Moon
-                style={{
-                  position: 'absolute',
-                  right: '6px',
-                  width: '11px',
-                  height: '11px',
-                  color: dm ? '#a5b4fc' : '#9490a8',
-                  opacity: dm ? 1 : 0.4,
-                  transition: 'opacity 0.35s ease, color 0.35s ease',
-                  zIndex: 1,
-                  flexShrink: 0,
-                }}
-              />
-              {/* Sliding indicator */}
-              <span
-                style={{
-                  position: 'absolute',
-                  width: '20px',
-                  height: '20px',
-                  borderRadius: '50%',
-                  left: dm ? '29px' : '3px',
-                  backgroundColor: dm ? '#a5b4fc' : '#ffffff',
-                  boxShadow: dm ? '0 0 10px rgba(165,180,252,0.4)' : '0 1px 4px rgba(0,0,0,0.22)',
-                  transition: 'left 0.4s cubic-bezier(0.4,0,0.2,1), background-color 0.4s ease, box-shadow 0.4s ease',
-                }}
-              />
-            </button>
-
-            {/* Theme palette */}
-            <button
-              onClick={onThemeWheelClick}
-              className="p-2.5 rounded-full transition-all duration-300 hover:scale-110"
-              style={{ backgroundColor: 'transparent' }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = dm ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-              aria-label="Open theme selector"
-              title="Change theme"
-            >
-              <Palette style={{ width: '18px', height: '18px', color: dm ? '#9490a8' : '#374151' }} />
-            </button>
+            <div className="-mx-2 flex items-center gap-0.5">
+              <DarkToggle dark={isDarkMode} onToggle={onToggleDark} />
+              <button type="button" onClick={onThemeWheelClick} className="nav-icon" aria-label="Open theme selector" title="Change theme">
+                <Palette className="h-[18px] w-[18px]" aria-hidden="true" />
+              </button>
+            </div>
           </div>
 
-          {/* Mobile: dark toggle + palette + hamburger */}
-          <div className="md:hidden flex items-center gap-2">
-            <button
-              onClick={onToggleDark}
-              aria-label={dm ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="relative flex items-center rounded-full flex-shrink-0 transition-all duration-500"
-              style={{
-                width: '44px',
-                height: '22px',
-                backgroundColor: dm ? 'rgba(165,180,252,0.12)' : 'rgba(0,0,0,0.08)',
-                border: dm ? '1px solid rgba(165,180,252,0.22)' : '1px solid rgba(0,0,0,0.10)',
-              }}
-            >
-              <Sun style={{ position:'absolute', left:'5px', width:'10px', height:'10px', color: dm?'#6b6880':'#f59e0b', opacity: dm?0.4:1, transition:'opacity 0.35s ease', zIndex:1 }} />
-              <Moon style={{ position:'absolute', right:'5px', width:'10px', height:'10px', color: dm?'#a5b4fc':'#9490a8', opacity: dm?1:0.4, transition:'opacity 0.35s ease', zIndex:1 }} />
-              <span style={{ position:'absolute', width:'16px', height:'16px', borderRadius:'50%', left: dm?'25px':'3px', backgroundColor: dm?'#a5b4fc':'#ffffff', boxShadow: dm?'0 0 8px rgba(165,180,252,0.4)':'0 1px 3px rgba(0,0,0,0.22)', transition:'left 0.4s cubic-bezier(0.4,0,0.2,1), background-color 0.4s ease' }} />
-            </button>
-
-            <button
-              onClick={onThemeWheelClick}
-              className="p-2 rounded-full transition-all duration-300"
-              aria-label="Open theme selector"
-            >
-              <Palette style={{ width:'18px', height:'18px', color: dm?'#9490a8':'#374151' }} />
+          {/* Mobile and tablet: dark toggle + palette + hamburger */}
+          <div className="lg:hidden flex items-center gap-0.5">
+            <DarkToggle dark={isDarkMode} onToggle={onToggleDark} />
+            <button type="button" onClick={onThemeWheelClick} className="nav-icon" aria-label="Open theme selector">
+              <Palette className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2"
               aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
             >
               <div className="w-6 h-5 relative flex flex-col justify-between">
-                <span className={`w-full h-0.5 transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} style={{ backgroundColor: dm ? '#ede8f5' : '#000' }} />
-                <span className={`w-full h-0.5 transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}     style={{ backgroundColor: dm ? '#ede8f5' : '#000' }} />
-                <span className={`w-full h-0.5 transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} style={{ backgroundColor: dm ? '#ede8f5' : '#000' }} />
+                <span className={`w-full h-0.5 transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} style={{ backgroundColor: 'var(--text-color)' }} />
+                <span className={`w-full h-0.5 transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}     style={{ backgroundColor: 'var(--text-color)' }} />
+                <span className={`w-full h-0.5 transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} style={{ backgroundColor: 'var(--text-color)' }} />
               </div>
             </button>
           </div>
 
-          {/* CTA Button — desktop only */}
+          {/* CTA Button: desktop only */}
           <a
-            href="mailto:karishmaworks08@gmail.com"
-            className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-full transition-all duration-300"
+            href="mailto:karishmadilipgawali@gmail.com"
+            className="relative hidden lg:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-full transition-all duration-300"
             style={{
-              backgroundColor: dm ? '#1c1b28' : '#000000',
-              color: dm ? '#ede8f5' : '#ffffff',
-              border: dm ? '1px solid rgba(255,255,255,0.12)' : 'none',
+              backgroundColor: 'var(--primary-color)',
+              color: 'var(--on-primary)',
+              boxShadow: '0 8px 20px -12px var(--primary-glow)',
             }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = dm ? '#26253a' : '#1f1f1f')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = dm ? '#1c1b28' : '#000000')}
+            onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-1px)')}
+            onMouseLeave={e => (e.currentTarget.style.transform = '')}
           >
             Let's Talk
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -321,8 +257,8 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 z-40 transition-all duration-500 md:hidden ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-        style={{ backgroundColor: dm ? '#0e0d13' : '#ffffff' }}
+        className={`fixed inset-0 z-40 transition-all duration-500 lg:hidden ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        style={{ backgroundColor: 'var(--bg-color)' }}
       >
         <div className="flex flex-col items-center justify-center h-full gap-8 pt-24">
           {workDropdown.map((item, index) => (
@@ -332,7 +268,7 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
               onClick={(e) => { handleLinkClick(e, item.href); setIsMobileMenuOpen(false) }}
               className="text-2xl font-display font-medium transition-all"
               style={{
-                color: dm ? '#ede8f5' : '#111827',
+                color: 'var(--text-color)',
                 transitionDelay: isMobileMenuOpen ? `${index * 50}ms` : '0ms',
                 opacity: isMobileMenuOpen ? 1 : 0,
                 transform: isMobileMenuOpen ? 'translateY(0)' : 'translateY(20px)',
@@ -349,7 +285,7 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
               onClick={(e) => handleLinkClick(e, link.href)}
               className="text-2xl font-display font-medium transition-all"
               style={{
-                color: dm ? '#ede8f5' : '#111827',
+                color: 'var(--text-color)',
                 transitionDelay: isMobileMenuOpen ? `${(index + workDropdown.length) * 50}ms` : '0ms',
                 opacity: isMobileMenuOpen ? 1 : 0,
                 transform: isMobileMenuOpen ? 'translateY(0)' : 'translateY(20px)',
@@ -360,12 +296,11 @@ export default function Navigation({ onThemeWheelClick, isDarkMode = false, onTo
             </a>
           ))}
           <a
-            href="mailto:karishmaworks08@gmail.com"
+            href="mailto:karishmadilipgawali@gmail.com"
             className="mt-4 px-8 py-3 rounded-full font-medium transition-all"
             style={{
-              backgroundColor: dm ? '#1c1b28' : '#000000',
-              color: dm ? '#ede8f5' : '#ffffff',
-              border: dm ? '1px solid rgba(255,255,255,0.12)' : 'none',
+              backgroundColor: 'var(--primary-color)',
+              color: 'var(--on-primary)',
               transitionDelay: isMobileMenuOpen ? '250ms' : '0ms',
               opacity: isMobileMenuOpen ? 1 : 0,
               transform: isMobileMenuOpen ? 'translateY(0)' : 'translateY(20px)',

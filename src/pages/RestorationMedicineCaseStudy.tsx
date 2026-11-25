@@ -38,6 +38,9 @@ import { InterviewScript } from '@/components/case-study/InterviewScript';
 import { DataNeededCallout } from '@/components/case-study/DataNeededCallout';
 import '@/components/restoration-medicine-case-study/restoration-medicine-index.css';
 
+/** The production site Karishma designed and built. */
+const LIVE_SITE = 'https://www.restorationmedicine.com/';
+
 const RestorationMedicineCaseStudy = () => {
   const navigate = useNavigate();
 
@@ -165,13 +168,13 @@ const RestorationMedicineCaseStudy = () => {
               </p>
 
               <div className="flex flex-wrap gap-3">
-                <Chip variant="accent" icon={<User size={14} />}>Frontend Dev + UX Designer</Chip>
-                <Chip variant="accent" icon={<Clock size={14} />}>4 Months</Chip>
-                <Chip variant="accent" icon={<Wrench size={14} />}>Wix • GoDaddy • Miro • Notion • Canva</Chip>
+                <Chip variant="onDark" icon={<User size={14} />}>Frontend Dev + UX Designer</Chip>
+                <Chip variant="onDark" icon={<Clock size={14} />}>4 Months</Chip>
+                <Chip variant="onDark" icon={<Wrench size={14} />}>Wix • GoDaddy • Miro • Notion • Canva</Chip>
               </div>
 
               <div className="flex flex-wrap gap-4 pt-4">
-                <a href="#" className="btn-primary">
+                <a href={LIVE_SITE} target="_blank" rel="noopener noreferrer" className="btn-primary">
                   <ExternalLink size={18} />
                   View Live Site
                 </a>
@@ -288,7 +291,7 @@ const RestorationMedicineCaseStudy = () => {
                     'Budget-appropriate platform (Wix) with professional-grade expectations',
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-destructive/10 text-destructive flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                      <span className="w-6 h-6 rounded-full bg-destructive/10 text-red-700 flex items-center justify-center flex-shrink-0 text-sm font-bold">
                         {i + 1}
                       </span>
                       <span className="text-muted-foreground">{item}</span>
@@ -529,14 +532,14 @@ const RestorationMedicineCaseStudy = () => {
               <h3 className="font-semibold mb-6">Journey Map: From Trigger to Contact</h3>
               <div className="flex flex-col md:flex-row gap-4">
                 {[
-                  { stage: 'Trigger', desc: 'User experiences symptoms or gets referral', color: 'hsl(214 75% 73%)' },
-                  { stage: 'Explore', desc: 'Lands on site, scans for relevance', color: 'hsl(217 72% 56%)' },
-                  { stage: 'Build Trust', desc: 'Reviews team, credentials, approach', color: 'hsl(217 72% 56%)' },
+                  { stage: 'Trigger', desc: 'User experiences symptoms or gets referral', color: 'hsl(214 75% 73%)', ink: 'hsl(222 60% 16%)' },
+                  { stage: 'Explore', desc: 'Lands on site, scans for relevance', color: 'hsl(217 72% 45%)' },
+                  { stage: 'Build Trust', desc: 'Reviews team, credentials, approach', color: 'hsl(217 72% 45%)' },
                   { stage: 'Evaluate', desc: 'Checks conditions, telehealth model', color: 'hsl(222 58% 33%)' },
                   { stage: 'Contact', desc: 'Submits form, schedules consult', color: 'hsl(222 60% 25%)' },
                 ].map((step, index) => (
                   <div key={step.stage} className="flex-1 relative">
-                    <div className="text-white p-4 rounded-lg" style={{ backgroundColor: step.color }}>
+                    <div className="text-white p-4 rounded-lg" style={{ backgroundColor: step.color, color: 'ink' in step ? step.ink : undefined }}>
                       <span className="text-xs font-medium opacity-80">Step {index + 1}</span>
                       <h4 className="font-semibold">{step.stage}</h4>
                       <p className="text-sm opacity-90 mt-1">{step.desc}</p>
@@ -963,7 +966,7 @@ const RestorationMedicineCaseStudy = () => {
                 Thanks for reading! Have questions about this project?
               </p>
               <div className="flex justify-center gap-4">
-                <a href="#" className="btn-primary">
+                <a href={LIVE_SITE} target="_blank" rel="noopener noreferrer" className="btn-primary">
                   <ExternalLink size={18} />
                   View Live Site
                 </a>

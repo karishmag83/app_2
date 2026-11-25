@@ -17,7 +17,7 @@
     --popover-foreground: 200 25% 15%;
 
     /* Main brand - Calming Teal */
-    --primary: 195 85% 45%;
+    --primary: 196 88% 31%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - Soft Sage */
@@ -25,10 +25,10 @@
     --secondary-foreground: 200 25% 25%;
 
     --muted: 200 15% 95%;
-    --muted-foreground: 200 15% 45%;
+    --muted-foreground: 200 16% 37%;
 
     /* Accent - Warm Coral for emphasis */
-    --accent: 15 85% 60%;
+    --accent: 15 80% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -43,11 +43,11 @@
     /* Case Study specific colors */
     --case-study-hero: 195 50% 97%;
     --case-study-section-alt: 180 25% 98%;
-    --chart-1: 195 85% 45%;
-    --chart-2: 165 60% 50%;
-    --chart-3: 15 85% 60%;
-    --chart-4: 280 60% 55%;
-    --chart-5: 45 90% 55%;
+    --chart-1: 196 88% 31%;
+    --chart-2: 166 72% 27%;
+    --chart-3: 15 80% 45%;
+    --chart-4: 280 52% 45%;
+    --chart-5: 35 92% 31%;
 
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(195 50% 97%) 0%, hsl(180 30% 95%) 100%);
@@ -72,7 +72,7 @@
     /* Lovable project colors */
     --primary-900: 222 60% 25%;
     --primary-800: 222 58% 33%;
-    --primary-600: 217 72% 56%;
+    --primary-600: 217 72% 45%;
     --primary-300: 214 75% 73%;
     --primary-100: 220 60% 95%;
     --surface: 220 43% 98%;

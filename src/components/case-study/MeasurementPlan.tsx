@@ -53,7 +53,7 @@ export const MeasurementPlan = () => {
                 {item.event}
               </code>
               <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 <span className="font-medium">Params:</span> {item.parameters}
               </p>
             </div>

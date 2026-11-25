@@ -187,9 +187,9 @@ export const AccessibilitySection = () => {
           <div className="bg-card rounded-lg p-6 border border-border">
             <span className="label block mb-4">Negative Value</span>
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-destructive">-$1,234.56</span>
-              <span className="text-lg text-destructive">(-1.71%)</span>
-              <span className="text-destructive">↓</span>
+              <span className="text-3xl font-bold text-red-400">-$1,234.56</span>
+              <span className="text-lg text-red-400">(-1.71%)</span>
+              <span className="text-red-400">↓</span>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
               Red color + Minus sign + Percentage in parentheses + Arrow

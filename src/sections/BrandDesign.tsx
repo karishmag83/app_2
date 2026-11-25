@@ -66,7 +66,7 @@ const BRANDS = [
     accentLight: '#F0F9FF',
     accentMid: '#7DD3FC',
     process: [
-      { step: '01', label: 'Competitor Audit', desc: 'Landscape analysis of Tesla, Rivian, Lucid — finding white space' },
+      { step: '01', label: 'Competitor Audit', desc: 'Landscape analysis of Tesla, Rivian, and Lucid to find white space' },
       { step: '02', label: 'Brand Strategy', desc: 'Positioning, brand voice, promise, and archetype definition' },
       { step: '03', label: 'Identity Design', desc: 'Custom wordmark, icon system, motion language guidelines' },
       { step: '04', label: 'System Design', desc: 'UI kit, packaging, vehicle livery, environmental signage' },
@@ -102,7 +102,7 @@ const BRANDS = [
     accentMid: '#FED7AA',
     process: [
       { step: '01', label: 'Discovery', desc: 'Farmer interviews, customer surveys, brand values alignment' },
-      { step: '02', label: 'Positioning', desc: '"Honest food, beautiful stories" — brand narrative framework' },
+      { step: '02', label: 'Positioning', desc: 'Brand narrative framework built on "Honest food, beautiful stories"' },
       { step: '03', label: 'Visual Direction', desc: 'Earthy palette, hand-drawn textures, warm photography style' },
       { step: '04', label: 'Identity System', desc: 'Logo, packaging design, print collateral, app icon set' },
       { step: '05', label: 'Launch', desc: 'Campaign assets, social templates, farmer co-branding kit' },
@@ -136,11 +136,11 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className="grid lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden"
-      style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)' }}
+      style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', '--brand': brand.accent } as React.CSSProperties}
     >
       {/* ── Left: Brand Showcase ── */}
       <div
-        className={`relative flex flex-col ${flip ? 'lg:order-2' : 'lg:order-1'}`}
+        className={`light-island relative flex flex-col ${flip ? 'lg:order-2' : 'lg:order-1'}`}
         style={{ background: brand.accentLight }}
       >
         {/* Top strip — deep color */}
@@ -161,8 +161,8 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
 
           {/* Category pill */}
           <span
-            className="relative z-10 text-xs font-semibold px-3 py-1 rounded-full mb-6"
-            style={{ background: brand.accent + '18', color: brand.accent, border: `1px solid ${brand.accent}30` }}
+            className="brand-ink relative z-10 text-xs font-semibold px-3 py-1 rounded-full mb-6"
+            style={{ background: brand.accent + '18', border: `1px solid ${brand.accent}30` }}
           >
             {brand.category}
           </span>
@@ -178,8 +178,7 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
 
           {/* Brand name */}
           <h3
-            className="relative z-10 text-4xl font-display font-bold tracking-tight"
-            style={{ color: brand.accent }}
+            className="brand-ink relative z-10 text-4xl font-display font-bold tracking-tight"
           >
             {brand.name}
           </h3>
@@ -216,7 +215,7 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
             style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.06)' }}
           >
             <div className="flex items-baseline gap-3 mb-2">
-              <span className="text-2xl font-display font-bold" style={{ color: brand.accent }}>Aa</span>
+              <span className="brand-ink text-2xl font-display font-bold">Aa</span>
               <div>
                 <p className="text-xs font-semibold text-gray-700">{brand.typography.display}</p>
                 <p className="text-[10px] text-gray-400">Display · Headings</p>
@@ -240,7 +239,7 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
       >
         {/* Description */}
         <div className="px-8 pt-10 pb-6 border-b border-gray-100">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: brand.accent }}>
+          <p className="brand-ink text-xs font-semibold uppercase tracking-widest mb-3">
             The Brief
           </p>
           <p className="text-gray-600 leading-relaxed text-sm">{brand.description}</p>
@@ -250,8 +249,8 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
             {brand.personality.map((p) => (
               <span
                 key={p}
-                className="text-xs font-medium px-3 py-1 rounded-full"
-                style={{ background: brand.accent + '10', color: brand.accent, border: `1px solid ${brand.accent}25` }}
+                className="brand-ink text-xs font-medium px-3 py-1 rounded-full"
+                style={{ background: brand.accent + '10', border: `1px solid ${brand.accent}25` }}
               >
                 {p}
               </span>
@@ -272,12 +271,11 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
               <div className="flex gap-4">
                 <div className="flex flex-col items-center">
                   <motion.div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${activeStep === i ? '' : 'brand-ink'}`}
                     animate={{
                       background: activeStep === i ? brand.accent : brand.accent + '15',
-                      color: activeStep === i ? '#fff' : brand.accent,
                     }}
-                    style={{ border: `1.5px solid ${brand.accent}35` }}
+                    style={{ border: `1.5px solid ${brand.accent}35`, color: activeStep === i ? '#fff' : undefined }}
                   >
                     {s.step}
                   </motion.div>
@@ -314,10 +312,7 @@ function BrandCard({ brand, index }: { brand: typeof BRANDS[0]; index: number })
           }}
         >
           <div>
-            <p
-              className="text-3xl font-display font-bold leading-none"
-              style={{ color: brand.accent }}
-            >
+            <p className="brand-ink text-3xl font-display font-bold leading-none">
               {brand.metric.value}
             </p>
             <p className="text-sm text-gray-600 mt-1 font-medium">{brand.metric.label}</p>
@@ -388,7 +383,7 @@ export default function BrandDesign() {
             Building Brands People Remember
           </h2>
           <p className="text-lg opacity-70">
-            From discovery to delivery — full-spectrum brand identity design for startups and growing businesses.
+            From discovery to delivery, full-spectrum brand identity design for startups and growing businesses.
           </p>
         </motion.div>
 
@@ -404,7 +399,7 @@ export default function BrandDesign() {
             <div key={phase} className="flex items-center gap-2">
               <span
                 className="text-xs font-semibold px-3 py-1.5 rounded-full"
-                style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', color: '#64748b' }}
+                style={{ background: 'color-mix(in srgb, var(--text-color) 4%, transparent)', border: '1px solid var(--border-color)', color: 'var(--muted-color)' }}
               >
                 {String(i + 1).padStart(2, '0')} {phase}
               </span>

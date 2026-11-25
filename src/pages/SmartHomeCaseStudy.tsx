@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 const BG     = '#fafaf8'
 const FG     = '#0a0a09'
 const ACCENT = '#4f46e5'
-const MUTED  = '#737373'
+const MUTED  = '#5c5c5c'
 const BONE   = '#f0efec'
 const CARD   = '#ffffff'
 const BORDER = 'rgba(0,0,0,0.09)'
@@ -141,7 +141,7 @@ const H_BG     = '#fafaf9'
 const H_ACCENT = '#575ECF'
 const H_BONE   = '#f5f4f1'
 const H_RULE   = '#e5e3de'
-const H_MUTED2 = '#737373'
+const H_MUTED2 = '#666666'
 const H_SAGE   = '#22c55e'
 
 type HScreen = 'splash'|'welcome'|'signin'|'onboard-type'|'onboard-apps'|'pair-scan'|'tab'
@@ -230,7 +230,7 @@ function HSplash({ onDone }: { onDone: () => void }) {
         </svg>
       </div>
       <p style={{ fontFamily:SERIF, fontSize:28, color:'#fff', margin:0, fontWeight:700, letterSpacing:-0.5 }}>Hearth</p>
-      <p style={{ fontFamily:MONO, fontSize:9, color:'rgba(255,255,255,0.35)', margin:0, letterSpacing:'0.22em', textTransform:'uppercase' }}>Smart Appliance Hub</p>
+      <p style={{ fontFamily:MONO, fontSize:9, color:'rgba(255,255,255,0.55)', margin:0, letterSpacing:'0.22em', textTransform:'uppercase' }}>Smart Appliance Hub</p>
       <div style={{ marginTop:20, display:'flex', gap:5 }}>
         {[0,1,2].map(i => <div key={i} style={{ width:i===0?20:5, height:3, borderRadius:2, backgroundColor:i===0?H_ACCENT:'rgba(255,255,255,0.15)' }}/>)}
       </div>
@@ -489,10 +489,10 @@ function HHomeTab({ devState, onToggle }: { devState: Record<string, boolean>; o
         <div style={{ backgroundColor:H_FG, borderRadius:16, padding:'14px 16px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:10 }}>
             <div>
-              <p style={{ fontFamily:MONO, fontSize:8, color:'rgba(255,255,255,0.4)', letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 3px' }}>Energy today</p>
+              <p style={{ fontFamily:MONO, fontSize:8, color:'rgba(255,255,255,0.58)', letterSpacing:'0.1em', textTransform:'uppercase', margin:'0 0 3px' }}>Energy today</p>
               <p style={{ fontFamily:SERIF, fontSize:20, color:'#fff', margin:0, fontWeight:700 }}>4.2 <span style={{ fontSize:11, fontWeight:400, opacity:0.6 }}>kWh</span></p>
             </div>
-            <p style={{ fontFamily:SANS, fontSize:11, color:'rgba(255,255,255,0.35)', margin:0 }}>↓ 12% vs avg</p>
+            <p style={{ fontFamily:SANS, fontSize:11, color:'rgba(255,255,255,0.55)', margin:0 }}>↓ 12% vs avg</p>
           </div>
           <div style={{ display:'flex', gap:3, alignItems:'flex-end', height:26 }}>
             {[35,55,28,70,48,38,62,75,42].map((h,i)=>(
@@ -500,7 +500,7 @@ function HHomeTab({ devState, onToggle }: { devState: Record<string, boolean>; o
             ))}
           </div>
           <div style={{ display:'flex', justifyContent:'space-between', marginTop:5 }}>
-            {['6am','Now','12am'].map(t=><span key={t} style={{ fontFamily:SANS, fontSize:8, color:'rgba(255,255,255,0.3)' }}>{t}</span>)}
+            {['6am','Now','12am'].map(t=><span key={t} style={{ fontFamily:SANS, fontSize:8, color:'rgba(255,255,255,0.5)' }}>{t}</span>)}
           </div>
         </div>
       </div>
@@ -727,7 +727,7 @@ function HSettingsTab() {
           <div style={{ width:44, height:44, borderRadius:'50%', backgroundColor:`${H_ACCENT}25`, border:`1.5px solid ${H_ACCENT}40`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:SERIF, fontSize:18, color:H_ACCENT, fontWeight:700 }}>K</div>
           <div>
             <p style={{ fontFamily:SERIF, fontSize:14, color:'#fff', margin:'0 0 2px', fontWeight:600 }}>Karishma G.</p>
-            <p style={{ fontFamily:SANS, fontSize:11, color:'rgba(255,255,255,0.4)', margin:0 }}>1 household · 8 devices</p>
+            <p style={{ fontFamily:SANS, fontSize:11, color:'rgba(255,255,255,0.58)', margin:0 }}>1 household · 8 devices</p>
           </div>
         </div>
       </div>
@@ -909,7 +909,7 @@ function MiniDevicesScreen() {
             <div style={{ width:6, height:6, borderRadius:'50%', backgroundColor: d.on ? d.dot : H_RULE, flexShrink:0 }}/>
             <div style={{ flex:1 }}>
               <div style={{ fontFamily: SANS, fontSize:6.5, fontWeight:600, color: H_FG }}>{d.label}</div>
-              <div style={{ fontFamily: SANS, fontSize:5.5, color: d.on ? d.dot : H_MUTED2 }}>{d.status}</div>
+              <div style={{ fontFamily: SANS, fontSize:5.5, color: d.on ? `color-mix(in oklab, ${d.dot} 72%, black)` : H_MUTED2 }}>{d.status}</div>
             </div>
             {/* Toggle */}
             <div style={{ width:16, height:9, borderRadius:4.5, backgroundColor: d.on ? H_ACCENT : H_RULE, position:'relative', flexShrink:0 }}>
@@ -978,7 +978,7 @@ function HeroMockup() {
       </div>
       {/* Label */}
       <div style={{ textAlign:'center', padding:'20px 0 24px' }}>
-        <p style={{ fontFamily: MONO, fontSize:10, color:'rgba(255,255,255,0.35)', margin:0, letterSpacing:'0.12em', textTransform:'uppercase' }}>
+        <p style={{ fontFamily: MONO, fontSize:10, color:'rgba(255,255,255,0.58)', margin:0, letterSpacing:'0.12em', textTransform:'uppercase' }}>
           Hearth · Smart Appliance Hub
         </p>
       </div>
@@ -1703,7 +1703,7 @@ export default function SmartHomeCaseStudy() {
             </div>
           </div>
           <div style={{ backgroundColor: FG, borderRadius:20, padding:'24px 28px' }}>
-            <p style={{ fontFamily: MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color:'rgba(255,255,255,0.35)', margin:'0 0 20px' }}>Before → After</p>
+            <p style={{ fontFamily: MONO, fontSize:9, letterSpacing:'0.1em', textTransform:'uppercase', color:'rgba(255,255,255,0.58)', margin:'0 0 20px' }}>Before → After</p>
             {[
               { metric:'Touch target',              before:'32 pt', after:'48 pt' },
               { metric:'Body contrast ratio',       before:'3.8:1', after:'7.2:1' },
@@ -1712,7 +1712,7 @@ export default function SmartHomeCaseStudy() {
             ].map((r, i, arr) => (
               <div key={r.metric} style={{ display:'grid', gridTemplateColumns:'1fr 72px 72px', gap:12, padding:'12px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none', alignItems:'center' }}>
                 <span style={{ fontFamily: SANS, fontSize:12, color:'rgba(255,255,255,0.55)' }}>{r.metric}</span>
-                <span style={{ fontFamily: MONO, fontSize:12, color:'rgba(255,255,255,0.28)', textDecoration:'line-through' }}>{r.before}</span>
+                <span style={{ fontFamily: MONO, fontSize:12, color:'rgba(255,255,255,0.5)', textDecoration:'line-through' }}>{r.before}</span>
                 <span style={{ fontFamily: MONO, fontSize:13, color: AMBER, fontWeight:700 }}>{r.after}</span>
               </div>
             ))}
@@ -1728,7 +1728,7 @@ export default function SmartHomeCaseStudy() {
             <blockquote style={{ fontFamily: SERIF, fontSize:'clamp(22px, 3vw, 38px)', color: BG, margin:'0 0 24px', lineHeight:1.4, fontWeight:600 }}>
               It used to take me forty minutes to set up Sunday brunch. Now I tap once and the oven preheats while the coffee starts brewing.
             </blockquote>
-            <p style={{ fontFamily: MONO, fontSize:11, color:'rgba(250,250,248,0.4)', margin:0, letterSpacing:'0.06em' }}>Beta participant, moderated test #4</p>
+            <p style={{ fontFamily: MONO, fontSize:11, color:'rgba(250,250,248,0.58)', margin:0, letterSpacing:'0.06em' }}>Beta participant, moderated test #4</p>
           </div>
         </Box>
       </div>

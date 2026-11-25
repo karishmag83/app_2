@@ -2,6 +2,8 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
+import { Readable } from 'node:stream'
+import { handleChatRequest } from './chat/handler.ts'
 
 const app = express()
 
@@ -53,7 +55,7 @@ app.post('/api/contact', async (req, res) => {
     const transporter = createTransporter()
     await transporter.sendMail({
       from: SMTP_FROM || `"Karishma Portfolio" <${SMTP_USER}>`,
-      to: CONTACT_TO || 'karishmaworks08@gmail.com',
+      to: CONTACT_TO || 'karishmadilipgawali@gmail.com',
       replyTo: email,
       subject: `[Portfolio] ${subject}`,
       text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
@@ -69,6 +71,30 @@ app.post('/api/contact', async (req, res) => {
   } catch (error) {
     console.error('Contact email failed', error)
     return res.status(500).json({ error: 'Email failed to send.' })
+  }
+})
+
+// Karishma's AI — same handler as netlify/functions/chat.mts, adapted to Express.
+app.post('/api/chat', async (req, res) => {
+  const abort = new AbortController()
+  res.on('close', () => { if (!res.writableEnded) abort.abort() })
+
+  try {
+    const request = new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body ?? {}),
+      signal: abort.signal,
+    })
+    const response = await handleChatRequest(request, req.ip || 'local')
+    res.status(response.status)
+    response.headers.forEach((value, key) => res.setHeader(key, value))
+    if (!response.body) return res.end()
+    Readable.fromWeb(response.body).pipe(res)
+  } catch (error) {
+    console.error('Chat request failed', error)
+    if (!res.headersSent) res.status(500).json({ error: 'chat_failed' })
+    else res.end()
   }
 })
 

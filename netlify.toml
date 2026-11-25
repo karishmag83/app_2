@@ -8,6 +8,13 @@
 [functions]
   directory = "netlify/functions"
 
+# Karishma's AI (streams from netlify/functions/chat.mts)
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/chat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -217,7 +217,7 @@ export default function Contact() {
                   disabled={isSubmitting || isSubmitted || isFormIncomplete}
                   className="form-field w-full sm:w-auto px-6 py-3 rounded-xl font-medium text-sm inline-flex items-center justify-center gap-2 transition-all duration-300 text-white"
                   style={{
-                    backgroundColor: '#22c55e',
+                    backgroundColor: '#15803d',
                     opacity: isFormIncomplete ? 0.6 : 1,
                   }}
                 >
@@ -249,7 +249,7 @@ export default function Contact() {
           <div className="lg:col-span-2 contact-info">
             <div className="space-y-5">
               <div className="contact-info-item flex items-start gap-4 p-4 bg-white rounded-2xl shadow-soft">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-white"
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-on-primary"
                   style={{ backgroundColor: 'var(--primary-color)' }}
                 >
                   <Mail className="w-5 h-5" />
@@ -257,16 +257,16 @@ export default function Contact() {
                 <div>
                   <h3 className="font-display font-semibold mb-1">Email</h3>
                   <a 
-                    href="mailto:karishmaworks08@gmail.com"
+                    href="mailto:karishmadilipgawali@gmail.com"
                     className="opacity-60 hover:opacity-100 transition-opacity"
                   >
-                    karishmaworks08@gmail.com
+                    karishmadilipgawali@gmail.com
                   </a>
                 </div>
               </div>
 
               <div className="contact-info-item flex items-start gap-4 p-4 bg-white rounded-2xl shadow-soft">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-white"
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-on-primary"
                   style={{ backgroundColor: 'var(--primary-color)' }}
                 >
                   <Phone className="w-5 h-5" />
@@ -283,7 +283,7 @@ export default function Contact() {
               </div>
 
               <div className="contact-info-item flex items-start gap-4 p-4 bg-white rounded-2xl shadow-soft">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-white"
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-on-primary"
                   style={{ backgroundColor: 'var(--primary-color)' }}
                 >
                   <MapPin className="w-5 h-5" />
@@ -299,7 +299,7 @@ export default function Contact() {
                 href="https://wa.me/18574459682"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="contact-info-item flex items-center gap-4 p-4 bg-green-500 text-white rounded-2xl shadow-soft hover:bg-green-600 transition-colors"
+                className="contact-info-item flex items-center gap-4 p-4 bg-green-700 text-white rounded-2xl shadow-soft hover:bg-green-800 transition-colors"
               >
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
                   <MessageCircle className="w-5 h-5" />

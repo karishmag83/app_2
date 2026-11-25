@@ -263,7 +263,7 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}>
           <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: brand.accent }}>{brand.category}</p>
           <h1 className="text-6xl lg:text-8xl font-display font-bold mb-3" style={{ color: brand.accentDark }}>{brand.name}</h1>
-          <p className="text-xl text-gray-500 mb-10">{brand.tagline}</p>
+          <p className="text-xl text-gray-600 mb-10">{brand.tagline}</p>
           <div className="flex flex-wrap justify-center gap-3">
             {[brand.year, brand.duration, brand.role].map(v => (
               <span key={v} className="text-sm px-4 py-2 rounded-full font-medium" style={{ background: 'rgba(107,72,255,0.08)', color: brand.accentDark, border: '1px solid rgba(107,72,255,0.18)' }}>{v}</span>
@@ -306,7 +306,7 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
                 <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-4" style={{ background: `linear-gradient(135deg, ${brand.accent}18, ${brand.accentMid}30)` }}>{a.icon}</div>
                 <p className="font-bold text-gray-900 mb-1 text-sm">{a.type}</p>
                 <p className="text-xs font-semibold mb-3" style={{ color: brand.accent }}>Age {a.age}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{a.desc}</p>
+                <p className="text-xs text-gray-600 leading-relaxed">{a.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -330,12 +330,12 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
               <motion.div key={m.label} initial={{ opacity: 0, scaleY: 0.6 }} whileInView={{ opacity: 1, scaleY: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="flex-1 flex flex-col gap-2">
                 <div className="h-32 rounded-2xl" style={{ background: m.color, boxShadow: `0 8px 24px ${m.color}40` }} />
                 <p className="text-xs font-semibold text-gray-700">{m.label}</p>
-                <p className="text-[10px] text-gray-400 italic">{m.mood}</p>
+                <p className="text-[10px] text-gray-500 italic">{m.mood}</p>
               </motion.div>
             ))}
           </div>
           <div className="flex flex-wrap justify-center gap-2">
-            {brand.moodKeywords.map(k => <span key={k} className="text-xs italic px-3 py-1.5 rounded-full text-gray-500" style={{ background: brand.accentLight }}>{k}</span>)}
+            {brand.moodKeywords.map(k => <span key={k} className="text-xs italic px-3 py-1.5 rounded-full text-gray-600" style={{ background: brand.accentLight }}>{k}</span>)}
           </div>
         </FadeUp>
 
@@ -348,14 +348,14 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
               <div key={c.label} className="rounded-2xl p-6 text-left relative" style={{ background: c.chosen ? `${brand.accent}08` : 'rgba(0,0,0,0.02)', border: c.chosen ? `2px solid ${brand.accent}50` : '1px solid rgba(0,0,0,0.07)', boxShadow: c.chosen ? `0 0 32px ${brand.accent}20` : 'none' }}>
                 {c.chosen && <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: brand.accent }}>CHOSEN ✓</span>}
                 <p className="font-bold text-gray-800 mb-1 text-sm">{c.label}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{c.desc}</p>
+                <p className="text-xs text-gray-600 leading-relaxed">{c.desc}</p>
               </div>
             ))}
           </div>
           <div className="rounded-[2rem] p-12 flex flex-col items-center" style={{ background: `linear-gradient(160deg, ${brand.accentLight}, ${brand.accentMid}40)`, border: `1px solid ${brand.accent}20` }}>
             <div className="w-28 h-28 mb-5 drop-shadow-lg"><brand.LogoMark /></div>
             <p className="font-display font-bold text-3xl mb-1" style={{ color: brand.accentDark }}>{brand.name}</p>
-            <p className="text-sm text-gray-500">{brand.tagline}</p>
+            <p className="text-sm text-gray-600">{brand.tagline}</p>
           </div>
         </FadeUp>
 
@@ -370,8 +370,8 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
             {brand.palette.map(c => (
               <div key={c.hex} className="text-center">
                 <p className="text-xs font-semibold text-gray-800 mb-0.5">{c.name}</p>
-                <p className="text-[10px] font-mono text-gray-400">{c.hex}</p>
-                <p className="text-[10px] text-gray-400 mt-1 leading-tight">{c.use.split(' — ')[0]}</p>
+                <p className="text-[10px] font-mono text-gray-500">{c.hex}</p>
+                <p className="text-[10px] text-gray-500 mt-1 leading-tight">{c.use.split(' — ')[0]}</p>
               </div>
             ))}
           </div>
@@ -403,12 +403,12 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="rounded-2xl p-6 text-left" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-              <p className="text-xs font-bold uppercase tracking-widest text-green-600 mb-4">✓ We say</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-green-700 mb-4">✓ We say</p>
               <div className="space-y-3">{brand.voice.doSay.map(s => <p key={s} className="text-sm text-gray-700 font-medium">{s}</p>)}</div>
             </div>
             <div className="rounded-2xl p-6 text-left" style={{ background: '#FFF1F2', border: '1px solid #FECDD3' }}>
-              <p className="text-xs font-bold uppercase tracking-widest text-red-500 mb-4">✗ We don't say</p>
-              <div className="space-y-3">{brand.voice.dontSay.map(s => <p key={s} className="text-sm text-gray-500 line-through">{s}</p>)}</div>
+              <p className="text-xs font-bold uppercase tracking-widest text-red-700 mb-4">✗ We don't say</p>
+              <div className="space-y-3">{brand.voice.dontSay.map(s => <p key={s} className="text-sm text-gray-600 line-through">{s}</p>)}</div>
             </div>
           </div>
         </FadeUp>
@@ -425,7 +425,7 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
                 </div>
                 <p className="font-bold text-gray-800 mb-1 text-sm">{app.type}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{app.desc}</p>
+                <p className="text-xs text-gray-600 leading-relaxed">{app.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -439,7 +439,7 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
             {brand.outcome.metrics.map((m, i) => (
               <motion.div key={m.label} initial={{ opacity: 0, scale: 0.85 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="rounded-2xl p-5" style={{ background: brand.accentLight, border: `1px solid ${brand.accent}20` }}>
                 <p className="text-3xl font-display font-bold mb-1" style={{ color: brand.accent }}>{m.value}</p>
-                <p className="text-xs text-gray-500 leading-snug">{m.label}</p>
+                <p className="text-xs text-gray-600 leading-snug">{m.label}</p>
               </motion.div>
             ))}
           </div>
@@ -455,10 +455,10 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
       {/* Footer */}
       <div className="border-t py-10" style={{ borderColor: `${brand.accent}20` }}>
         <div className="max-w-3xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <button onClick={onBack} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors">
+          <button onClick={onBack} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>Back to Portfolio
           </button>
-          <p className="text-xs text-gray-400">Brand Identity · {brand.name} · {brand.year}</p>
+          <p className="text-xs text-gray-500">Brand Identity · {brand.name} · {brand.year}</p>
         </div>
       </div>
     </div>
@@ -468,6 +468,9 @@ function BloomLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
 // ═══════════════════════════════════════════════════════════════════════════════
 // HARVEST LAYOUT — Artisan Journal: warm paper, earthy, scrapbook asymmetry
 // ═══════════════════════════════════════════════════════════════════════════════
+/** Harvest orange deepened for text and white-on-colour cards (orange-700, 5:1 on cream). */
+const HARVEST_INK = '#C2410C'
+
 function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }) {
   return (
     <div className="min-h-screen" style={{ background: '#FFFCF5' }}>
@@ -481,14 +484,14 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
           <motion.div initial={{ opacity: 0, x: -32 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }} className="md:col-span-3 pr-12">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-px flex-1" style={{ background: brand.accent, maxWidth: 40 }} />
-              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: brand.accent }}>{brand.category}</p>
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: HARVEST_INK }}>{brand.category}</p>
             </div>
             <h1 className="text-6xl lg:text-7xl font-display font-bold mb-4 leading-tight" style={{ color: '#1C1917' }}>{brand.name}</h1>
             <p className="text-xl text-gray-600 mb-8 font-display italic">{brand.tagline}</p>
             <div className="flex flex-wrap gap-3">
               {[{ l: 'Year', v: brand.year }, { l: 'Duration', v: brand.duration }, { l: 'Role', v: brand.role }].map(m => (
                 <div key={m.l} className="px-4 py-2 rounded-xl" style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)' }}>
-                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">{m.l}</p>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">{m.l}</p>
                   <p className="text-sm font-semibold" style={{ color: '#1C1917' }}>{m.v}</p>
                 </div>
               ))}
@@ -517,7 +520,7 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
         {/* Challenge — left-accent tab style */}
         <FadeUp>
           <div className="pl-6" style={{ borderLeft: `4px solid ${brand.accent}` }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: brand.accent }}>The Brief</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: HARVEST_INK }}>The Brief</p>
             <h2 className="text-3xl font-display font-bold mb-4" style={{ color: '#1C1917' }}>The Challenge</h2>
             <p className="text-gray-600 leading-relaxed max-w-2xl">{brand.challenge}</p>
           </div>
@@ -536,7 +539,7 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
                 <div className="p-5" style={{ background: '#FFFCF5' }}>
                   <span className="text-3xl block mb-3">{a.icon}</span>
                   <p className="font-bold mb-0.5" style={{ color: '#1C1917' }}>{a.type}</p>
-                  <p className="text-xs font-semibold mb-3" style={{ color: brand.accent }}>Age {a.age}</p>
+                  <p className="text-xs font-semibold mb-3" style={{ color: HARVEST_INK }}>Age {a.age}</p>
                   <p className="text-sm text-gray-600 leading-relaxed">{a.desc}</p>
                 </div>
               </motion.div>
@@ -556,7 +559,7 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
         {/* Moodboard — paint chips */}
         <FadeUp>
           <div className="pl-6 mb-6" style={{ borderLeft: `4px solid ${brand.accentMid}` }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: brand.accent }}>Visual Direction</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: HARVEST_INK }}>Visual Direction</p>
             <h2 className="text-3xl font-display font-bold" style={{ color: '#1C1917' }}>Moodboard</h2>
           </div>
           <div className="flex gap-3 mb-5">
@@ -565,7 +568,7 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
                 <div className="h-28" style={{ background: m.color }} />
                 <div className="p-3" style={{ background: '#FFF7ED' }}>
                   <p className="text-xs font-bold" style={{ color: '#1C1917' }}>{m.label}</p>
-                  <p className="text-[10px] text-gray-500">{m.mood}</p>
+                  <p className="text-[10px] text-gray-600">{m.mood}</p>
                 </div>
               </motion.div>
             ))}
@@ -578,16 +581,16 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
         {/* Logo Exploration — stamp cards on kraft bg */}
         <FadeUp>
           <div className="pl-6 mb-6" style={{ borderLeft: `4px solid ${brand.accent}` }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: brand.accent }}>Identity Design</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: HARVEST_INK }}>Identity Design</p>
             <h2 className="text-3xl font-display font-bold" style={{ color: '#1C1917' }}>Logo Exploration</h2>
           </div>
           <div className="rounded-3xl p-6" style={{ background: '#FEF3C7' }}>
             <div className="grid sm:grid-cols-2 gap-3 mb-6">
               {brand.logoConcepts.map(c => (
                 <div key={c.label} className="rounded-xl p-4 flex gap-3 items-start relative" style={{ background: c.chosen ? 'white' : 'rgba(255,255,255,0.5)', border: c.chosen ? `2px solid ${brand.accent}` : '1px solid rgba(249,115,22,0.15)', boxShadow: c.chosen ? `0 4px 20px ${brand.accent}25` : 'none' }}>
-                  {c.chosen && <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: brand.accent }}>✓ SELECTED</span>}
+                  {c.chosen && <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: HARVEST_INK }}>✓ SELECTED</span>}
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0" style={{ background: c.chosen ? brand.accent : 'rgba(249,115,22,0.15)', color: c.chosen ? 'white' : brand.accentDark }}>{c.label.slice(-1)}</div>
-                  <div><p className="font-semibold text-sm mb-0.5" style={{ color: '#1C1917' }}>{c.label}</p><p className="text-xs text-gray-500">{c.desc}</p></div>
+                  <div><p className="font-semibold text-sm mb-0.5" style={{ color: '#1C1917' }}>{c.label}</p><p className="text-xs text-gray-600">{c.desc}</p></div>
                 </div>
               ))}
             </div>
@@ -595,9 +598,9 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
             <div className="rounded-2xl p-8 flex items-center justify-center gap-8" style={{ background: 'white', border: `2px dashed ${brand.accent}30` }}>
               <div className="w-24 h-24"><brand.LogoMark /></div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: brand.accent }}>Final Mark</p>
+                <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: HARVEST_INK }}>Final Mark</p>
                 <p className="font-display font-bold text-3xl" style={{ color: '#1C1917' }}>{brand.name}</p>
-                <p className="text-sm text-gray-500">{brand.tagline}</p>
+                <p className="text-sm text-gray-600">{brand.tagline}</p>
               </div>
             </div>
           </div>
@@ -614,8 +617,8 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
               <motion.div key={c.hex} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }} className="flex items-center gap-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(0,0,0,0.05)' }}>
                 <div className="w-20 h-14 shrink-0" style={{ background: c.hex }} />
                 <div className="flex-1 py-3 pr-4">
-                  <div className="flex items-baseline gap-3"><p className="font-semibold text-sm" style={{ color: '#1C1917' }}>{c.name}</p><p className="text-xs font-mono text-gray-400">{c.hex}</p></div>
-                  <p className="text-xs text-gray-500 mt-0.5">{c.use}</p>
+                  <div className="flex items-baseline gap-3"><p className="font-semibold text-sm" style={{ color: '#1C1917' }}>{c.name}</p><p className="text-xs font-mono text-gray-500">{c.hex}</p></div>
+                  <p className="text-xs text-gray-600 mt-0.5">{c.use}</p>
                 </div>
               </motion.div>
             ))}
@@ -644,7 +647,7 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
         {/* Brand Voice — recipe card */}
         <FadeUp>
           <div className="pl-6 mb-6" style={{ borderLeft: `4px solid ${brand.accent}` }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: brand.accent }}>Brand Voice</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: HARVEST_INK }}>Brand Voice</p>
             <h2 className="text-3xl font-display font-bold" style={{ color: '#1C1917' }}>Tone & Personality</h2>
           </div>
           <div className="flex flex-wrap gap-2 mb-6">
@@ -657,7 +660,7 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
             </div>
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #FECDD3' }}>
               <div className="px-5 py-3" style={{ background: '#DC2626' }}><p className="text-xs font-bold uppercase tracking-widest text-white">✗ We don't say</p></div>
-              <div className="p-5 space-y-3" style={{ background: '#FFF1F2' }}>{brand.voice.dontSay.map(s => <p key={s} className="text-sm text-gray-500 line-through">{s}</p>)}</div>
+              <div className="p-5 space-y-3" style={{ background: '#FFF1F2' }}>{brand.voice.dontSay.map(s => <p key={s} className="text-sm text-gray-600 line-through">{s}</p>)}</div>
             </div>
           </div>
         </FadeUp>
@@ -665,7 +668,7 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
         {/* Applications */}
         <FadeUp>
           <div className="pl-6 mb-6" style={{ borderLeft: `4px solid ${brand.accentMid}` }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: brand.accent }}>Applications</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: HARVEST_INK }}>Applications</p>
             <h2 className="text-3xl font-display font-bold" style={{ color: '#1C1917' }}>Brand in the Wild</h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -674,7 +677,7 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
                 className="rounded-2xl p-5" style={{ background: i % 2 === 0 ? brand.accentLight : '#FEF3C7', border: `1px solid ${brand.accent}20` }}>
                 <div className="w-6 h-6 rounded-lg mb-3" style={{ background: i < 2 ? brand.accent : '#15803D' }} />
                 <p className="font-bold text-sm mb-1" style={{ color: '#1C1917' }}>{app.type}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{app.desc}</p>
+                <p className="text-xs text-gray-600 leading-relaxed">{app.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -683,14 +686,14 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
         {/* Outcome */}
         <FadeUp className="pb-8">
           <div className="pl-6 mb-6" style={{ borderLeft: `4px solid ${brand.accent}` }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: brand.accent }}>Results</p>
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: HARVEST_INK }}>Results</p>
             <h2 className="text-3xl font-display font-bold" style={{ color: '#1C1917' }}>The Outcome</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             {brand.outcome.metrics.map((m, i) => (
-              <motion.div key={m.label} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="rounded-2xl p-5 text-center" style={{ background: i % 2 === 0 ? brand.accent : '#15803D' }}>
+              <motion.div key={m.label} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="rounded-2xl p-5 text-center" style={{ background: i % 2 === 0 ? HARVEST_INK : '#15803D' }}>
                 <p className="text-3xl font-display font-bold text-white mb-1">{m.value}</p>
-                <p className="text-xs text-white/70 leading-snug">{m.label}</p>
+                <p className="text-xs text-white leading-snug">{m.label}</p>
               </motion.div>
             ))}
           </div>
@@ -706,10 +709,10 @@ function HarvestLayout({ brand, onBack }: { brand: BrandData; onBack: () => void
       {/* Footer */}
       <div className="border-t py-10" style={{ borderColor: 'rgba(249,115,22,0.15)', background: '#FFF7ED' }}>
         <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <button onClick={onBack} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors">
+          <button onClick={onBack} className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>Back to Portfolio
           </button>
-          <p className="text-xs text-gray-400">Brand Identity · {brand.name} · {brand.year}</p>
+          <p className="text-xs text-gray-500">Brand Identity · {brand.name} · {brand.year}</p>
         </div>
       </div>
     </div>
@@ -738,7 +741,7 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
             <div className="grid grid-cols-3 gap-3">
               {[{ l: 'Year', v: brand.year }, { l: 'Duration', v: brand.duration }, { l: 'Role', v: 'Lead Designer' }].map(m => (
                 <div key={m.l} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">{m.l}</p>
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">{m.l}</p>
                   <p className="text-sm font-semibold text-white mt-0.5">{m.v}</p>
                 </div>
               ))}
@@ -774,7 +777,7 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
                 <span className="text-2xl block mb-3">{a.icon}</span>
                 <p className="font-bold text-white mb-0.5 text-sm">{a.type}</p>
                 <p className="text-xs font-mono mb-3" style={{ color: brand.accent }}>AGE {a.age}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{a.desc}</p>
+                <p className="text-xs text-gray-400 leading-relaxed">{a.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -797,7 +800,7 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
               <motion.div key={m.label} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="flex-1">
                 <div className="h-24 rounded-xl mb-2" style={{ background: m.color, boxShadow: `0 0 20px ${m.color}40` }} />
                 <p className="text-xs font-semibold text-gray-300">{m.label}</p>
-                <p className="text-[10px] text-gray-600">{m.mood}</p>
+                <p className="text-[10px] text-gray-400">{m.mood}</p>
               </motion.div>
             ))}
           </div>
@@ -812,14 +815,14 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
             {brand.logoConcepts.map(c => (
               <div key={c.label} className="rounded-xl p-4 flex gap-3 relative" style={{ background: c.chosen ? 'rgba(14,165,233,0.08)' : 'rgba(255,255,255,0.03)', border: c.chosen ? `1px solid ${brand.accent}50` : '1px solid rgba(255,255,255,0.06)' }}>
                 {c.chosen && <span className="absolute top-2 right-2 text-[10px] font-bold font-mono px-2 py-0.5 rounded" style={{ background: brand.accent, color: '#0F172A' }}>SELECTED</span>}
-                <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold font-mono shrink-0" style={{ background: c.chosen ? brand.accent : 'rgba(255,255,255,0.08)', color: c.chosen ? '#0F172A' : '#64748b' }}>{c.label.slice(-1)}</div>
-                <div><p className="font-semibold text-sm text-white mb-0.5">{c.label}</p><p className="text-xs text-gray-500">{c.desc}</p></div>
+                <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold font-mono shrink-0" style={{ background: c.chosen ? brand.accent : 'rgba(255,255,255,0.08)', color: c.chosen ? '#0F172A' : '#94a3b8' }}>{c.label.slice(-1)}</div>
+                <div><p className="font-semibold text-sm text-white mb-0.5">{c.label}</p><p className="text-xs text-gray-400">{c.desc}</p></div>
               </div>
             ))}
           </div>
           <div className="rounded-2xl p-8 flex items-center justify-center gap-8" style={{ background: 'rgba(14,165,233,0.05)', border: '1px solid rgba(14,165,233,0.15)' }}>
             <div className="w-24 h-24" style={{ filter: `drop-shadow(0 0 20px ${brand.accent}50)` }}><brand.LogoMark /></div>
-            <div><p className="text-xs font-mono mb-1" style={{ color: brand.accent }}>FINAL MARK</p><p className="font-display font-bold text-3xl text-white">{brand.name}</p><p className="text-sm text-gray-500">{brand.tagline}</p></div>
+            <div><p className="text-xs font-mono mb-1" style={{ color: brand.accent }}>FINAL MARK</p><p className="font-display font-bold text-3xl text-white">{brand.name}</p><p className="text-sm text-gray-400">{brand.tagline}</p></div>
           </div>
         </FadeUp>
 
@@ -831,7 +834,7 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
             {brand.palette.map((c, i) => (
               <motion.div key={c.hex} initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }} className="flex items-center gap-4 rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="w-12 h-10 rounded-lg shrink-0" style={{ background: c.hex, boxShadow: `0 0 16px ${c.hex}40` }} />
-                <div className="flex-1"><div className="flex items-baseline gap-3"><p className="font-semibold text-sm text-white">{c.name}</p><p className="text-xs font-mono" style={{ color: brand.accent }}>{c.hex}</p></div><p className="text-xs text-gray-600 mt-0.5">{c.use}</p></div>
+                <div className="flex-1"><div className="flex items-baseline gap-3"><p className="font-semibold text-sm text-white">{c.name}</p><p className="text-xs font-mono" style={{ color: brand.accent }}>{c.hex}</p></div><p className="text-xs text-gray-400 mt-0.5">{c.use}</p></div>
               </motion.div>
             ))}
           </div>
@@ -844,12 +847,12 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
             <div className="p-8" style={{ background: `linear-gradient(135deg, #0F172A, #0C2341)` }}>
               <p className="text-5xl font-display font-bold text-white mb-4">{brand.typeSample}</p>
               <div className="flex gap-8">
-                <div><p className="text-sm font-semibold text-white">{brand.typeDisplay.name}</p><p className="text-xs text-gray-500">{brand.typeDisplay.style}</p></div>
-                <div><p className="text-sm font-semibold text-white">{brand.typeBody.name}</p><p className="text-xs text-gray-500">{brand.typeBody.style}</p></div>
+                <div><p className="text-sm font-semibold text-white">{brand.typeDisplay.name}</p><p className="text-xs text-gray-400">{brand.typeDisplay.style}</p></div>
+                <div><p className="text-sm font-semibold text-white">{brand.typeBody.name}</p><p className="text-xs text-gray-400">{brand.typeBody.style}</p></div>
               </div>
             </div>
             <div className="px-8 py-4 flex gap-4" style={{ background: 'rgba(14,165,233,0.06)' }}>
-              <p className="text-xs font-mono text-gray-600 tracking-wider">ABCDEFGHIJKLMNOPQRSTUVWXYZ · 0123456789 · !@#$%^&</p>
+              <p className="text-xs font-mono text-gray-400 tracking-wider">ABCDEFGHIJKLMNOPQRSTUVWXYZ · 0123456789 · !@#$%^&</p>
             </div>
           </div>
         </FadeUp>
@@ -866,7 +869,7 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
             </div>
             <div className="rounded-xl p-5" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
               <p className="text-xs font-mono font-bold text-red-400 mb-3">// WE DON'T SAY</p>
-              <div className="space-y-2">{brand.voice.dontSay.map(s => <p key={s} className="text-sm text-gray-600 line-through">{s}</p>)}</div>
+              <div className="space-y-2">{brand.voice.dontSay.map(s => <p key={s} className="text-sm text-gray-400 line-through">{s}</p>)}</div>
             </div>
           </div>
         </FadeUp>
@@ -880,7 +883,7 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
               <motion.div key={app.type} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <div className="w-6 h-1 rounded-full mb-3" style={{ background: brand.accent }} />
                 <p className="font-bold text-sm text-white mb-1">{app.type}</p>
-                <p className="text-xs text-gray-500">{app.desc}</p>
+                <p className="text-xs text-gray-400">{app.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -894,7 +897,7 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
             {brand.outcome.metrics.map((m, i) => (
               <motion.div key={m.label} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="rounded-xl p-5 text-center" style={{ background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.15)' }}>
                 <p className="text-3xl font-display font-bold mb-1" style={{ color: brand.accent }}>{m.value}</p>
-                <p className="text-xs text-gray-500 leading-snug">{m.label}</p>
+                <p className="text-xs text-gray-400 leading-snug">{m.label}</p>
               </motion.div>
             ))}
           </div>
@@ -909,10 +912,10 @@ function VoltaLayout({ brand, onBack }: { brand: BrandData; onBack: () => void }
       {/* Footer */}
       <div className="border-t py-10" style={{ borderColor: 'rgba(14,165,233,0.15)' }}>
         <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <button onClick={onBack} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-300 transition-colors">
+          <button onClick={onBack} className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-gray-300 transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>Back to Portfolio
           </button>
-          <p className="text-xs text-gray-600 font-mono">BRAND IDENTITY · {brand.name.toUpperCase()} · {brand.year}</p>
+          <p className="text-xs text-gray-400 font-mono">BRAND IDENTITY · {brand.name.toUpperCase()} · {brand.year}</p>
         </div>
       </div>
     </div>

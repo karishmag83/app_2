@@ -28,7 +28,7 @@ testScenarios.forEach((test, i) => {
   const result = generateSmartResponse(test.q, context);
   
   const isPersonal = result.response.includes('ask her personally');
-  const hasEmail = result.response.includes('karishmaworks08@gmail.com');
+  const hasEmail = result.response.includes('karishmadilipgawali@gmail.com');
   const hasSuggestions = result.suggestions && result.suggestions.length > 0;
   
   // Validation

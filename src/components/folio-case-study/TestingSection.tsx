@@ -136,7 +136,7 @@ export const TestingSection = () => {
                   <td className="font-mono text-primary">{task.id}</td>
                   <td className="text-foreground">{task.task}</td>
                   <td>
-                    <span className="text-destructive font-medium">{task.successBefore}</span>
+                    <span className="text-red-400 font-medium">{task.successBefore}</span>
                   </td>
                   <td>
                     <span className="text-primary font-bold">{task.successAfter}</span>
@@ -157,10 +157,10 @@ export const TestingSection = () => {
         <div className="grid md:grid-cols-2 gap-4 mt-6">
           <div className="comparison-panel comparison-before">
             <div className="flex items-center gap-2 mb-2">
-              <XCircle className="w-5 h-5 text-destructive" />
+              <XCircle className="w-5 h-5 text-red-400" />
               <span className="font-semibold text-foreground">Before Iterations</span>
             </div>
-            <div className="text-3xl font-bold text-destructive">57.5%</div>
+            <div className="text-3xl font-bold text-red-400">57.5%</div>
             <span className="text-sm text-muted-foreground">Average task success rate</span>
           </div>
           <div className="comparison-panel comparison-after">
@@ -187,7 +187,7 @@ export const TestingSection = () => {
                 <div className="flex-1">
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <span className="label block mb-1 text-destructive">Finding</span>
+                      <span className="label block mb-1 text-red-400">Finding</span>
                       <p className="text-sm text-muted-foreground">{iteration.finding}</p>
                     </div>
                     <div>
@@ -211,7 +211,7 @@ export const TestingSection = () => {
         <h3 className="heading-subsection mb-4">Iteration Example: Allocation Chart</h3>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-card rounded-lg p-4 border border-destructive/30">
-            <span className="label block mb-2 text-destructive">Before</span>
+            <span className="label block mb-2 text-red-400">Before</span>
             <p className="text-sm text-muted-foreground mb-2">
               Allocation donut was positioned below the fold. Users had to scroll 
               to find it, leading to missed concentration risk signals.

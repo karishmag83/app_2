@@ -72,7 +72,7 @@ exports.handler = async (event) => {
     const transporter = createTransporter()
     await transporter.sendMail({
       from: process.env.SMTP_FROM || `"Karishma Portfolio" <${process.env.SMTP_USER}>`,
-      to: process.env.CONTACT_TO || 'karishmaworks08@gmail.com',
+      to: process.env.CONTACT_TO || 'karishmadilipgawali@gmail.com',
       replyTo: email,
       subject: `[Portfolio] ${subject}`,
       text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,

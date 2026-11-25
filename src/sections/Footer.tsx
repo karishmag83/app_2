@@ -114,8 +114,8 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-6 mb-8 text-sm text-gray-500 text-center">
-            <a href="mailto:karishmaworks08@gmail.com" className="hover:text-black transition-colors">
-              karishmaworks08@gmail.com
+            <a href="mailto:karishmadilipgawali@gmail.com" className="hover:text-black transition-colors">
+              karishmadilipgawali@gmail.com
             </a>
             <span className="hidden sm:inline">•</span>
             <a href="tel:+18574459682" className="hover:text-black transition-colors">

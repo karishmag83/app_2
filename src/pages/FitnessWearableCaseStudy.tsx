@@ -10,7 +10,7 @@ type HealthTab = 'heartrate' | 'sleep' | 'stress'
 const BG     = '#fafaf9'
 const FG     = '#0a0a09'
 const ACCENT = '#3B82F6'
-const MUTED  = '#737373'
+const MUTED  = '#5c5c5c'
 const BONE   = '#f0efec'
 const CARD   = '#ffffff'
 const BORDER = 'rgba(0,0,0,0.09)'
@@ -21,6 +21,8 @@ const SANS   = '"Inter", system-ui, -apple-system, sans-serif'
 
 /* ── App screen tokens (dark) ───────────────────────────────────────────────── */
 const BLUE   = '#3B82F6'
+/** Deeper blue for small labels on light surfaces, where #3B82F6 falls below 4.5:1. */
+const ACCENT_INK = '#1D4ED8'
 const GREEN  = '#10B981'
 const ORANGE = '#F59E0B'
 const RED    = '#EF4444'
@@ -106,7 +108,7 @@ function SectionNav({ active }: { active: string }) {
             style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
           >
             <span style={{
-              fontFamily: MONO, fontSize: 9, color: isActive ? ACCENT : MUTED,
+              fontFamily: MONO, fontSize: 9, color: isActive ? ACCENT_INK : MUTED,
               opacity: isActive ? 1 : 0, transition: 'opacity 0.2s', whiteSpace: 'nowrap',
               letterSpacing: '0.06em',
             }}>
@@ -231,7 +233,7 @@ const TodayScreen = () => {
     <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
       {/* greeting */}
       <div style={{ padding: '4px 14px 10px' }}>
-        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.38)', margin: '0 0 1px' }}>Saturday, Apr 19</p>
+        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.56)', margin: '0 0 1px' }}>Saturday, Apr 19</p>
         <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.2 }}>Good morning, Karishma</p>
       </div>
 
@@ -247,12 +249,12 @@ const TodayScreen = () => {
           <div style={{ flex: 1 }}>
             <AppLabel>Daily Steps</AppLabel>
             <AppVal size={26} color={BLUE}>8,432</AppVal>
-            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', margin: '2px 0 6px' }}>Goal: 10,000 steps</p>
+            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.56)', margin: '2px 0 6px' }}>Goal: 10,000 steps</p>
             <div style={{ height: 5, borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
               <div style={{ width: `${stepPct * 100}%`, height: '100%', backgroundColor: BLUE, borderRadius: 99 }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-              <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', margin: 0 }}>1,568 to goal</p>
+              <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.55)', margin: 0 }}>1,568 to goal</p>
               <p style={{ fontSize: 8, color: BLUE, fontWeight: 600, margin: 0 }}>3.8 mi</p>
             </div>
           </div>
@@ -267,7 +269,7 @@ const TodayScreen = () => {
                 <ActivityRing progress={r.pct} color={r.color} size={48} strokeWidth={6}>
                   <p style={{ fontSize: r.pct >= 1 ? 10 : 9, fontWeight: 700, color: '#fff', margin: 0 }}>{r.pct >= 1 ? '✓' : `${Math.round(r.pct*100)}%`}</p>
                 </ActivityRing>
-                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', margin: 0 }}>{r.label}</p>
+                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)', margin: 0 }}>{r.label}</p>
                 <p style={{ fontSize: 9, color: r.color, fontWeight: 600, margin: 0 }}>{r.val} {r.unit}</p>
               </div>
             ))}
@@ -302,7 +304,7 @@ const TodayScreen = () => {
           <p style={{ fontSize: 12, fontWeight: 600, color: '#fff', margin: '0 0 4px', lineHeight: 1.45 }}>
             Well-rested. Good day for a hard workout.
           </p>
-          <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', margin: 0 }}>
+          <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', margin: 0 }}>
             Recovery 78 · HRV 52ms · Sleep score 82
           </p>
         </div>
@@ -317,7 +319,7 @@ const TodayScreen = () => {
             {[72, 88, 60, 84, 95, 54, 84].map((v, i) => (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                 <div style={{ width: '100%', height: (v / 100) * 28, backgroundColor: i === 6 ? BLUE : i === 4 ? GREEN : v > 70 ? `${BLUE}55` : `rgba(255,255,255,0.12)`, borderRadius: '3px 3px 0 0' }} />
-                <p style={{ fontSize: 7, color: i === 6 ? BLUE : 'rgba(255,255,255,0.3)', margin: 0 }}>
+                <p style={{ fontSize: 7, color: i === 6 ? BLUE : 'rgba(255,255,255,0.55)', margin: 0 }}>
                   {['M','T','W','T','F','S','S'][i]}
                 </p>
               </div>
@@ -330,7 +332,7 @@ const TodayScreen = () => {
           <span style={{ fontSize: 16, flexShrink: 0 }}>&#9202;</span>
           <div>
             <p style={{ fontSize: 10, fontWeight: 600, color: '#fff', margin: '0 0 1px' }}>Hydration reminder</p>
-            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', margin: 0 }}>You're 600ml short of your daily goal</p>
+            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', margin: 0 }}>You're 600ml short of your daily goal</p>
           </div>
         </div>
 
@@ -356,13 +358,13 @@ const ActivityScreen = () => {
           <ActivityRing progress={124 / 150} color={GREEN} size={76} strokeWidth={8}>
             <div style={{ textAlign: 'center' }}>
               <p style={{ fontSize: 14, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1 }}>124</p>
-              <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.4)', margin: 0 }}>min</p>
+              <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.58)', margin: 0 }}>min</p>
             </div>
           </ActivityRing>
           <div style={{ flex: 1 }}>
             <AppLabel>Active Minutes</AppLabel>
             <AppVal size={22} color={GREEN}>124 / 150</AppVal>
-            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', margin: '3px 0 8px' }}>26 min to weekly goal</p>
+            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.56)', margin: '3px 0 8px' }}>26 min to weekly goal</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 14 }}>&#128293;</span>
               <p style={{ fontSize: 11, color: '#fff', fontWeight: 700, margin: 0 }}>12-day streak</p>
@@ -374,7 +376,7 @@ const ActivityScreen = () => {
         <AppCard>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <AppLabel>7-Day Steps</AppLabel>
-            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', margin: 0 }}>Avg 7,938/day</p>
+            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.56)', margin: 0 }}>Avg 7,938/day</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 56 }}>
             {stepData.map((val, i) => {
@@ -386,14 +388,14 @@ const ActivityScreen = () => {
                   {isGoal && <p style={{ fontSize: 6, color: GREEN, margin: 0, fontWeight: 700 }}>✓</p>}
                   {!isGoal && <p style={{ fontSize: 6, color: 'transparent', margin: 0 }}>·</p>}
                   <div style={{ width: '100%', height: barH, backgroundColor: isToday ? BLUE : isGoal ? `${GREEN}70` : `${BLUE}38`, borderRadius: '4px 4px 0 0' }} />
-                  <p style={{ fontSize: 7, color: isToday ? BLUE : 'rgba(255,255,255,0.3)', margin: 0, fontWeight: isToday ? 700 : 400 }}>{days[i]}</p>
+                  <p style={{ fontSize: 7, color: isToday ? BLUE : 'rgba(255,255,255,0.5)', margin: 0, fontWeight: isToday ? 700 : 400 }}>{days[i]}</p>
                 </div>
               )
             })}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-            <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', margin: 0 }}>0</p>
-            <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', margin: 0 }}>10k goal</p>
+            <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', margin: 0 }}>0</p>
+            <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', margin: 0 }}>10k goal</p>
           </div>
         </AppCard>
 
@@ -412,7 +414,7 @@ const ActivityScreen = () => {
                     {r.pct >= 1 ? '✓' : `${Math.round(r.pct*100)}%`}
                   </p>
                 </ActivityRing>
-                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', margin: 0 }}>{r.label}</p>
+                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)', margin: 0 }}>{r.label}</p>
                 <p style={{ fontSize: 10, color: r.color, fontWeight: 600, margin: 0 }}>{r.val} {r.unit}</p>
               </div>
             ))}
@@ -428,7 +430,7 @@ const ActivityScreen = () => {
             <AppCard key={s.label}>
               <AppLabel>{s.label}</AppLabel>
               <AppVal size={22} color={s.color}>{s.value}</AppVal>
-              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', margin: '2px 0 0' }}>{s.unit}</p>
+              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.56)', margin: '2px 0 0' }}>{s.unit}</p>
             </AppCard>
           ))}
         </div>
@@ -439,7 +441,7 @@ const ActivityScreen = () => {
             <div>
               <AppLabel>Avg Pace Today</AppLabel>
               <AppVal size={24} color="#fff">12'34"</AppVal>
-              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', margin: '2px 0 0' }}>per mile</p>
+              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.56)', margin: '2px 0 0' }}>per mile</p>
             </div>
             <div style={{ textAlign: 'right' }}>
               <AppLabel>Best Mile</AppLabel>
@@ -482,7 +484,7 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
           <button key={t.id} onClick={() => setHealthTab(t.id)}
             style={{ flex: 1, padding: '8px 4px', fontSize: 9, fontWeight: 600,
               backgroundColor: healthTab === t.id ? BLUE : 'transparent',
-              color: healthTab === t.id ? '#fff' : 'rgba(255,255,255,0.4)',
+              color: healthTab === t.id ? '#fff' : 'rgba(255,255,255,0.58)',
               border: 'none', cursor: 'pointer', transition: 'background-color 0.2s', borderRadius: 10 }}>
             {t.label}
           </button>
@@ -505,9 +507,9 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
                   <AppVal size={36}>72</AppVal>
                   <p style={{ fontSize: 11, color: GREEN, fontWeight: 600, marginBottom: 6 }}>Normal</p>
                 </div>
-                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.38)', margin: '0 0 8px' }}>Resting · Updated now · Min 54 · Max 108</p>
+                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.56)', margin: '0 0 8px' }}>Resting · Updated now · Min 54 · Max 108</p>
                 <Sparkline data={hrData} color={RED} height={38} />
-                <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.28)', marginTop: 3 }}>Last 24 hours</p>
+                <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.5)', marginTop: 3 }}>Last 24 hours</p>
               </AppCard>
               {/* Zones */}
               <AppCard>
@@ -541,7 +543,7 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
                   <AppCard key={s.label}>
                     <AppLabel>{s.label}</AppLabel>
                     <AppVal size={20} color={s.color}>{s.value}</AppVal>
-                    <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.38)', margin: '2px 0 0' }}>{s.unit}</p>
+                    <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.56)', margin: '2px 0 0' }}>{s.unit}</p>
                   </AppCard>
                 ))}
               </div>
@@ -557,15 +559,15 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
                   <div>
                     <AppLabel color="rgba(255,255,255,0.5)">Last Night</AppLabel>
                     <AppVal size={28}>7h 23m</AppVal>
-                    <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.38)', margin: '2px 0 0' }}>10:42 PM – 6:05 AM</p>
+                    <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.56)', margin: '2px 0 0' }}>10:42 PM – 6:05 AM</p>
                   </div>
                   <div style={{ textAlign: 'center', backgroundColor: `${BLUE}30`, borderRadius: 12, padding: '8px 12px' }}>
                     <AppVal size={26} color={BLUE}>82</AppVal>
-                    <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', margin: '2px 0 0' }}>Score</p>
+                    <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)', margin: '2px 0 0' }}>Score</p>
                   </div>
                 </div>
                 {/* Stage breakdown bar */}
-                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.38)', margin: '0 0 5px' }}>Sleep stages — last 7 nights</p>
+                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.56)', margin: '0 0 5px' }}>Sleep stages — last 7 nights</p>
                 <div style={{ display: 'flex', gap: 3 }}>
                   {sleepData.map((d, i) => {
                     const total = d.awake + d.light + d.deep + d.rem
@@ -580,7 +582,7 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
                   })}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                  {sleepDays.map(d => <p key={d} style={{ fontSize: 6, color: 'rgba(255,255,255,0.28)', margin: 0 }}>{d}</p>)}
+                  {sleepDays.map(d => <p key={d} style={{ fontSize: 6, color: 'rgba(255,255,255,0.5)', margin: 0 }}>{d}</p>)}
                 </div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
                   {[
@@ -591,7 +593,7 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
                   ].map(l => (
                     <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <div style={{ width: 7, height: 7, borderRadius: 2, backgroundColor: l.color }} />
-                      <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{l.label}</p>
+                      <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.58)', margin: 0 }}>{l.label}</p>
                     </div>
                   ))}
                 </div>
@@ -602,12 +604,12 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
                   { label: 'Deep Sleep',  value: '1h 28m', color: BLUE,   tip: 'Above avg' },
                   { label: 'REM',         value: '1h 22m', color: PURPLE, tip: 'On target'  },
                   { label: 'Light Sleep', value: '4h 10m', color: `${BLUE}70`, tip: 'Normal'   },
-                  { label: 'Awake',       value: '23m',    color: 'rgba(255,255,255,0.4)', tip: 'Low' },
+                  { label: 'Awake',       value: '23m',    color: 'rgba(255,255,255,0.58)', tip: 'Low' },
                 ].map(s => (
                   <AppCard key={s.label}>
                     <AppLabel>{s.label}</AppLabel>
                     <AppVal size={16} color={s.color}>{s.value}</AppVal>
-                    <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', margin: '2px 0 0' }}>{s.tip}</p>
+                    <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.55)', margin: '2px 0 0' }}>{s.tip}</p>
                   </AppCard>
                 ))}
               </div>
@@ -625,7 +627,7 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
                   <p style={{ fontSize: 12, color: GREEN, fontWeight: 700, marginBottom: 5 }}>Low</p>
                 </div>
                 <Sparkline data={stressData} color={PURPLE} height={42} />
-                <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.28)', marginTop: 3 }}>Last 24 hours · Measured via HRV</p>
+                <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.5)', marginTop: 3 }}>Last 24 hours · Measured via HRV</p>
               </AppCard>
               {/* Stress zones */}
               <AppCard>
@@ -659,7 +661,7 @@ const HealthScreen = ({ healthTab, setHealthTab }: { healthTab: HealthTab; setHe
                 <p style={{ fontSize: 11, fontWeight: 600, color: '#fff', margin: '0 0 3px', lineHeight: 1.45 }}>
                   Low stress + good HRV. Your body is ready to perform today.
                 </p>
-                <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', margin: 0 }}>HRV 52ms · Resting HR 54 BPM</p>
+                <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.58)', margin: 0 }}>HRV 52ms · Resting HR 54 BPM</p>
               </AppCard>
             </motion.div>
           )}
@@ -732,7 +734,7 @@ const WorkoutsScreen = () => {
             ].map(s => (
               <div key={s.label} style={{ textAlign: 'center' }}>
                 <AppVal size={14} color={s.color}>{s.value}</AppVal>
-                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.38)', margin: '2px 0 0' }}>{s.label}</p>
+                <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.56)', margin: '2px 0 0' }}>{s.label}</p>
               </div>
             ))}
           </div>
@@ -749,17 +751,17 @@ const WorkoutsScreen = () => {
                     dangerouslySetInnerHTML={{ __html: w.icon }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: 11, fontWeight: 700, color: '#fff', margin: 0 }}>{w.name}</p>
-                    <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.38)', margin: '2px 0 0' }}>{w.date} · {w.dur} · {w.cal} cal</p>
+                    <p style={{ fontSize: 8, color: 'rgba(255,255,255,0.56)', margin: '2px 0 0' }}>{w.date} · {w.dur} · {w.cal} cal</p>
                   </div>
                   {w.dist && <p style={{ fontSize: 11, color: w.color, fontWeight: 700, margin: 0, flexShrink: 0 }}>{w.dist}</p>}
                 </div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                   <div>
-                    <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.35)', margin: '0 0 1px' }}>AVG HR</p>
+                    <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.55)', margin: '0 0 1px' }}>AVG HR</p>
                     <p style={{ fontSize: 9, color: RED, fontWeight: 600, margin: 0 }}>{w.bpm}</p>
                   </div>
                   {w.pace && <div>
-                    <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.35)', margin: '0 0 1px' }}>PACE</p>
+                    <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.55)', margin: '0 0 1px' }}>PACE</p>
                     <p style={{ fontSize: 9, color: w.color, fontWeight: 600, margin: 0 }}>{w.pace}</p>
                   </div>}
                 </div>
@@ -813,7 +815,7 @@ function PTabBar({ active, onChange }: { active: AppTab; onChange: (t: AppTab) =
         <button key={t.id} onClick={() => onChange(t.id)}
           style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
           <div style={{ width: t.id === active ? 20 : 5, height: 3, borderRadius: 1.5, backgroundColor: t.id === active ? BLUE : 'rgba(255,255,255,0.15)', transition: 'width 0.2s' }} />
-          <span style={{ fontFamily: SANS, fontSize: 9, color: t.id === active ? BLUE : 'rgba(255,255,255,0.35)', fontWeight: t.id === active ? 700 : 400 }}>{t.label}</span>
+          <span style={{ fontFamily: SANS, fontSize: 9, color: t.id === active ? BLUE : 'rgba(255,255,255,0.55)', fontWeight: t.id === active ? 700 : 400 }}>{t.label}</span>
         </button>
       ))}
     </div>
@@ -1355,7 +1357,7 @@ export default function FitnessWearableCaseStudy() {
                       <span style={{ fontWeight: 600 }}>9:41</span><span style={{ opacity: 0.5 }}>5G</span>
                     </div>
                     <div style={{ padding: '6px 12px 3px', flexShrink: 0 }}>
-                      <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.4)', margin: 0 }}>Saturday, Apr 19</p>
+                      <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.58)', margin: 0 }}>Saturday, Apr 19</p>
                       <p style={{ fontSize: 11, color: '#fff', fontWeight: 700, margin: 0 }}>Good morning</p>
                     </div>
                     <div style={{ flex: 1, padding: '6px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -1366,7 +1368,7 @@ export default function FitnessWearableCaseStudy() {
                         </svg>
                         <div>
                           <p style={{ fontSize: 11, color: BLUE, fontWeight: 700, margin: 0 }}>8,432</p>
-                          <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.35)', margin: 0 }}>of 10,000 steps</p>
+                          <p style={{ fontSize: 7, color: 'rgba(255,255,255,0.55)', margin: 0 }}>of 10,000 steps</p>
                         </div>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
@@ -1377,7 +1379,7 @@ export default function FitnessWearableCaseStudy() {
                           { l: 'Recovery',   v: '78/100',  c: PURPLE },
                         ].map(m => (
                           <div key={m.l} style={{ backgroundColor: `${m.c}15`, borderRadius: 8, padding: '6px 8px', border: `1px solid ${m.c}30` }}>
-                            <p style={{ fontSize: 6, color: 'rgba(255,255,255,0.4)', margin: '0 0 2px', textTransform: 'uppercase' }}>{m.l}</p>
+                            <p style={{ fontSize: 6, color: 'rgba(255,255,255,0.6)', margin: '0 0 2px', textTransform: 'uppercase' }}>{m.l}</p>
                             <p style={{ fontSize: 10, color: '#fff', fontWeight: 700, margin: 0 }}>{m.v}</p>
                           </div>
                         ))}
@@ -1391,7 +1393,7 @@ export default function FitnessWearableCaseStudy() {
                       {['Today','Activity','Health','Workouts'].map((t, i) => (
                         <div key={t} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                           <div style={{ width: i === 0 ? 14 : 4, height: 2.5, borderRadius: 1.5, backgroundColor: i === 0 ? BLUE : 'rgba(255,255,255,0.15)' }} />
-                          <span style={{ fontFamily: SANS, fontSize: 6, color: i === 0 ? BLUE : 'rgba(255,255,255,0.3)' }}>{t}</span>
+                          <span style={{ fontFamily: SANS, fontSize: 6, color: i === 0 ? BLUE : 'rgba(255,255,255,0.5)' }}>{t}</span>
                         </div>
                       ))}
                     </div>
@@ -1400,7 +1402,7 @@ export default function FitnessWearableCaseStudy() {
               </div>
             </div>
             <div style={{ textAlign: 'center', padding: '20px 0 24px' }}>
-              <p style={{ fontFamily: MONO, fontSize: 10, color: 'rgba(255,255,255,0.35)', margin: 0, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              <p style={{ fontFamily: MONO, fontSize: 10, color: 'rgba(255,255,255,0.55)', margin: 0, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                 Pulse · Connected Fitness Wearable
               </p>
             </div>
@@ -1448,7 +1450,7 @@ export default function FitnessWearableCaseStudy() {
             { label: 'Comprehension failure',  body: 'All 4 core flows (onboarding, daily check-in, workout start, sleep review) failed baseline comprehension testing before redesign. Users guessed at what they were looking at.' },
           ].map(p => (
             <div key={p.label} style={{ borderTop: `2px solid ${FG}`, paddingTop: 16 }}>
-              <p style={{ fontFamily: MONO, fontSize: 9, color: ACCENT, letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 10px' }}>Pain point</p>
+              <p style={{ fontFamily: MONO, fontSize: 9, color: ACCENT_INK, letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 10px' }}>Pain point</p>
               <h3 style={{ fontFamily: SERIF, fontSize: 20, color: FG, margin: '0 0 8px', fontWeight: 600 }}>{p.label}</h3>
               <p style={{ fontFamily: SANS, fontSize: 13, color: MUTED, lineHeight: 1.6, margin: 0 }}>{p.body}</p>
             </div>
@@ -1468,7 +1470,7 @@ export default function FitnessWearableCaseStudy() {
             { n: '04', h: 'Pass comprehension across flows',b: 'Achieve 90%+ task completion across all 4 core flows in moderated usability testing before handoff.' },
           ].map(o => (
             <div key={o.n} style={{ display: 'flex', gap: 16 }}>
-              <span style={{ fontFamily: MONO, fontSize: 12, color: ACCENT, fontWeight: 700, flexShrink: 0, paddingTop: 4 }}>{o.n}</span>
+              <span style={{ fontFamily: MONO, fontSize: 12, color: ACCENT_INK, fontWeight: 700, flexShrink: 0, paddingTop: 4 }}>{o.n}</span>
               <div>
                 <h3 style={{ fontFamily: SERIF, fontSize: 20, color: FG, margin: '0 0 8px', fontWeight: 600 }}>{o.h}</h3>
                 <p style={{ fontFamily: SANS, fontSize: 13, color: MUTED, lineHeight: 1.6, margin: 0 }}>{o.b}</p>
@@ -1536,7 +1538,7 @@ export default function FitnessWearableCaseStudy() {
               },
             ].map(p => (
               <div key={p.name} style={{ border: HL, borderRadius: 16, padding: 20, backgroundColor: CARD }}>
-                <p style={{ fontFamily: MONO, fontSize: 9, color: ACCENT, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 4px' }}>Persona</p>
+                <p style={{ fontFamily: MONO, fontSize: 9, color: ACCENT_INK, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 4px' }}>Persona</p>
                 <h3 style={{ fontFamily: SERIF, fontSize: 18, color: FG, margin: '0 0 3px', fontWeight: 600 }}>{p.name}</h3>
                 <p style={{ fontFamily: SANS, fontSize: 11, color: MUTED, margin: '0 0 14px' }}>{p.role}</p>
                 {[{ l: 'Goals', v: p.goals }, { l: 'Frustrations', v: p.frustrations }].map(r => (
@@ -1566,7 +1568,7 @@ export default function FitnessWearableCaseStudy() {
             { n: '04', step: 'Action',  eg: 'Go for a run. Aim for Zone 3 to 4. Your body can handle it today.',      note: 'A specific, low-friction next step the user can take right now.' },
           ].map((s, i) => (
             <div key={s.n} style={{ padding: '28px 24px', borderLeft: i > 0 ? HL : 'none', borderTop: `3px solid ${i < 2 ? FG : ACCENT}` }}>
-              <p style={{ fontFamily: MONO, fontSize: 9, color: ACCENT, letterSpacing: '0.12em', margin: '0 0 8px' }}>{s.n} · {s.step}</p>
+              <p style={{ fontFamily: MONO, fontSize: 9, color: ACCENT_INK, letterSpacing: '0.12em', margin: '0 0 8px' }}>{s.n} · {s.step}</p>
               <p style={{ fontFamily: SANS, fontSize: 13, color: FG, lineHeight: 1.55, margin: '0 0 14px', fontStyle: 'italic' }}>"{s.eg}"</p>
               <p style={{ fontFamily: SANS, fontSize: 12, color: MUTED, lineHeight: 1.5, margin: 0 }}>{s.note}</p>
             </div>
@@ -1598,7 +1600,7 @@ export default function FitnessWearableCaseStudy() {
             { n: '08', l: 'Alerts and notifications'  },
           ].map(f => (
             <div key={f.n} style={{ border: HL, borderRadius: 13, padding: '15px 13px', backgroundColor: CARD }}>
-              <p style={{ fontFamily: MONO, fontSize: 9, color: ACCENT, letterSpacing: '0.1em', margin: '0 0 8px' }}>{f.n}</p>
+              <p style={{ fontFamily: MONO, fontSize: 9, color: ACCENT_INK, letterSpacing: '0.1em', margin: '0 0 8px' }}>{f.n}</p>
               <h3 style={{ fontFamily: SERIF, fontSize: 14, color: FG, margin: 0, fontWeight: 600, lineHeight: 1.3 }}>{f.l}</h3>
             </div>
           ))}
@@ -1623,7 +1625,7 @@ export default function FitnessWearableCaseStudy() {
                 <PWireframe variant={w.variant} />
               </div>
               <div style={{ padding: '13px 15px' }}>
-                <span style={{ fontFamily: MONO, fontSize: 9, color: ACCENT, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{w.badge}</span>
+                <span style={{ fontFamily: MONO, fontSize: 9, color: ACCENT_INK, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{w.badge}</span>
                 <h3 style={{ fontFamily: SERIF, fontSize: 16, color: FG, margin: '4px 0 6px', fontWeight: 600 }}>{w.title}</h3>
                 <p style={{ fontFamily: SANS, fontSize: 12, color: MUTED, margin: 0, lineHeight: 1.5 }}>{w.desc}</p>
               </div>
@@ -1646,7 +1648,7 @@ export default function FitnessWearableCaseStudy() {
             { v: 'Variant C', t: 'Deferred permissions',      hi: true,  benefit: 'App value shown first, permissions requested in context', risk: 'Slightly longer session before full functionality is unlocked', outcome: '✅ Selected. Drop-off from 65% to 30%. Completion rate 88%.' },
           ].map(v => (
             <div key={v.v} style={{ border: v.hi ? `2px solid ${FG}` : HL, borderRadius: 16, padding: 20, backgroundColor: v.hi ? BONE : CARD }}>
-              <p style={{ fontFamily: MONO, fontSize: 9, color: v.hi ? ACCENT : MUTED, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 8px' }}>{v.v}</p>
+              <p style={{ fontFamily: MONO, fontSize: 9, color: v.hi ? ACCENT_INK : MUTED, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 8px' }}>{v.v}</p>
               <h3 style={{ fontFamily: SERIF, fontSize: 20, color: FG, margin: '0 0 16px', fontWeight: 600 }}>{v.t}</h3>
               {[{ l: 'Benefit', val: v.benefit }, { l: 'Risk', val: v.risk }, { l: 'Outcome', val: v.outcome }].map(r => (
                 <div key={r.l} style={{ borderTop: HL, paddingTop: 10, marginTop: 10 }}>
@@ -1678,7 +1680,7 @@ export default function FitnessWearableCaseStudy() {
                 'Every empty state includes a clear explanation and a next step',
               ].map(item => (
                 <div key={item} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <span style={{ color: ACCENT, fontSize: 14, flexShrink: 0 }}>✓</span>
+                  <span style={{ color: ACCENT_INK, fontSize: 14, flexShrink: 0 }}>✓</span>
                   <span style={{ fontFamily: SANS, fontSize: 13, color: FG, lineHeight: 1.5 }}>{item}</span>
                 </div>
               ))}
@@ -1689,7 +1691,7 @@ export default function FitnessWearableCaseStudy() {
             </div>
           </div>
           <div style={{ backgroundColor: FG, borderRadius: 20, padding: '24px 28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', margin: '0 0 20px' }}>Before vs. After</p>
+            <p style={{ fontFamily: MONO, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', margin: '0 0 20px' }}>Before vs. After</p>
             {[
               { metric: 'Touch target size',     before: '28 pt',       after: '48 pt' },
               { metric: 'Zone label format',     before: 'Color only',  after: 'Color + text' },
@@ -1698,7 +1700,7 @@ export default function FitnessWearableCaseStudy() {
             ].map((r, i, arr) => (
               <div key={r.metric} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px', gap: 12, padding: '12px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none', alignItems: 'center' }}>
                 <span style={{ fontFamily: SANS, fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{r.metric}</span>
-                <span style={{ fontFamily: MONO, fontSize: 12, color: 'rgba(255,255,255,0.28)', textDecoration: 'line-through' }}>{r.before}</span>
+                <span style={{ fontFamily: MONO, fontSize: 12, color: 'rgba(255,255,255,0.5)', textDecoration: 'line-through' }}>{r.before}</span>
                 <span style={{ fontFamily: MONO, fontSize: 13, color: ORANGE, fontWeight: 700 }}>{r.after}</span>
               </div>
             ))}
@@ -1723,7 +1725,7 @@ export default function FitnessWearableCaseStudy() {
             <div key={s.tab} style={{ border: HL, borderRadius: 16, padding: 24, backgroundColor: CARD }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: s.color }} />
-                <p style={{ fontFamily: MONO, fontSize: 10, color: s.color, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0, fontWeight: 700 }}>{s.tab} tab</p>
+                <p style={{ fontFamily: MONO, fontSize: 10, color: `color-mix(in oklab, ${s.color} 72%, black)`, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0, fontWeight: 700 }}>{s.tab} tab</p>
               </div>
               <p style={{ fontFamily: SANS, fontSize: 13, color: MUTED, lineHeight: 1.65, margin: 0 }}>{s.desc}</p>
             </div>
@@ -1787,11 +1789,11 @@ export default function FitnessWearableCaseStudy() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ backgroundColor: FG, borderRadius: 20, padding: '28px 28px' }}>
-              <p style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 16px' }}>Key takeaway</p>
+              <p style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 16px' }}>Key takeaway</p>
               <p style={{ fontFamily: SERIF, fontSize: 22, color: '#fff', lineHeight: 1.45, margin: '0 0 16px', fontWeight: 400 }}>
                 "The design problem was not how to display health data. It was how to translate health data into something a person could act on before breakfast."
               </p>
-              <p style={{ fontFamily: SANS, fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>Karishma Dilip Gawali · UX Designer</p>
+              <p style={{ fontFamily: SANS, fontSize: 12, color: 'rgba(255,255,255,0.58)', margin: 0 }}>Karishma Dilip Gawali · UX Designer</p>
             </div>
             <div style={{ border: HL, borderRadius: 16, padding: '22px 24px', backgroundColor: BONE }}>
               <p style={{ fontFamily: MONO, fontSize: 9, color: MUTED, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 12px' }}>Project details</p>

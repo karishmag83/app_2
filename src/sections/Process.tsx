@@ -35,7 +35,7 @@ export default function Process() {
 
         <div className="max-w-4xl mx-auto">
           <div
-            className="bg-white rounded-3xl p-8 lg:p-10 border-2"
+            className="bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border-2"
             style={{
               borderColor: 'var(--primary-color)',
               backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -53,7 +53,7 @@ export default function Process() {
                   standards so teams can move faster without losing craft.
                 </p>
               </div>
-              <div className="flex flex-col items-start">
+              <div className="flex w-full flex-col items-start lg:w-auto">
                 <div className="flex flex-wrap gap-3">
                   {processHighlights.map((item) => {
                     const Icon = item.icon
@@ -68,19 +68,19 @@ export default function Process() {
                     )
                   })}
                 </div>
+                {/* Same pill as the hero's primary button: full width on phones, arrow disc from tablet up */}
                 <a
                   href="/DesignSystem"
-                  className="mt-8 ml-8 inline-flex items-center gap-2 rounded-2xl px-9 py-4 text-lg font-semibold transition-all duration-300 hover:-translate-y-0.5"
-                  style={{
-                    backgroundColor: 'var(--primary-color)',
-                    color: 'white'
-                  }}
+                  className="hero-btn hero-btn-primary arrow-x group mt-7"
                   onClick={() => {
                     sessionStorage.setItem('homepage-scroll', String(window.scrollY))
                   }}
                 >
-                  Explore the Design System
-                  <ArrowRight className="w-5 h-5" />
+                  <span>Explore the design system</span>
+                  <span className="hero-btn-disc" aria-hidden="true">
+                    <ArrowRight className="hero-arrow" />
+                    <ArrowRight className="hero-arrow hero-arrow-next" />
+                  </span>
                 </a>
               </div>
             </div>

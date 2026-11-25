@@ -100,7 +100,7 @@ const testimonials: T[] = [
 ]
 
 /* ─── Avatar with initials fallback ─── */
-function Avatar({ t, size = 40, dark }: { t: T; size?: number; dark: boolean }) {
+function Avatar({ t, size = 40 }: { t: T; size?: number }) {
   const initials = t.name.split(' ').map(w => w[0]).slice(0, 2).join('')
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -108,7 +108,7 @@ function Avatar({ t, size = 40, dark }: { t: T; size?: number; dark: boolean }) 
         src={t.image}
         alt={t.name}
         className="w-full h-full rounded-full object-cover"
-        style={{ boxShadow: `0 0 0 2px ${dark ? '#1c1b28' : '#fff'}, 0 0 0 3.5px ${t.dotColor}50` }}
+        style={{ boxShadow: `0 0 0 2px var(--surface-color), 0 0 0 3.5px ${t.dotColor}50` }}
         onError={e => {
           const img = e.currentTarget
           img.style.display = 'none'
@@ -116,7 +116,7 @@ function Avatar({ t, size = 40, dark }: { t: T; size?: number; dark: boolean }) 
           if (!p.querySelector('.av-fallback')) {
             const el = document.createElement('div')
             el.className = 'av-fallback'
-            el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(size * 0.35)}px;color:#fff;background:${t.dotColor};box-shadow:0 0 0 2px ${dark ? '#1c1b28' : '#fff'},0 0 0 3.5px ${t.dotColor}50`
+            el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(size * 0.35)}px;color:#fff;background:${t.dotColor};box-shadow:0 0 0 2px var(--surface-color),0 0 0 3.5px ${t.dotColor}50`
             el.textContent = initials
             p.appendChild(el)
           }
@@ -128,15 +128,15 @@ function Avatar({ t, size = 40, dark }: { t: T; size?: number; dark: boolean }) 
 
 /* ─── Single marquee card ─── */
 function MarqueeCard({ t, dark }: { t: T; dark: boolean }) {
-  const cardBg    = dark ? '#1c1b28' : '#ffffff'
-  const cardBdr   = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'
+  const cardBg    = 'var(--surface-color)'
+  const cardBdr   = 'var(--border-color)'
   const cardShadow = dark
     ? '0 4px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04)'
     : '0 4px 28px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.03)'
-  const quoteColor = dark ? 'rgba(237,232,245,0.78)' : 'rgba(15,15,15,0.74)'
-  const nameColor  = dark ? '#ede8f5' : '#111827'
-  const metaColor  = dark ? 'rgba(237,232,245,0.42)' : 'rgba(0,0,0,0.44)'
-  const divColor   = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'
+  const quoteColor = 'var(--text-soft)'
+  const nameColor  = 'var(--text-color)'
+  const metaColor  = 'var(--subtle-color)'
+  const divColor   = 'var(--border-color)'
 
   return (
     <div
@@ -154,12 +154,12 @@ function MarqueeCard({ t, dark }: { t: T; dark: boolean }) {
       {/* Badge */}
       <div className="flex items-center justify-between mb-4">
         <div
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+          className="dot-ink inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
           style={{
             backgroundColor: `${t.dotColor}12`,
-            color: t.dotColor,
             border: `1px solid ${t.dotColor}28`,
-          }}
+            '--dot': t.dotColor,
+          } as React.CSSProperties}
         >
           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: t.dotColor }} />
           {t.badge}
@@ -190,7 +190,7 @@ function MarqueeCard({ t, dark }: { t: T; dark: boolean }) {
         className="flex items-center gap-3 pt-4"
         style={{ borderTop: `1px solid ${divColor}` }}
       >
-        <Avatar t={t} size={38} dark={dark} />
+        <Avatar t={t} size={38} />
         <div className="min-w-0">
           <div className="font-semibold text-sm truncate" style={{ color: nameColor }}>
             {t.name}
@@ -198,7 +198,7 @@ function MarqueeCard({ t, dark }: { t: T; dark: boolean }) {
           <div className="text-xs truncate mt-0.5" style={{ color: metaColor }}>
             {t.role}
           </div>
-          <div className="text-xs font-semibold mt-0.5" style={{ color: t.dotColor }}>
+          <div className="dot-ink text-xs font-semibold mt-0.5" style={{ '--dot': t.dotColor } as React.CSSProperties}>
             {t.company}
           </div>
         </div>
@@ -332,8 +332,7 @@ export default function Testimonials() {
             Words from people I've worked with
           </h2>
           <p className="text-lg opacity-60 leading-relaxed">
-            Real recommendations from clients, managers, and collaborators —
-            verified on LinkedIn.
+            Real recommendations from clients, managers, and collaborators, verified on LinkedIn.
           </p>
         </div>
 
@@ -374,12 +373,12 @@ export default function Testimonials() {
             href="https://www.linkedin.com/in/karishmagawali/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300"
+            className="dot-ink inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300"
             style={{
               backgroundColor: 'rgba(10,102,194,0.07)',
-              color: '#0A66C2',
+              '--dot': '#0A66C2',
               border: '1px solid rgba(10,102,194,0.18)',
-            }}
+            } as React.CSSProperties}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(10,102,194,0.13)')}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgba(10,102,194,0.07)')}
           >

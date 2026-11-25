@@ -77,7 +77,7 @@ const InformationArchitecture = () => {
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={isInView ? { scale: 1, opacity: 1 } : {}}
                   transition={{ duration: 0.5, delay: 0.3 }}
-                  className="bg-primary text-black px-6 py-4 rounded-2xl font-semibold flex items-center gap-2 shadow-md"
+                  className="bg-primary text-white px-6 py-4 rounded-2xl font-semibold flex items-center gap-2 shadow-md"
                 >
                   <Home className="w-5 h-5" />
                   Landing Page
@@ -106,8 +106,8 @@ const InformationArchitecture = () => {
                     className="flex flex-col items-center"
                   >
                     <div className="w-0.5 h-4 bg-border mb-2" />
-                    <div className={`${item.color} text-black px-5 py-3 rounded-xl font-medium flex items-center gap-2 shadow-md`}>
-                      <item.icon className="w-4 h-4 text-black" />
+                    <div className={`${item.color} text-white px-5 py-3 rounded-xl font-medium flex items-center gap-2 shadow-md`}>
+                      <item.icon className="w-4 h-4 text-white" />
                       {item.label}
                     </div>
                   </motion.div>

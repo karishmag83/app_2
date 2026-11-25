@@ -93,7 +93,7 @@ export default function Skills() {
             <div className="w-12 h-12 rounded-xl flex items-center justify-center"
               style={{ backgroundColor: 'var(--primary-color)' }}
             >
-              <Palette className="w-6 h-6 text-white" />
+              <Palette className="w-6 h-6 text-on-primary" />
             </div>
             <div>
               <h3 className="text-2xl font-display font-semibold">Design Stack</h3>
@@ -136,7 +136,7 @@ export default function Skills() {
             <div className="w-12 h-12 rounded-xl flex items-center justify-center"
               style={{ backgroundColor: 'var(--primary-color)' }}
             >
-              <Code2 className="w-6 h-6 text-white" />
+              <Code2 className="w-6 h-6 text-on-primary" />
             </div>
             <div>
               <h3 className="text-2xl font-display font-semibold">Tech Stack</h3>

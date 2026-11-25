@@ -64,7 +64,7 @@ const Footer = () => {
           {/* Social links */}
           <div className="flex justify-center gap-4">
             <a 
-              href="mailto:hello@example.com" 
+              href="mailto:karishmadilipgawali@gmail.com" 
               className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
               aria-label="Email"
               style={{ background: `hsl(var(--repack-secondary))`, color: `hsl(var(--repack-muted-foreground))` }}

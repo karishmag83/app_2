@@ -1,306 +1,261 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Download, Briefcase, GraduationCap, Award } from 'lucide-react'
+import { ArrowUpRight, FileText, MapPin } from 'lucide-react'
+import {
+  EDUCATION,
+  EXPERIENCE,
+  LEADERSHIP,
+  PROFILE,
+  TEACHING_RESEARCH,
+  type CareerItem,
+} from '../data/profile.ts'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const workHistory = [
-  {
-    company: 'Roux Institute, Northeastern University',
-    role: 'Full Stack Web Developer Co-op',
-    year: '2025',
-  },
-  {
-    company: 'Webtech Digital Solutions, Mumbai, India',
-    role: 'User Experience Designer, Intern',
-    year: '2022',
-  },
-]
+/** Muted body copy with key phrases lifted to full contrast. */
+function Lift({ children }: { children: React.ReactNode }) {
+  return <span className="font-medium" style={{ color: 'var(--text-color)' }}>{children}</span>
+}
 
-const teachingResearch = [
-  {
-    company: 'Northeastern University, Boston, MA',
-    role: 'AI for UX - Graduate Head Teaching Assistant',
-    year: '2024 - 2025',
-  },
-  {
-    company: 'University of Mumbai, Mumbai, IN',
-    role: 'Research Scientist - Human Computer Interaction',
-    year: '2022 - 2023',
-  },
-]
+/** "Apr 2026 – Present" -> "2026", "Jan 2021 – Jul 2023" -> "2021 – 2023". */
+function yearsOf(period: string) {
+  const years = [...new Set(period.match(/\d{4}/g) ?? [])]
+  return years.length > 1 ? `${years[0]} – ${years[years.length - 1]}` : years[0] ?? period
+}
 
-const education = [
-  {
-    school: 'Northeastern University, Boston, MA',
-    degree: 'Master of Science in Information Systems',
-    year: '2023 - 2025',
-  },
-  {
-    school: 'University of Mumbai, Mumbai, MH, India',
-    degree: 'PG Diploma in IT · Bachelor of Computer Applications',
-    year: '2018 - 2022',
-  },
-]
+/** "Roux Institute, Northeastern University" -> name "Roux Institute", parent "Northeastern University". */
+function splitOrg(org: string) {
+  const [name, ...rest] = org.split(',').map(part => part.trim())
+  return { name, parent: rest.join(', ') || undefined }
+}
+
+/** The organization's logo on a white tile, like an app icon. */
+function OrgLogo({ item, size }: { item: CareerItem; size: 'lg' | 'md' }) {
+  const box = size === 'lg' ? 'h-14 w-14 rounded-[16px]' : 'h-12 w-12 rounded-[14px]'
+  return (
+    <span className={`career-logo block shrink-0 overflow-hidden ${box}`}>
+      {item.logo && <img src={item.logo} alt="" className="h-full w-full object-contain" loading="lazy" decoding="async" />}
+    </span>
+  )
+}
+
+/** One role in the experience ledger. */
+function RoleRow({ role }: { role: CareerItem }) {
+  const { name, parent } = splitOrg(role.org)
+  return (
+    <li className="career-row grid gap-6 px-6 py-8 sm:px-10 sm:py-10 md:grid-cols-12 md:gap-10">
+      <div className="flex gap-4 sm:gap-5 md:col-span-5">
+        <OrgLogo item={role} size="lg" />
+        <div className="min-w-0 pt-0.5">
+          <h4 className="font-display text-[1.55rem] font-semibold leading-tight tracking-tight sm:text-[1.7rem]" style={{ color: 'var(--text-color)' }}>
+            {name}
+          </h4>
+          {parent && <p className="mt-0.5 text-[14px] leading-snug" style={{ color: 'var(--muted-color)' }}>{parent}</p>}
+          <p className="mt-2 text-[15px] font-medium leading-snug" style={{ color: 'var(--text-soft)' }}>{role.title}</p>
+          <p className="career-year mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px]">
+            <span className="tabular-nums">{yearsOf(role.period)}</span>
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              {role.location}
+            </span>
+          </p>
+        </div>
+      </div>
+      <div className="md:col-span-7 md:pt-1">
+        {role.brief && (
+          <p className="text-[16px] leading-[1.7] sm:text-[17px]" style={{ color: 'var(--muted-color)' }}>{role.brief}</p>
+        )}
+        {role.areas?.length ? (
+          <ul className="mt-5 flex flex-wrap gap-2" aria-label="Focus areas">
+            {role.areas.map(area => (
+              <li key={area} className="career-chip rounded-full px-3 py-1 text-[13px] font-medium">{area}</li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+    </li>
+  )
+}
+
+/** A full-width card whose cells share one anatomy: logo and years, then organization and role. */
+function CareerGroup({ title, items, columns }: { title: string; items: CareerItem[]; columns: 2 | 3 }) {
+  return (
+    <section className="career-reveal mt-16 sm:mt-20" aria-label={title}>
+      <div className="mb-6 flex items-center gap-5 sm:mb-7">
+        <h4 className="font-display text-[1.6rem] font-semibold tracking-tight sm:text-[1.85rem]">{title}</h4>
+        <span className="h-px flex-1" style={{ backgroundColor: 'var(--border-color)' }} aria-hidden="true" />
+      </div>
+      <ul className={`career-card career-cells grid rounded-[28px] ${columns === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+        {items.map(item => {
+          const { name } = splitOrg(item.org)
+          return (
+            <li key={item.id} className="career-cell flex flex-col p-6 sm:p-8">
+              <div className="flex items-start justify-between gap-4">
+                <OrgLogo item={item} size="md" />
+                <span className="career-year pt-1 text-[14px] tabular-nums">{yearsOf(item.period)}</span>
+              </div>
+              <p className="mt-6 font-display text-[1.3rem] font-semibold leading-snug tracking-tight sm:text-[1.4rem]" style={{ color: 'var(--text-color)' }}>
+                {name}
+              </p>
+              <p className="mt-1.5 text-[15px] font-medium leading-snug" style={{ color: 'var(--text-soft)' }}>{item.title}</p>
+              {item.focus && <p className="mt-1 text-[14px] leading-snug" style={{ color: 'var(--muted-color)' }}>{item.focus}</p>}
+              <p className="career-year mt-auto inline-flex items-center gap-1 pt-4 text-[14px]">
+                <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                {item.location}
+              </p>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null)
-  const imageRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+
     const ctx = gsap.context(() => {
-      const sectionEl = sectionRef.current
-      const contentEl = contentRef.current
-      const shapeEl = sectionEl?.querySelector('.about-shape')
-      const labelEls = sectionEl?.querySelectorAll('.about-label') ?? []
-      const headingEls = sectionEl?.querySelectorAll('.about-heading') ?? []
-      const textEls = sectionEl?.querySelectorAll('.about-text') ?? []
-      const timelineSectionEl = sectionEl?.querySelector('.timeline-section')
-      const timelineItemEls = sectionEl?.querySelectorAll('.timeline-item') ?? []
-
-      // Image reveal animation
-      if (imageRef.current && sectionEl) {
-        gsap.from(imageRef.current, {
-          x: -100,
-          opacity: 0,
-          duration: 0.9,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionEl,
-            start: 'top 70%',
-            toggleActions: 'play none none reverse',
-          }
-        })
+      const frame = section.querySelector('.about-photo-frame')
+      const img = section.querySelector('.about-photo img')
+      if (frame && img) {
+        gsap.timeline({ scrollTrigger: { trigger: frame, start: 'top 80%', toggleActions: 'play none none none' } })
+          .fromTo(frame,
+            { clipPath: 'inset(12% 6% 0% 6% round 28px)', opacity: 0 },
+            { clipPath: 'inset(0% 0% 0% 0% round 28px)', opacity: 1, duration: 1.3, ease: 'expo.out' })
+          .fromTo(img, { scale: 1.12 }, { scale: 1, duration: 1.6, ease: 'expo.out' }, 0)
       }
 
-      // Decorative shape
-      if (shapeEl && sectionEl) {
-        gsap.from(shapeEl, {
-          scale: 0,
-          rotation: -180,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'back.out(1.7)',
-          scrollTrigger: {
-            trigger: sectionEl,
-            start: 'top 60%',
-            toggleActions: 'play none none reverse',
-          }
+      gsap.utils.toArray<HTMLElement>('.about-reveal').forEach(el => {
+        gsap.fromTo(el, { y: 28, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 1, ease: 'expo.out',
+          scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
         })
-      }
+      })
 
-      // Content animations
-      if (labelEls.length > 0 && contentEl) {
-        gsap.from(labelEls, {
-          opacity: 0,
-          duration: 0.4,
-          scrollTrigger: {
-            trigger: contentEl,
-            start: 'top 70%',
-            toggleActions: 'play none none reverse',
-          }
-        })
-      }
-
-      if (headingEls.length > 0 && contentEl) {
-        gsap.from(headingEls, {
-          y: 50,
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: contentEl,
-            start: 'top 65%',
-            toggleActions: 'play none none reverse',
-          }
-        })
-      }
-
-      if (textEls.length > 0 && contentEl) {
-        gsap.from(textEls, {
-          y: 20,
-          opacity: 0,
-          duration: 0.4,
-          stagger: 0.1,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: contentEl,
-            start: 'top 60%',
-            toggleActions: 'play none none reverse',
-          }
-        })
-      }
-
-      // Timeline items
-      if (timelineItemEls.length > 0 && timelineSectionEl) {
-        gsap.from(timelineItemEls, {
-          x: 30,
-          opacity: 0,
-          duration: 0.5,
-          stagger: 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: timelineSectionEl,
-            start: 'top 75%',
-            toggleActions: 'play none none reverse',
-          }
-        })
-      }
-
-      // Parallax effects
-      if (sectionEl) {
-        ScrollTrigger.create({
-          trigger: sectionEl,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1,
-          onUpdate: (self) => {
-            const progress = self.progress
-            if (imageRef.current) {
-              gsap.set(imageRef.current, { y: (progress - 0.5) * 100 })
-            }
-          }
-        })
-      }
-    }, sectionRef)
+      // Experience rows and the two smaller cards rise in sequence as they enter
+      const items = gsap.utils.toArray<HTMLElement>('.career-ledger > .career-row, .career-reveal')
+      gsap.set(items, { opacity: 0 })
+      ScrollTrigger.batch(items, {
+        start: 'top 90%',
+        once: true,
+        onEnter: batch => gsap.fromTo(batch,
+          { y: 28, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, stagger: 0.09, ease: 'expo.out', overwrite: true }),
+      })
+    }, section)
 
     return () => ctx.revert()
   }, [])
 
+  const scrollToContact = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
-    <section 
-      ref={sectionRef}
-      id="about"
-      className="py-24 lg:py-32 overflow-hidden"
-    >
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Main About Section */}
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start mb-32">
-          {/* Image */}
-          <div ref={imageRef} className="relative lg:sticky lg:top-32">
-            <div className="relative aspect-[3/4] max-w-md mx-auto lg:max-w-none">
-              {/* Background shape */}
-              <div className="absolute -inset-4 rounded-[3rem] -rotate-3 opacity-20"
-                style={{ backgroundColor: 'var(--primary-color)' }}
+    <section ref={sectionRef} id="about" className="relative overflow-hidden py-24 lg:py-32 scroll-mt-24">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* Header, same pattern as every section on the page */}
+        <div className="about-reveal mx-auto mb-14 max-w-3xl text-center lg:mb-20">
+          <span className="mb-4 inline-block text-sm font-medium uppercase tracking-wider opacity-60" style={{ color: 'var(--primary-color)' }}>
+            About Me
+          </span>
+          <h2 className="font-display text-4xl font-semibold leading-[1.12] lg:text-5xl">
+            I design products that make complex work feel{' '}
+            <em className="italic" style={{ color: 'var(--primary-color)' }}>effortless.</em>
+          </h2>
+        </div>
+
+        {/* Portrait and story */}
+        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-12 lg:gap-20">
+          <figure className="about-photo mx-auto w-full max-w-md lg:col-span-5 lg:max-w-none">
+            <div className="about-photo-frame relative aspect-[4/5] overflow-hidden rounded-[28px]" style={{ border: '1px solid var(--border-color)' }}>
+              <img
+                src="/karishma-photo.jpg"
+                alt="Karishma Dilip Gawali smiling by the waterfront"
+                className="h-full w-full object-cover"
+                style={{ objectPosition: '50% 45%' }}
               />
-              
-              {/* Main image */}
-              <div className="relative rounded-[2.5rem] overflow-hidden shadow-soft-xl">
-                <img 
-                  src="/karishma-photo.jpg" 
-                  alt="Karishma Dilip Gawali"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                />
-              </div>
+            </div>
+          </figure>
+
+          <div className="lg:col-span-7">
+            <div className="space-y-6 text-lg leading-[1.75]" style={{ color: 'var(--muted-color)' }}>
+              <p className="about-reveal">
+                I am Karishma, a product designer who transforms <Lift>complex, high-stakes workflows into products people trust.</Lift>{' '}
+                With more than four years of experience, I have guided web and mobile products from early research through
+                launch across enterprise software, conversational AI, healthcare, and fintech.
+              </p>
+              <p className="about-reveal">
+                My practice combines user research and interaction design with <Lift>front-end development in React and
+                TypeScript</Lift>, so the work I deliver is buildable, accessible, and measurable. I treat accessibility as the
+                foundation of every design rather than a final review, and I am equally committed to mentoring the next
+                generation of designers.
+              </p>
+            </div>
+
+            <div className="about-reveal mt-10 flex flex-wrap gap-3">
+              <a
+                href={PROFILE.resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="about-cta-primary inline-flex items-center gap-2.5 rounded-full px-6 py-3.5 text-[15px] font-semibold"
+                style={{ backgroundColor: 'var(--primary-color)', color: 'var(--on-primary)' }}
+              >
+                <FileText className="h-[18px] w-[18px]" aria-hidden="true" />
+                View my résumé
+                <ArrowUpRight className="h-4 w-4 opacity-80" aria-hidden="true" />
+              </a>
+              <a
+                href="#contact"
+                onClick={scrollToContact}
+                className="about-cta-secondary inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-[15px] font-semibold"
+                style={{ border: '1px solid var(--border-color)', color: 'var(--text-color)' }}
+              >
+                Get in touch
+              </a>
             </div>
           </div>
+        </div>
 
-          {/* Content */}
-          <div ref={contentRef}>
-            <span className="about-label inline-block text-sm font-medium uppercase tracking-wider mb-4 opacity-60"
-              style={{ color: 'var(--primary-color)' }}
-            >
-              About Me
-            </span>
-            
-            <h2 className="about-heading text-4xl lg:text-5xl font-display font-semibold mb-6 leading-tight">
-              Designing experiences that solve real-world problems.
-            </h2>
-
-            <div className="space-y-4 opacity-70 leading-relaxed mb-8">
-              <p className="about-text">
-                I'm a Product Designer and Software Engineer who works across the full stack of a product — from early research and strategy through to production code. My background spans healthcare AI, fintech, and consumer apps, and I've shipped work that's driven measurable outcomes, not just beautiful screens.
-              </p>
-              <p className="about-text">
-                I bridge the gap between design and engineering by thinking in systems: scalable components, accessible interactions, and data-driven decisions. I've led UX for AI-powered tools, built design systems from the ground up, and taken products from zero to launch.
-              </p>
-              <p className="about-text">
-                Outside of work I research human-computer interaction, teach AI for UX at Northeastern, and believe the best products are built when designers who can code sit next to engineers who care about people.
+        {/* Career: a clean ledger, the way a recruiter reads a résumé */}
+        <div id="experience" className="mx-auto mt-28 max-w-6xl scroll-mt-24 lg:mt-36">
+          <div className="about-reveal mb-10 flex flex-col gap-5 md:mb-12 md:flex-row md:items-end md:justify-between md:gap-10">
+            <div className="max-w-2xl">
+              <span className="mb-4 inline-block text-sm font-medium uppercase tracking-wider opacity-60" style={{ color: 'var(--primary-color)' }}>
+                Career
+              </span>
+              <h3 className="font-display text-4xl font-semibold lg:text-5xl">Experience</h3>
+              <p className="mt-4 text-lg leading-relaxed" style={{ color: 'var(--muted-color)' }}>
+                Product design and front-end development across enterprise software, healthcare, and fintech.
               </p>
             </div>
-
-            {/* CTA */}
-            <a 
-              href="https://drive.google.com/file/d/10FNZy2Uh4MDCWBEGBQI28wgOdyVGbkIs/view"
+            <a
+              href={PROFILE.resumeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="about-text inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-white transition-colors group"
-              style={{ backgroundColor: 'var(--primary-color)' }}
+              className="career-resume group inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-5 py-2.5 text-[15px] font-semibold md:self-auto"
             >
-              <Download className="w-5 h-5 group-hover:animate-bounce" />
-              Check my Resume
+              Full résumé
+              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
             </a>
           </div>
-        </div>
 
-        {/* Timeline Section */}
-        <div className="timeline-section grid md:grid-cols-2 lg:grid-cols-3 gap-8 pt-6">
-          {/* Work History */}
-          <div className="bg-white rounded-3xl p-6 shadow-soft">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                style={{ backgroundColor: 'var(--primary-color)' }}
-              >
-                <Briefcase className="w-5 h-5" />
-              </div>
-              <h3 className="font-display font-semibold text-xl">Work History</h3>
-            </div>
-            <div className="space-y-4">
-              {workHistory.map((item, index) => (
-                <div key={index} className="timeline-item border-l-2 pl-4" style={{ borderColor: 'var(--bg-color)' }}>
-                  <div className="font-semibold text-sm">{item.company}</div>
-                  <div className="opacity-60 text-sm">{item.role}</div>
-                  <div className="opacity-40 text-xs mt-1">{item.year}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <ol className="career-card career-ledger rounded-[28px]" aria-label="Work experience">
+            {EXPERIENCE.map(role => <RoleRow key={role.id} role={role} />)}
+          </ol>
 
-          {/* Teaching & Research */}
-          <div className="bg-white rounded-3xl p-6 shadow-soft">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                style={{ backgroundColor: 'var(--primary-color)' }}
-              >
-                <Award className="w-5 h-5" />
-              </div>
-              <h3 className="font-display font-semibold text-xl">Teaching & Research</h3>
-            </div>
-            <div className="space-y-4">
-              {teachingResearch.map((item, index) => (
-                <div key={index} className="timeline-item border-l-2 pl-4" style={{ borderColor: 'var(--bg-color)' }}>
-                  <div className="font-semibold text-sm">{item.company}</div>
-                  <div className="opacity-60 text-sm">{item.role}</div>
-                  <div className="opacity-40 text-xs mt-1">{item.year}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Education */}
-          <div className="bg-white rounded-3xl p-6 shadow-soft">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                style={{ backgroundColor: 'var(--primary-color)' }}
-              >
-                <GraduationCap className="w-5 h-5" />
-              </div>
-              <h3 className="font-display font-semibold text-xl">Education</h3>
-            </div>
-            <div className="space-y-4">
-              {education.map((item, index) => (
-                <div key={index} className="timeline-item border-l-2 pl-4" style={{ borderColor: 'var(--bg-color)' }}>
-                  <div className="font-semibold text-sm">{item.school}</div>
-                  <div className="opacity-60 text-sm">{item.degree}</div>
-                  <div className="opacity-40 text-xs mt-1">{item.year}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <CareerGroup title="Education" items={EDUCATION} columns={2} />
+          <CareerGroup title="Teaching, research, and leadership" items={[...TEACHING_RESEARCH, ...LEADERSHIP]} columns={3} />
         </div>
       </div>
+
     </section>
   )
 }

@@ -43,7 +43,7 @@ const CaseStudyFooter = () => {
             className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-16"
           >
             <a
-              href="mailto:karishmaworks08@gmail.com"
+              href="mailto:karishmadilipgawali@gmail.com"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-colors"
             >
               <Mail className="w-5 h-5" />
