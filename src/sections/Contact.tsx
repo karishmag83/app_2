@@ -2,11 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Mail, Phone, MapPin, Send, CheckCircle, MessageCircle } from 'lucide-react'
+import { PROFILE } from '../data/profile'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Messages are relayed to Karishma's inbox by FormSubmit (formsubmit.co), so the
+// form needs no passwords or server settings and works on every domain.
+const CONTACT_ENDPOINT = `https://formsubmit.co/ajax/${PROFILE.email}`
+const SEND_FAILED = `Your message couldn't be sent. Please email me at ${PROFILE.email}.`
+
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null)
+  const honeypotRef = useRef<HTMLInputElement>(null)
   const [formState, setFormState] = useState({
     name: '',
     email: '',
@@ -70,22 +77,27 @@ export default function Contact() {
     setSubmitError('')
 
     try {
-      const response = await fetch('/.netlify/functions/contact', {
+      const response = await fetch(CONTACT_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
         body: JSON.stringify({
           name: formState.name,
           email: formState.email,
           subject: formState.subject,
           message: formState.message,
+          _subject: `[Portfolio] ${formState.subject}`,
+          _replyto: formState.email,
+          _template: 'table',
+          _honey: honeypotRef.current?.value ?? '',
         }),
       })
 
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({}))
-        throw new Error(errorBody.error || 'Failed to send. Please try again.')
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok || String(result.success) !== 'true') {
+        throw new Error(result.message || `Contact relay answered ${response.status}`)
       }
 
       setIsSubmitted(true)
@@ -95,10 +107,7 @@ export default function Contact() {
       }, 3000)
     } catch (error) {
       console.error('Contact form submit failed', error)
-      const message = error instanceof Error
-        ? error.message
-        : 'Failed to send. Please try again.'
-      setSubmitError(message)
+      setSubmitError(SEND_FAILED)
     } finally {
       setIsSubmitting(false)
     }
@@ -140,6 +149,16 @@ export default function Contact() {
           {/* Form */}
           <div className="lg:col-span-3">
             <form onSubmit={handleSubmit} className="contact-form space-y-6">
+              {/* Spam trap: hidden from people, often filled in by bots. FormSubmit drops those. */}
+              <input
+                ref={honeypotRef}
+                type="text"
+                name="_honey"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="hidden"
+              />
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="form-field">
                   <label htmlFor="name" className="block text-sm font-medium mb-2 opacity-80">
@@ -257,7 +276,7 @@ export default function Contact() {
                 <div>
                   <h3 className="font-display font-semibold mb-1">Email</h3>
                   <a 
-                    href="mailto:karishmadilipgawali@gmail.com"
+                    href={`mailto:${PROFILE.email}`}
                     className="opacity-60 hover:opacity-100 transition-opacity"
                   >
                     karishmadilipgawali@gmail.com
