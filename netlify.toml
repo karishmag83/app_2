@@ -8,6 +8,14 @@
 [functions]
   directory = "netlify/functions"
 
+# The old gawali.netlify.app address forwards to the real domain. It only matches
+# requests made to that host, so karishmagawali.netlify.app is unaffected.
+[[redirects]]
+  from = "https://gawali.netlify.app/*"
+  to = "https://karishmagawali.netlify.app/:splat"
+  status = 301
+  force = true
+
 # Karishma's AI (streams from netlify/functions/chat.mts)
 [[redirects]]
   from = "/api/chat"
