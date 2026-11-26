@@ -545,7 +545,7 @@ function ContactScreen() {
       },
     },
     { label: 'LinkedIn', value: 'linkedin.com/in/karishmagawali', icon: '💼', hint: 'View profile →', hintColor: t.accent, action: () => window.open('https://www.linkedin.com/in/karishmagawali/', '_blank') },
-    { label: 'Portfolio', value: 'karishmaworks.netlify.app', icon: '🌐', hint: 'View site →', hintColor: t.accent, action: () => window.open('https://karishmaworks.netlify.app/', '_blank') },
+    { label: 'Portfolio', value: 'karishmagawali.netlify.app', icon: '🌐', hint: 'View site →', hintColor: t.accent, action: () => window.open('https://karishmagawali.netlify.app/', '_blank') },
     { label: 'Resume', value: 'View in About section', icon: '📄', hint: 'Go there →', hintColor: t.dark ? '#c4b5fd' : '#6d28d9', action: () => { const el = document.querySelector('#about'); if (el) el.scrollIntoView({ behavior: 'smooth' }) } },
   ]
 
